@@ -1,3 +1,12 @@
+/**
+ * File: src/assets/emailTemplates.js
+ * Description: Responsive HTML email templates with dynamic placeholders for Email Verification and Password Reset OTP notifications.
+ * 
+ * Steps:
+ * 1. EMAIL_VERIFY_TEMPLATE generates responsive HTML email container with {{email}} and {{otp}} placeholders for email verification.
+ * 2. PASSWORD_RESET_TEMPLATE generates responsive HTML email container with {{email}} and {{otp}} placeholders for password recovery.
+ */
+
 export const EMAIL_VERIFY_TEMPLATE = `
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -105,11 +114,9 @@ export const EMAIL_VERIFY_TEMPLATE = `
   </table>
 </body>
 </html>
-
 `
 
 export const PASSWORD_RESET_TEMPLATE = `
-
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 
@@ -217,4 +224,3 @@ export const PASSWORD_RESET_TEMPLATE = `
 </body>
 </html>
 `
-
