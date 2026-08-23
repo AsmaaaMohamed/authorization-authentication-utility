@@ -1,3 +1,12 @@
+/**
+ * File: src/assets/assets.js
+ * Description: Static assets manifest importing and exporting SVG icons and PNG visual media for UI components.
+ * 
+ * Steps:
+ * 1. Imports SVG icons (arrow, lock, logo, mail, person) and PNG graphic assets (hand_wave, header_img).
+ * 2. Bundles and exports assets dictionary object.
+ */
+
 import arrow_icon from './arrow_icon.svg'
 import lock_icon from './lock_icon.svg'
 import logo from './logo.svg'
@@ -7,11 +16,11 @@ import hand_wave from './hand_wave.png'
 import header_img from './header_img.png'
 
 export const assets = {
-    arrow_icon,
-    lock_icon,
-    logo,
-    mail_icon,
-    person_icon,
-    hand_wave,
-    header_img
+  arrow_icon,
+  lock_icon,
+  logo,
+  mail_icon,
+  person_icon,
+  hand_wave,
+  header_img
 }
