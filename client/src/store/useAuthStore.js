@@ -1,58 +1,148 @@
-/**
- * File: src/store/useAuthStore.js
- * Description: Global Zustand state management store handling user authentication status, user profile data, session loading states, and backend network operations.
- * 
- * Steps:
- * 1. Creates Zustand store holding state variables: backendUrl, isLoggedIn, userData, and isLoading.
- * 2. Exposes synchronous setters: setIsLoggedIn, setUserData, setIsLoading.
- * 3. getUserData makes authenticated GET request to /api/user/data and synchronizes userData and isLoggedIn in global state.
- * 4. logout triggers POST request to /api/auth/logout, resets store state, and provides user feedback toast.
- * 5. Exports useAuthStore hook.
- */
-
 import { create } from "zustand";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-export const useAuthStore = create((set, get) => ({
-  backendUrl: import.meta.env.VITE_BACKEND_URL || "http://localhost:5000",
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "";
+
+axios.defaults.withCredentials = true;
+
+export const useAuthStore = create((set) => ({
+  // ==================== State ====================
+
   isLoggedIn: false,
   userData: null,
   isLoading: false,
 
-  setIsLoggedIn: (isLoggedIn) => set({ isLoggedIn }),
-  setUserData: (userData) => set({ userData }),
-  setIsLoading: (isLoading) => set({ isLoading }),
+  // ==================== Signup ====================
 
-  getUserData: async () => {
+  signup: async (name, email, password) => {
     try {
       set({ isLoading: true });
-      const { backendUrl } = get();
-      axios.defaults.withCredentials = true;
-      const { data } = await axios.get(`${backendUrl}/api/user/data`);
+
+      const { data } = await axios.post(
+        `${backendUrl}/api/auth/register`,
+        {
+          name,
+          email,
+          password,
+        }
+      );
+
       if (data.success) {
-        set({ userData: data.userData, isLoggedIn: true });
+        toast.success(data.message || "Account created successfully");
+
+        set({
+          isLoggedIn: true,
+          userData: data.userData || null,
+        });
       } else {
-        toast.error(data.message || "Failed to fetch user data");
+        toast.error(data.message || "Signup failed");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || error.message);
+      toast.error(
+        error.response?.data?.message || error.message
+      );
     } finally {
       set({ isLoading: false });
     }
   },
 
-  logout: async () => {
+  // ==================== Login ====================
+
+  login: async (email, password) => {
     try {
-      const { backendUrl } = get();
-      axios.defaults.withCredentials = true;
-      const { data } = await axios.post(`${backendUrl}/api/auth/logout`);
+      set({ isLoading: true });
+
+      const { data } = await axios.post(
+        `${backendUrl}/api/auth/login`,
+        {
+          email,
+          password,
+        }
+      );
+
       if (data.success) {
-        set({ isLoggedIn: false, userData: null });
-        toast.success(data.message || "Logged out successfully");
+        toast.success(data.message || "Logged in successfully");
+
+        set({
+          isLoggedIn: true,
+          userData: data.userData || null,
+        });
+      } else {
+        toast.error(data.message || "Login failed");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || error.message);
+      toast.error(
+        error.response?.data?.message || error.message
+      );
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  // ==================== Get User Data ====================
+
+  getUserData: async () => {
+    try {
+      set({ isLoading: true });
+
+      const { data } = await axios.get(
+        `${backendUrl}/api/user/data`
+      );
+
+      if (data.success) {
+        set({
+          userData: data.userData,
+          isLoggedIn: true,
+        });
+      } else {
+        set({
+          userData: null,
+          isLoggedIn: false,
+        });
+      }
+    } catch (error) {
+      set({
+        userData: null,
+        isLoggedIn: false,
+      });
+
+      toast.error(
+        error.response?.data?.message || error.message
+      );
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  // ==================== Logout ====================
+
+  logout: async () => {
+    try {
+      set({ isLoading: true });
+
+      const { data } = await axios.post(
+        `${backendUrl}/api/auth/logout`
+      );
+
+      if (data.success) {
+        set({
+          isLoggedIn: false,
+          userData: null,
+        });
+
+        toast.success(
+          data.message || "Logged out successfully"
+        );
+      } else {
+        toast.error(data.message || "Logout failed");
+      }
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || error.message
+      );
+    } finally {
+      set({ isLoading: false });
     }
   },
 }));

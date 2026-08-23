@@ -10,7 +10,7 @@ export default function AuthCard({ children, className = "" }) {
         shadow-2xl
         ${className}
       `}
-      AuthCard
+
     >
       {children}
     </div>

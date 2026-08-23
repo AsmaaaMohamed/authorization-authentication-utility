@@ -11,7 +11,7 @@
  * 6. Renders responsive dark-themed glassmorphism card containing interactive forms corresponding to the active stage.
  */
 
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -21,7 +21,6 @@ import { useAuthStore } from "../../store";
 const ResetPassword = () => {
   const navigate = useNavigate();
   const backendUrl = useAuthStore((state) => state.backendUrl);
-
   const [email, setEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -29,7 +28,6 @@ const ResetPassword = () => {
   const [otp, setOtp] = useState("");
   const [isOtpSubmitted, setIsOtpSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-
   const inputRefs = useRef([]);
 
   const handleOtpInput = (e, index) => {
@@ -137,25 +135,9 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-linear-to-br from-slate-950 via-slate-900 to-indigo-950 px-4 sm:px-6">
-      <img
-        src={assets.bg_img}
-        alt=""
-        aria-hidden="true"
-        className="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none"
-      />
+    <div className="relative min-h-screen flex items-center justify-center px-4 sm:px-6">
 
-      <header className="absolute top-6 left-6 sm:left-10 z-20">
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 transition-transform hover:scale-105"
-          aria-label="Go to homepage"
-        >
-          <img src={assets.logo} alt="Logo" className="w-28 sm:w-32" />
-        </Link>
-      </header>
-
-      <main className="relative z-10 w-full max-w-md bg-slate-900/80 backdrop-blur-xl border border-slate-700/60 rounded-3xl p-8 sm:p-10 shadow-2xl shadow-indigo-950/50">
+      <main className="relative z-10 w-full max-w-md bg-slate-900  border border-slate-700/60 rounded-3xl p-8 sm:p-10 shadow-2xl shadow-indigo-950/50">
         {!isEmailSent && (
           <form
             onSubmit={handleSendOtp}
