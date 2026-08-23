@@ -20,12 +20,6 @@ export default function SignupForm() {
 
         <Input icon={Lock} type="password" placeholder="Password" />
 
-        <div className="pt-1">
-          <a href="/forgot-password" className="text-xs text-[#5d6ef5]">
-            Forgot Password?
-          </a>
-        </div>
-
         <Button type="submit">Sign Up</Button>
       </form>
 

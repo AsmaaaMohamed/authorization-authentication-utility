@@ -4,4 +4,11 @@
 * {
   font-family: "Outfit", sans-serif;
 }
-
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #d1d5db;
+  -webkit-box-shadow: 0 0 0 1000px #333a5c inset;
+  box-shadow: 0 0 0 1000px #333a5c inset;
+}
