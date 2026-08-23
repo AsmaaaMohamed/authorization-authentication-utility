@@ -15,8 +15,8 @@ import React, { useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { assets } from "../assets/assets";
-import { useAuthStore } from "../store";
+import { assets } from "../../assets/assets";
+import { useAuthStore } from "../../store";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
