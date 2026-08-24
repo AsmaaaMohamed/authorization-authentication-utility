@@ -1,18 +1,11 @@
-// validate middleware for zod validation
+/**
+ * File: src/middlewares/middleware.js
+ * Description: Barrel export module consolidating authentication, authorization, and upload middlewares for centralized imports.
+ *
+ * Steps:
+ * 1. Re-exports all authentication and RBAC guards from authMiddleware.js.
+ * 2. Re-exports all Multer upload processing and error handling from uploadMiddleware.js.
+ */
 
-export const validate = (schema) => {
-  return (req, res, next) => {
-    const result = schema.safeParse(req.body);
-
-    if (!result.success) {
-      return res.status(400).json({
-        status: 'fail',
-        errors: result.error.issues,
-      });
-    }
-
-    req.body = result.data;
-
-    next();
-  };
-};
+export * from './authMiddleware.js';
+export * from './uploadMiddleware.js';
