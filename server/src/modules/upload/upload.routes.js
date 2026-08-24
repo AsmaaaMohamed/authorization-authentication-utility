@@ -10,8 +10,10 @@ import { uploadSingleImage } from "../../middlewares/uploadMiddleware.js";
 
 const router = express.Router();
 
+// here
 router.post("/upload", uploadSingleImage("image"), uploadImage);
 router.post("/avatar", uploadSingleImage("image"), uploadAvatar);
+
 router.get("/transform", getTransformedUrl);
 router.get("/transform/*publicId", getTransformedUrl);
 router.get("/metadata", getImageMetadata);

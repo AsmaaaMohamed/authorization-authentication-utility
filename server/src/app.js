@@ -6,15 +6,14 @@ import userRoutes from "./modules/user/user.routes.js";
 import uploadRoutes from "./modules/upload/upload.routes.js";
 
 const app = express();
+const routes = require("./modules/routes/index.js");
 
 app.use(express.json());
 app.use(cors({ credentials: true }));
 app.use(cookieParser());
 
-app.use("/api/auth", authRoutes);
-app.use("/api/user", userRoutes);
-app.use("/api/image", uploadRoutes);
-app.use("/api/upload", uploadRoutes);
+// routes
+app.use("/api", routes);
 
 app.use((error, req, res, next) => {
   const statusCode = error.statusCode || 500;

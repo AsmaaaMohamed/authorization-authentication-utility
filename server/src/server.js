@@ -2,6 +2,7 @@ import connectDB from "./config/mongodb.js";
 import "dotenv/config";
 import app from "./app.js";
 
+//
 process.on("uncaughtException", (err) => {
   console.error("Uncaught Exception — shutting down");
   console.log(err.name, err.message);
