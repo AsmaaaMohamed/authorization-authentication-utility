@@ -1,7 +1,7 @@
 /**
  * File: src/middlewares/authMiddleware.js
  * Description: Authentication and Role-Based Access Control (RBAC) middleware for protecting Express routes.
- * 
+ *
  * Steps:
  * 1. userAuth function extracts JWT tokens from HTTP-only cookies, Authorization Bearer header, or custom token header.
  * 2. Checks token revocation status against Redis blacklist via isTokenBlacklisted service.
@@ -12,7 +12,7 @@
  */
 
 import jwt from "jsonwebtoken";
-import { isTokenBlacklisted } from "../services/redisService.js";
+import { isTokenBlacklisted } from "../config/redisService.js";
 
 export const userAuth = async (req, res, next) => {
   try {
@@ -46,7 +46,7 @@ export const userAuth = async (req, res, next) => {
 
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || "jwt_secret_key_default"
+      process.env.JWT_SECRET || "jwt_secret_key_default",
     );
 
     if (!decoded || !decoded.id) {

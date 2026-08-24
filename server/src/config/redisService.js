@@ -1,7 +1,7 @@
 /**
  * File: src/services/redisService.js
  * Description: Redis caching and security service providing OTP storage with TTL/attempt rate-limiting, JWT token blacklisting, and generic key-value cache operations with in-memory fallback.
- * 
+ *
  * Steps:
  * 1. Maintains in-memory Map fallback store with auto-expiry timestamps for development resilience when Redis is offline.
  * 2. setOtp stores user OTPs serialized with remaining attempt counts and Time-To-Live expiration (default: 300s).
@@ -12,7 +12,7 @@
  * 7. set, get, del, exists provide generic JSON-safe caching primitives across the application.
  */
 
-import { redisClient, isRedisConnected } from '../config/redis.js';
+import { redisClient, isRedisConnected } from "./redis.js";
 
 const memoryStore = new Map();
 
@@ -31,7 +31,12 @@ const getFromMemory = (key) => {
   return item.value;
 };
 
-export const setOtp = async (identifier, otp, ttlSeconds = 300, maxAttempts = 3) => {
+export const setOtp = async (
+  identifier,
+  otp,
+  ttlSeconds = 300,
+  maxAttempts = 3,
+) => {
   const key = `otp:${identifier.toLowerCase().trim()}`;
   const payload = JSON.stringify({
     otp: String(otp).trim(),
@@ -40,8 +45,8 @@ export const setOtp = async (identifier, otp, ttlSeconds = 300, maxAttempts = 3)
   });
 
   try {
-    if (isRedisConnected && redisClient.status === 'ready') {
-      await redisClient.set(key, payload, 'EX', ttlSeconds);
+    if (isRedisConnected && redisClient.status === "ready") {
+      await redisClient.set(key, payload, "EX", ttlSeconds);
     } else {
       setInMemory(key, payload, ttlSeconds);
     }
@@ -57,7 +62,7 @@ export const verifyOtp = async (identifier, inputOtp) => {
   let rawData = null;
 
   try {
-    if (isRedisConnected && redisClient.status === 'ready') {
+    if (isRedisConnected && redisClient.status === "ready") {
       rawData = await redisClient.get(key);
     } else {
       rawData = getFromMemory(key);
@@ -69,18 +74,18 @@ export const verifyOtp = async (identifier, inputOtp) => {
   if (!rawData) {
     return {
       valid: false,
-      message: 'OTP has expired or does not exist. Please request a new code.',
+      message: "OTP has expired or does not exist. Please request a new code.",
     };
   }
 
-  const data = typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
+  const data = typeof rawData === "string" ? JSON.parse(rawData) : rawData;
   const submittedOtp = String(inputOtp).trim();
 
   if (data.otp === submittedOtp) {
     await deleteOtp(identifier);
     return {
       valid: true,
-      message: 'OTP verified successfully.',
+      message: "OTP verified successfully.",
     };
   }
 
@@ -90,20 +95,23 @@ export const verifyOtp = async (identifier, inputOtp) => {
     await deleteOtp(identifier);
     return {
       valid: false,
-      message: 'Maximum verification attempts exceeded. Please request a new OTP.',
+      message:
+        "Maximum verification attempts exceeded. Please request a new OTP.",
       attemptsRemaining: 0,
     };
   }
 
   try {
-    if (isRedisConnected && redisClient.status === 'ready') {
+    if (isRedisConnected && redisClient.status === "ready") {
       const ttl = await redisClient.ttl(key);
       if (ttl > 0) {
-        await redisClient.set(key, JSON.stringify(data), 'EX', ttl);
+        await redisClient.set(key, JSON.stringify(data), "EX", ttl);
       }
     } else {
       const item = memoryStore.get(key);
-      const remainingSeconds = item?.expiresAt ? Math.max(1, Math.round((item.expiresAt - Date.now()) / 1000)) : 300;
+      const remainingSeconds = item?.expiresAt
+        ? Math.max(1, Math.round((item.expiresAt - Date.now()) / 1000))
+        : 300;
       setInMemory(key, JSON.stringify(data), remainingSeconds);
     }
   } catch (err) {
@@ -120,11 +128,10 @@ export const verifyOtp = async (identifier, inputOtp) => {
 export const deleteOtp = async (identifier) => {
   const key = `otp:${identifier.toLowerCase().trim()}`;
   try {
-    if (isRedisConnected && redisClient.status === 'ready') {
+    if (isRedisConnected && redisClient.status === "ready") {
       await redisClient.del(key);
     }
-  } catch (err) {
-  }
+  } catch (err) {}
   memoryStore.delete(key);
   return true;
 };
@@ -134,14 +141,14 @@ export const blacklistToken = async (token, ttlSeconds = 86400) => {
   const key = `blacklist:${token}`;
 
   try {
-    if (isRedisConnected && redisClient.status === 'ready') {
-      await redisClient.set(key, '1', 'EX', ttlSeconds);
+    if (isRedisConnected && redisClient.status === "ready") {
+      await redisClient.set(key, "1", "EX", ttlSeconds);
     } else {
-      setInMemory(key, '1', ttlSeconds);
+      setInMemory(key, "1", ttlSeconds);
     }
     return true;
   } catch (err) {
-    setInMemory(key, '1', ttlSeconds);
+    setInMemory(key, "1", ttlSeconds);
     return true;
   }
 };
@@ -151,7 +158,7 @@ export const isTokenBlacklisted = async (token) => {
   const key = `blacklist:${token}`;
 
   try {
-    if (isRedisConnected && redisClient.status === 'ready') {
+    if (isRedisConnected && redisClient.status === "ready") {
       const exists = await redisClient.exists(key);
       return exists === 1;
     }
@@ -162,11 +169,12 @@ export const isTokenBlacklisted = async (token) => {
 };
 
 export const set = async (key, value, ttlSeconds = null) => {
-  const payload = typeof value === 'object' ? JSON.stringify(value) : String(value);
+  const payload =
+    typeof value === "object" ? JSON.stringify(value) : String(value);
   try {
-    if (isRedisConnected && redisClient.status === 'ready') {
+    if (isRedisConnected && redisClient.status === "ready") {
       if (ttlSeconds) {
-        await redisClient.set(key, payload, 'EX', ttlSeconds);
+        await redisClient.set(key, payload, "EX", ttlSeconds);
       } else {
         await redisClient.set(key, payload);
       }
@@ -182,7 +190,7 @@ export const set = async (key, value, ttlSeconds = null) => {
 
 export const get = async (key) => {
   try {
-    if (isRedisConnected && redisClient.status === 'ready') {
+    if (isRedisConnected && redisClient.status === "ready") {
       const val = await redisClient.get(key);
       try {
         return JSON.parse(val);
@@ -208,18 +216,17 @@ export const get = async (key) => {
 
 export const del = async (key) => {
   try {
-    if (isRedisConnected && redisClient.status === 'ready') {
+    if (isRedisConnected && redisClient.status === "ready") {
       await redisClient.del(key);
     }
-  } catch (err) {
-  }
+  } catch (err) {}
   memoryStore.delete(key);
   return true;
 };
 
 export const exists = async (key) => {
   try {
-    if (isRedisConnected && redisClient.status === 'ready') {
+    if (isRedisConnected && redisClient.status === "ready") {
       const count = await redisClient.exists(key);
       return count === 1;
     }

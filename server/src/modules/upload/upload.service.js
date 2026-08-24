@@ -1,7 +1,7 @@
 /**
  * File: src/services/cloudinaryService.js
  * Description: Cloudinary service providing buffer stream uploading, transformation presets, responsive URL derivation, dynamic on-the-fly transformations, and asset deletion.
- * 
+ *
  * Steps:
  * 1. Defines TRANSFORMATION_PRESETS for avatar (500x500 face-detection crop), thumbnail (150x150), medium (600x600), banner (1200x400), and original format.
  * 2. uploadStream converts file buffer to readable stream and pipes directly into cloudinary.uploader.upload_stream wrapped in a Promise.
@@ -13,7 +13,7 @@
  */
 
 import { Readable } from "stream";
-import cloudinary from "../config/cloudinary.js";
+import cloudinary from "../../config/cloudinary.js";
 
 export const TRANSFORMATION_PRESETS = {
   avatar: {
@@ -65,7 +65,7 @@ export const uploadStream = (buffer, options = {}) => {
           return reject(error);
         }
         resolve(result);
-      }
+      },
     );
 
     Readable.from(buffer).pipe(stream);
@@ -75,7 +75,7 @@ export const uploadStream = (buffer, options = {}) => {
 export const uploadWithPreset = async (
   buffer,
   presetName = "original",
-  customOptions = {}
+  customOptions = {},
 ) => {
   const presetConfig =
     TRANSFORMATION_PRESETS[presetName] || TRANSFORMATION_PRESETS.original;

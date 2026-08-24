@@ -1,7 +1,7 @@
 /**
  * File: src/controllers/uploadController.js
  * Description: Controller handlers for Cloudinary image uploading with presets, avatar face-cropping, on-the-fly transformations, metadata retrieval, and asset deletion.
- * 
+ *
  * Steps:
  * 1. uploadImage streams uploaded file buffer with selected transformation preset, generates responsive variants, and persists record in MongoDB Image collection.
  * 2. uploadAvatar streams avatar image with AI face-detection crop (500x500 fill) and updates/upserts image document.
@@ -10,8 +10,13 @@
  * 5. getImageMetadata queries database and Cloudinary for asset specifications and derived responsive variants.
  */
 
-import * as cloudinaryService from "../services/cloudinaryService.js";
-import Image from "../models/imageModel.js";
+import * as cloudinaryService from "./upload.service.js";
+import {
+  createImage,
+  deleteByPublicId,
+  findByPublicId,
+  upsertImage,
+} from "./image.model.js";
 
 export const uploadImage = async (req, res) => {
   try {
@@ -29,14 +34,14 @@ export const uploadImage = async (req, res) => {
       preset,
       {
         folder,
-      }
+      },
     );
 
     const responsiveVariants = cloudinaryService.getResponsiveVariants(
-      result.public_id
+      result.public_id,
     );
 
-    const imageDoc = await Image.create({
+    const imageDoc = await createImage({
       userId: userId || null,
       public_id: result.public_id,
       secure_url: result.secure_url,
@@ -81,29 +86,25 @@ export const uploadAvatar = async (req, res) => {
         folder: "auth-utility/avatars",
         public_id: customPublicId,
         overwrite: true,
-      }
+      },
     );
 
     const responsiveVariants = cloudinaryService.getResponsiveVariants(
-      result.public_id
+      result.public_id,
     );
 
-    const imageDoc = await Image.findOneAndUpdate(
-      { public_id: result.public_id },
-      {
-        userId: userId || null,
-        public_id: result.public_id,
-        secure_url: result.secure_url,
-        folder: "auth-utility/avatars",
-        format: result.format,
-        width: result.width,
-        height: result.height,
-        bytes: result.bytes,
-        preset: "avatar",
-        responsiveVariants,
-      },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
-    );
+    const imageDoc = await upsertImage(result.public_id, {
+      userId: userId || null,
+      public_id: result.public_id,
+      secure_url: result.secure_url,
+      folder: "auth-utility/avatars",
+      format: result.format,
+      width: result.width,
+      height: result.height,
+      bytes: result.bytes,
+      preset: "avatar",
+      responsiveVariants,
+    });
 
     return res.status(200).json({
       success: true,
@@ -144,7 +145,7 @@ export const getTransformedUrl = async (req, res) => {
 
     const transformedUrl = cloudinaryService.getTransformedUrl(
       publicId,
-      transformations
+      transformations,
     );
     const responsiveVariants =
       cloudinaryService.getResponsiveVariants(publicId);
@@ -176,7 +177,7 @@ export const deleteImage = async (req, res) => {
     }
 
     const cloudinaryResult = await cloudinaryService.deleteAsset(publicId);
-    const dbResult = await Image.findOneAndDelete({ public_id: publicId });
+    const dbResult = await deleteByPublicId(publicId);
 
     return res.status(200).json({
       success: true,
@@ -204,7 +205,7 @@ export const getImageMetadata = async (req, res) => {
       });
     }
 
-    const dbImage = await Image.findOne({ public_id: publicId });
+    const dbImage = await findByPublicId(publicId);
 
     return res.status(200).json({
       success: true,
