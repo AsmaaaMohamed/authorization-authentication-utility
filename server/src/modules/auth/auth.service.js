@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from './auth.model.js';
 import { findByEmail } from './auth.model.js';
+import AppError from '../../utilities/AppError.js';
 
 // helper functions
 const sanitizeUser = (user) => ({
@@ -32,9 +33,7 @@ export const signupUser = async (userData) => {
   const existingUser = await findByEmail(userData.email);
 
   if (existingUser) {
-    const error = new Error('An account with this email already exists.');
-    error.statusCode = 409;
-    throw error;
+    throw new AppError('An account with this email already exists.', 409);
   }
 
   // create user
@@ -59,15 +58,11 @@ export const loginUser = async (userData) => {
   const user = await findByEmail(userData.email);
 
   if (!user || !(await bcrypt.compare(userData.password, user.password))) {
-    const error = new Error('Invalid email or password.');
-    error.statusCode = 401;
-    throw error;
+    throw new AppError('Invalid email or password.', 401);
   }
 
   if (!user.isVerified) {
-    const error = new Error('Please verify your email address to login.');
-    error.statusCode = 401;
-    throw error;
+    throw new AppError('Please verify your email address to login.', 401);
   }
 
   return { user: sanitizeUser(user), token: signToken(user) };

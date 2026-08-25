@@ -13,6 +13,15 @@
 
 import jwt from 'jsonwebtoken';
 import { isTokenBlacklisted } from '../config/redisService.js';
+import AppError from '../utilities/AppError.js';
+
+// helper function
+const handleZodError = (err) => {
+  const message = err.issues
+    .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
+    .join('. ');
+  return new AppError(message, 400);
+};
 
 export const userAuth = async (req, res, next) => {
   try {
@@ -30,18 +39,18 @@ export const userAuth = async (req, res, next) => {
     }
 
     if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: 'Not Authorized. Token is missing, please log in.',
-      });
+      throw new AppError(
+        'Not Authorized. Token is missing, please log in.',
+        401,
+      );
     }
 
     const isRevoked = await isTokenBlacklisted(token);
     if (isRevoked) {
-      return res.status(401).json({
-        success: false,
-        message: 'Session has been invalidated. Please log in again.',
-      });
+      throw new AppError(
+        'Session has been invalidated. Please log in again.',
+        401,
+      );
     }
 
     const decoded = jwt.verify(
@@ -50,10 +59,7 @@ export const userAuth = async (req, res, next) => {
     );
 
     if (!decoded || !decoded.id) {
-      return res.status(401).json({
-        success: false,
-        message: 'Not Authorized. Invalid token payload.',
-      });
+      throw new AppError('Not Authorized. Invalid token payload.', 401);
     }
 
     req.user = {
@@ -67,34 +73,27 @@ export const userAuth = async (req, res, next) => {
 
     next();
   } catch (error) {
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        success: false,
-        message: 'Token has expired. Please log in again.',
-      });
-    }
-
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid token signature. Authentication failed.',
-    });
+    throw new AppError(
+      'Invalid or expired access token. Please login again.',
+      401,
+    );
   }
 };
 
 export const authorize = (...roles) => {
   return (req, res, next) => {
     if (!req.user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Authentication required before authorization check.',
-      });
+      throw new AppError(
+        'Authentication required before authorization check.',
+        401,
+      );
     }
 
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({
-        success: false,
-        message: `Forbidden. Role '${req.user.role}' is not authorized to access this resource. Required role(s): [${roles.join(', ')}].`,
-      });
+      throw new AppError(
+        `Forbidden. Role '${req.user.role}' is not authorized to access this resource. Required role(s): [${roles.join(', ')}].`,
+        403,
+      );
     }
 
     next();
@@ -108,10 +107,7 @@ export const validate = (schema) => {
     const result = schema.safeParse(req.body);
 
     if (!result.success) {
-      return res.status(400).json({
-        status: 'fail',
-        errors: result.error.issues,
-      });
+      return next(handleZodError(result.error));
     }
 
     req.body = result.data;
