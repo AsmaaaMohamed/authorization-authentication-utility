@@ -11,8 +11,8 @@
  * 6. authorize function enforces role-based route guarding by comparing req.user.role with permitted roles, returning 403 Forbidden on mismatches.
  */
 
-import jwt from "jsonwebtoken";
-import { isTokenBlacklisted } from "../config/redisService.js";
+import jwt from 'jsonwebtoken';
+import { isTokenBlacklisted } from '../config/redisService.js';
 
 export const userAuth = async (req, res, next) => {
   try {
@@ -22,9 +22,9 @@ export const userAuth = async (req, res, next) => {
       token = req.cookies.token;
     } else if (
       req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer ")
+      req.headers.authorization.startsWith('Bearer ')
     ) {
-      token = req.headers.authorization.split(" ")[1];
+      token = req.headers.authorization.split(' ')[1];
     } else if (req.headers.token) {
       token = req.headers.token;
     }
@@ -32,7 +32,7 @@ export const userAuth = async (req, res, next) => {
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: "Not Authorized. Token is missing, please log in.",
+        message: 'Not Authorized. Token is missing, please log in.',
       });
     }
 
@@ -40,26 +40,26 @@ export const userAuth = async (req, res, next) => {
     if (isRevoked) {
       return res.status(401).json({
         success: false,
-        message: "Session has been invalidated. Please log in again.",
+        message: 'Session has been invalidated. Please log in again.',
       });
     }
 
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || "jwt_secret_key_default",
+      process.env.JWT_SECRET || 'jwt_secret_key_default',
     );
 
     if (!decoded || !decoded.id) {
       return res.status(401).json({
         success: false,
-        message: "Not Authorized. Invalid token payload.",
+        message: 'Not Authorized. Invalid token payload.',
       });
     }
 
     req.user = {
       id: decoded.id,
-      role: decoded.role || "user",
-      email: decoded.email || "",
+      role: decoded.role || 'user',
+      email: decoded.email || '',
     };
 
     req.body = req.body || {};
@@ -67,16 +67,16 @@ export const userAuth = async (req, res, next) => {
 
     next();
   } catch (error) {
-    if (error.name === "TokenExpiredError") {
+    if (error.name === 'TokenExpiredError') {
       return res.status(401).json({
         success: false,
-        message: "Token has expired. Please log in again.",
+        message: 'Token has expired. Please log in again.',
       });
     }
 
     return res.status(401).json({
       success: false,
-      message: "Invalid token signature. Authentication failed.",
+      message: 'Invalid token signature. Authentication failed.',
     });
   }
 };
@@ -86,16 +86,35 @@ export const authorize = (...roles) => {
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        message: "Authentication required before authorization check.",
+        message: 'Authentication required before authorization check.',
       });
     }
 
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({
         success: false,
-        message: `Forbidden. Role '${req.user.role}' is not authorized to access this resource. Required role(s): [${roles.join(", ")}].`,
+        message: `Forbidden. Role '${req.user.role}' is not authorized to access this resource. Required role(s): [${roles.join(', ')}].`,
       });
     }
+
+    next();
+  };
+};
+
+// validate middleware for zod validation
+
+export const validate = (schema) => {
+  return (req, res, next) => {
+    const result = schema.safeParse(req.body);
+
+    if (!result.success) {
+      return res.status(400).json({
+        status: 'fail',
+        errors: result.error.issues,
+      });
+    }
+
+    req.body = result.data;
 
     next();
   };
