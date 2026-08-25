@@ -1,26 +1,24 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import authRoutes from './modules/auth/auth.routes.js';
-import userRoutes from './modules/user/user.routes.js';
-import uploadRoutes from './modules/upload/upload.routes.js';
+import routes from './modules/routes/index.js';
+import AppError from './utilities/AppError.js';
+import globalErrorHandler from './middlewares/errorHandler.js';
 
 const app = express();
-const routes = require('./modules/routes/index.js');
 
 app.use(express.json());
 app.use(cors({ credentials: true }));
 app.use(cookieParser());
 
 // routes
-app.use('/api', routes);
+app.use('/api/v1', routes);
 
-app.use((error, req, res, next) => {
-  const statusCode = error.statusCode || 500;
-  return res.status(statusCode).json({
-    success: false,
-    message: error.message || 'Internal server error.',
-  });
-});
+// Handling 404 error pages
+app.all('/{*splat}', (req, res, next) =>
+  next(new AppError(`Can't find ${req.originalUrl} on this server`, 404)),
+);
+
+app.use(globalErrorHandler);
 
 export default app;

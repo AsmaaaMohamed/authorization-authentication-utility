@@ -1,12 +1,14 @@
-import * as userService from "./user.service.js";
+import * as userService from './user.service.js';
+import AppError from '../../utilities/AppError.js';
 
 export const getUserData = async (req, res) => {
   try {
     const user = await userService.getUserById(req.user.id);
-    if (!user)
-      return res
-        .status(404)
-        .json({ success: false, message: "User profile not found." });
+
+    if (!user) {
+      throw new AppError('User profile not found.', 404);
+    }
+
     return res.status(200).json({
       success: true,
       userData: {
@@ -20,19 +22,14 @@ export const getUserData = async (req, res) => {
       },
     });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: error.message || "Server error fetching user profile.",
-      });
+    throw new AppError(error.message, 500);
   }
 };
 
 export const getAdminDashboard = (req, res) =>
   res.status(200).json({
     success: true,
-    message: "Access granted to Admin Dashboard.",
+    message: 'Access granted to Admin Dashboard.',
     user: req.user,
     timestamp: new Date().toISOString(),
   });

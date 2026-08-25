@@ -1,9 +1,7 @@
-const express = require('express');
-
-const authRoutes = require('../auth/auth.routes');
-const userRoutes = require('../user/user.routes');
-const uploadRoutes = require('../upload/upload.routes');
-const imageRoutes = require('../image/image.routes');
+import express from 'express';
+import authRoutes from '../auth/auth.routes.js';
+import userRoutes from '../user/user.routes.js';
+import uploadRoutes from '../upload/upload.routes.js';
 
 const router = express.Router();
 
@@ -12,6 +10,5 @@ router.use('/user', userRoutes);
 
 // the following two routes are for image upload and retrieval
 router.use('/upload', uploadRoutes);
-router.use('/image', imageRoutes);
 
-module.exports = router;
+export default router;
