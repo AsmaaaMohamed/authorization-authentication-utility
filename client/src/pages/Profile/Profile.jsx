@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import profile from '../../assets/vite.svg'
-import { Mail, User, Phone, FilePlusCorner } from 'lucide-react'
+import { Mail, User, Phone, FilePlusCorner, Lock } from 'lucide-react'
 
 export default function Profile() {
 
@@ -22,12 +22,12 @@ export default function Profile() {
     return (
         <>
 
-            <div className="bg-black w-1/2  py-10 rounded-md text-white text-center">
+            <div className="bg-[#0F172B] md:w-[40%] w-[90%] pt-4 pb-9 rounded-md text-white text-center">
                 <p className="text-4xl font-bold my-3">Profile</p>
 
-                <div className="imgProfile mx-2 py-4 flex justify-center">
+                <div className="imgProfile mx-2  pb-10 flex justify-center">
                     <div className="relative">
-                        <img className="w-50 h-50 object-contain rounded-full border-2" src={img ? img : profile} alt="profile img" />
+                        <img className="w-40 h-40 object-cover rounded-full border-2" src={img ? img : profile} alt="profile img" />
 
                         <div className="updateImg px-1 absolute bottom-2 right-2 cursor-pointer flex items-center rounded-full bg-[#333A5C]">
                             <FilePlusCorner width={16} height={16} />
@@ -51,6 +51,11 @@ export default function Profile() {
                     <div className="flex items-center gap-2 mb-4 w-3/4 mx-auto px-5 py-2 rounded-full bg-[#333A5C]">
                         <Mail width={16} height={16} />
                         <input className="bg-transparent outline-none flex-1" type="email" placeholder="Your Email" required />
+                    </div>
+
+                    <div className="flex items-center gap-2 mb-4 w-3/4 mx-auto px-5 py-2 rounded-full bg-[#333A5C]">
+                        <Lock width={16} height={16} />
+                        <input className="bg-transparent outline-none flex-1" type="password" placeholder="Your Password" required />
                     </div>
 
                     <div className="flex items-center gap-2 mb-4 w-3/4 mx-auto px-5 py-2 rounded-full bg-[#333A5C]">
