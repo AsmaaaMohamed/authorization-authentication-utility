@@ -1,11 +1,16 @@
 import Workspace from './workspace.model.js';
 import AppError from '../../utilities/AppError.js';
+import WorkspaceMember from '../workspaceMember/workspaceMember.model.js';
+import { getMyWorkspaces as getMyWorkspacesWithStats } from '../workspaceMember/workspaceMember.service.js';
+
+import mongoose from 'mongoose';
 
 /**
  * Create a new workspace for the authenticated user.
  *
- * A user cannot create more than one workspace
- * with the same name.
+ * Creates the workspace and its owner membership inside
+ * a MongoDB transaction to ensure both operations succeed
+ * or both are rolled back.
  *
  * @param {Object} data
  * @param {string} data.name - Workspace name.
@@ -13,6 +18,7 @@ import AppError from '../../utilities/AppError.js';
  * @param {string} [data.iconUrl] - Optional workspace icon URL.
  * @param {string} data.ownerId - ID of the workspace owner.
  * @returns {Promise<Workspace>} The created workspace.
+ * @throws {AppError} If the workspace name already exists.
  */
 export const createWorkspace = async ({
   name,
@@ -20,37 +26,62 @@ export const createWorkspace = async ({
   iconUrl,
   ownerId,
 }) => {
-  const existingWorkspace = await Workspace.findOne({
-    ownerId,
-    name,
-  });
+  const session = await mongoose.startSession();
 
-  if (existingWorkspace) {
-    throw new AppError('You already have a workspace with this name.', 409);
+  try {
+    session.startTransaction();
+
+    const existingWorkspace = await Workspace.findOne({
+      ownerId,
+      name,
+    }).session(session);
+
+    if (existingWorkspace) {
+      throw new AppError('You already have a workspace with this name.', 409);
+    }
+
+    const [workspace] = await Workspace.create(
+      [
+        {
+          name,
+          description,
+          iconUrl,
+          ownerId,
+        },
+      ],
+      { session },
+    );
+
+    await WorkspaceMember.create(
+      [
+        {
+          userId: ownerId,
+          workspaceId: workspace._id,
+          role: 'OWNER',
+        },
+      ],
+      { session },
+    );
+
+    await session.commitTransaction();
+
+    return workspace;
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    await session.endSession();
   }
-
-  const workspace = await Workspace.create({
-    name,
-    description,
-    iconUrl,
-    ownerId,
-  });
-
-  return workspace;
 };
 
 /**
  * Get all workspaces owned by the authenticated user.
  *
- * @param {string} ownerId - ID of the authenticated user.
+ * @param {string} userId - ID of the authenticated user.
  * @returns {Promise<Workspace[]>} List of user's workspaces.
  */
-export const getMyWorkspaces = async (ownerId) => {
-  const workspaces = await Workspace.find({ ownerId }).sort({
-    createdAt: -1,
-  });
-
-  return workspaces;
+export const getUserWorkspaces = async (userId) => {
+  return getMyWorkspacesWithStats(userId);
 };
 
 /**
@@ -95,24 +126,49 @@ export const updateWorkspace = async (workspaceId, ownerId, data) => {
 };
 
 /**
- * Delete a workspace owned by the authenticated user.
+ * Delete a workspace and all of its members.
  *
  * Ensures that only the workspace owner can delete it.
+ * The workspace and its members are deleted inside
+ * a MongoDB transaction to keep the data consistent.
  *
  * @param {string} workspaceId - ID of the workspace to delete.
- * @param {string} ownerId - ID of the authenticated user.
+ * @param {string} ownerId - ID of the workspace owner.
  * @returns {Promise<Workspace>} The deleted workspace.
  * @throws {AppError} If the workspace does not exist or is not owned by the user.
  */
 export const deleteWorkspace = async (workspaceId, ownerId) => {
-  const workspace = await Workspace.findOneAndDelete({
-    _id: workspaceId,
-    ownerId,
-  });
+  const session = await mongoose.startSession();
 
-  if (!workspace) {
-    throw new AppError('Workspace not found or you are not the owner.', 404);
+  try {
+    session.startTransaction();
+
+    const workspace = await Workspace.findOneAndDelete(
+      {
+        _id: workspaceId,
+        ownerId,
+      },
+      { session },
+    );
+
+    if (!workspace) {
+      throw new AppError('Workspace not found or you are not the owner.', 404);
+    }
+
+    await WorkspaceMember.deleteMany(
+      {
+        workspaceId: workspace._id,
+      },
+      { session },
+    );
+
+    await session.commitTransaction();
+
+    return workspace;
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    await session.endSession();
   }
-
-  return workspace;
 };

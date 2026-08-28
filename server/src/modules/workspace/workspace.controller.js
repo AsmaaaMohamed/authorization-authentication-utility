@@ -1,6 +1,6 @@
 import {
   createWorkspace,
-  getMyWorkspaces,
+  getUserWorkspaces,
   updateWorkspace,
   deleteWorkspace,
 } from './workspace.service.js';
@@ -26,7 +26,7 @@ export const createWorkspaceController = asyncHandler(async (req, res) => {
  * Get all workspaces owned by the authenticated user.
  */
 export const getMyWorkspacesController = asyncHandler(async (req, res) => {
-  const workspaces = await getMyWorkspaces(req.user.id);
+  const workspaces = await getUserWorkspaces(req.user.id);
 
   res.status(200).json({
     success: true,
