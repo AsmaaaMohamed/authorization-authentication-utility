@@ -3,11 +3,16 @@
  * Description: OpenAPI 3.0 specification definitions and Swagger UI dashboard initializer for the Express backend.
  *
  * Steps:
- * 1. Defines OpenAPI 3.0 metadata, local/production servers, and API tags (Authentication, User Profile, Image & Cloudinary).
+ * 1. Defines OpenAPI 3.0 metadata, local/production servers, and API tags.
  * 2. Configures security schemes for HTTP Bearer JWT and HTTP-only cookie tokens.
- * 3. Defines reusable component schemas (User, Image, DTOs, Success/Error responses).
- * 4. Documents all 13 REST API endpoints with request bodies, binary multipart file uploads, query parameters, and status responses.
- * 5. Provides setupSwagger function to serve interactive Swagger UI at /api-docs and raw JSON spec at /api-docs.json.
+ * 3. Defines reusable component schemas for Users, Images, Authentication DTOs,
+ *    Workspaces, Workspace requests, and common responses.
+ * 4. Documents Authentication, User Profile, Image & Cloudinary,
+ *    and Workspace REST API endpoints.
+ * 5. Documents workspace ownership, duplicate-name validation,
+ *    update, retrieval, and deletion behavior.
+ * 6. Provides setupSwagger function to serve interactive Swagger UI
+ *    at /api-docs and raw JSON spec at /api-docs.json.
  */
 
 import swaggerUi from 'swagger-ui-express';
@@ -43,6 +48,11 @@ export const swaggerSpec = {
       name: 'Image & Cloudinary',
       description:
         'Multer in-memory uploads, transformation presets, face-crop avatars, and asset management',
+    },
+    {
+      name: 'Workspace',
+      description:
+        'Create, retrieve, update, and delete workspaces owned by the authenticated user',
     },
   ],
   components: {
@@ -234,9 +244,362 @@ export const swaggerSpec = {
           },
         },
       },
+
+      Workspace: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string',
+            example: '665a12b3c4d5e6f7a8b9c0d1',
+          },
+          name: {
+            type: 'string',
+            example: 'My Workspace',
+          },
+          description: {
+            type: 'string',
+            example: 'My personal development workspace',
+          },
+          iconUrl: {
+            type: 'string',
+            example: 'https://example.com/icons/workspace.png',
+          },
+          ownerId: {
+            type: 'string',
+            example: '665a12b3c4d5e6f7a8b9c0d1',
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+            example: '2026-08-28T12:00:00.000Z',
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time',
+            example: '2026-08-28T12:30:00.000Z',
+          },
+        },
+      },
+
+      CreateWorkspaceRequest: {
+        type: 'object',
+        required: ['name'],
+        properties: {
+          name: {
+            type: 'string',
+            minLength: 1,
+            example: 'My Workspace',
+            description:
+              'Workspace name. Must be unique for the authenticated user.',
+          },
+          description: {
+            type: 'string',
+            example: 'My personal development workspace',
+          },
+          iconUrl: {
+            type: 'string',
+            example: 'https://example.com/icons/workspace.png',
+          },
+        },
+      },
+
+      UpdateWorkspaceRequest: {
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+            minLength: 1,
+            example: 'Updated Workspace',
+            description:
+              'New workspace name. Must be unique for the authenticated user.',
+          },
+          description: {
+            type: 'string',
+            example: 'Updated workspace description',
+          },
+          iconUrl: {
+            type: 'string',
+            example: 'https://example.com/icons/new-workspace.png',
+          },
+        },
+      },
     },
   },
   paths: {
+    '/api/workspaces': {
+      post: {
+        tags: ['Workspace'],
+        summary: 'Create a new workspace',
+        description:
+          'Creates a workspace owned by the authenticated user. Workspace names must be unique for the same user.',
+        security: [{ BearerAuth: [] }, { CookieAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/CreateWorkspaceRequest',
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: 'Workspace created successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: {
+                      type: 'boolean',
+                      example: true,
+                    },
+                    data: {
+                      $ref: '#/components/schemas/Workspace',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Validation error',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+              },
+            },
+          },
+          401: {
+            description: 'Unauthorized',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+              },
+            },
+          },
+          409: {
+            description:
+              'A workspace with the same name already exists for this user',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+              },
+            },
+          },
+        },
+      },
+
+      get: {
+        tags: ['Workspace'],
+        summary: 'Get all workspaces owned by the authenticated user',
+        description:
+          'Returns all workspaces belonging to the currently authenticated user, sorted by creation date.',
+        security: [{ BearerAuth: [] }, { CookieAuth: [] }],
+        responses: {
+          200: {
+            description: 'Workspaces retrieved successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: {
+                      type: 'boolean',
+                      example: true,
+                    },
+                    results: {
+                      type: 'integer',
+                      example: 3,
+                    },
+                    data: {
+                      type: 'array',
+                      items: {
+                        $ref: '#/components/schemas/Workspace',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          401: {
+            description: 'Unauthorized',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+
+    '/api/workspaces/{id}': {
+      patch: {
+        tags: ['Workspace'],
+        summary: 'Update a workspace',
+        description:
+          'Updates a workspace owned by the authenticated user. The workspace name must remain unique for that user.',
+        security: [{ BearerAuth: [] }, { CookieAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            description: 'Workspace ID',
+            schema: {
+              type: 'string',
+            },
+            example: '665a12b3c4d5e6f7a8b9c0d1',
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/UpdateWorkspaceRequest',
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Workspace updated successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: {
+                      type: 'boolean',
+                      example: true,
+                    },
+                    data: {
+                      $ref: '#/components/schemas/Workspace',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Validation error or invalid workspace ID',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+              },
+            },
+          },
+          401: {
+            description: 'Unauthorized',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+              },
+            },
+          },
+          404: {
+            description:
+              'Workspace not found or the authenticated user is not the owner',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+              },
+            },
+          },
+          409: {
+            description:
+              'A workspace with the same name already exists for this user',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+              },
+            },
+          },
+        },
+      },
+
+      delete: {
+        tags: ['Workspace'],
+        summary: 'Delete a workspace',
+        description: 'Deletes a workspace owned by the authenticated user.',
+        security: [{ BearerAuth: [] }, { CookieAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            description: 'Workspace ID',
+            schema: {
+              type: 'string',
+            },
+            example: '665a12b3c4d5e6f7a8b9c0d1',
+          },
+        ],
+        responses: {
+          200: {
+            description: 'Workspace deleted successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: {
+                      type: 'boolean',
+                      example: true,
+                    },
+                    message: {
+                      type: 'string',
+                      example: 'Workspace deleted successfully.',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          401: {
+            description: 'Unauthorized',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+              },
+            },
+          },
+          404: {
+            description:
+              'Workspace not found or the authenticated user is not the owner',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     '/api/auth/register': {
       post: {
         tags: ['Authentication'],
