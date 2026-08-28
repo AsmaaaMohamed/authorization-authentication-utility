@@ -1,27 +1,60 @@
-import { createWorkspace } from './workspace.service.js';
+import {
+  createWorkspace,
+  getMyWorkspaces,
+  updateWorkspace,
+  deleteWorkspace,
+} from './workspace.service.js';
 
-export const createWorkspaceController = async (req, res, next) => {
-  try {
-    const { name, description, iconUrl } = req.body;
+import asyncHandler from '../../utilities/asyncHandler.js';
 
-    const workspace = await createWorkspace({
-      name,
-      description,
-      iconUrl,
-      ownerId: req.user.id,
-    });
+/**
+ * Create a new workspace.
+ */
+export const createWorkspaceController = asyncHandler(async (req, res) => {
+  const workspace = await createWorkspace({
+    ...req.body,
+    ownerId: req.user.id,
+  });
 
-    return res.status(201).json({
-      success: true,
-      data: {
-        id: workspace._id,
-        name: workspace.name,
-        description: workspace.description,
-        iconUrl: workspace.iconUrl,
-        ownerId: workspace.ownerId,
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+  res.status(201).json({
+    success: true,
+    data: workspace,
+  });
+});
+
+/**
+ * Get all workspaces owned by the authenticated user.
+ */
+export const getMyWorkspacesController = asyncHandler(async (req, res) => {
+  const workspaces = await getMyWorkspaces(req.user.id);
+
+  res.status(200).json({
+    success: true,
+    results: workspaces.length,
+    data: workspaces,
+  });
+});
+
+/**
+ * Update a workspace owned by the authenticated user.
+ */
+export const updateWorkspaceController = asyncHandler(async (req, res) => {
+  const workspace = await updateWorkspace(req.params.id, req.user.id, req.body);
+
+  res.status(200).json({
+    success: true,
+    data: workspace,
+  });
+});
+
+/**
+ * Delete a workspace owned by the authenticated user.
+ */
+export const deleteWorkspaceController = asyncHandler(async (req, res) => {
+  await deleteWorkspace(req.params.id, req.user.id);
+
+  res.status(200).json({
+    success: true,
+    message: 'Workspace deleted successfully.',
+  });
+});

@@ -29,6 +29,8 @@ const workspaceSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+workspaceSchema.index({ ownerId: 1, name: 1 }, { unique: true });
+
 const Workspace =
   mongoose.models.Workspace || mongoose.model('Workspace', workspaceSchema);
 

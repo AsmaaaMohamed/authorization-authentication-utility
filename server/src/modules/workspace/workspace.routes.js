@@ -1,17 +1,38 @@
 import { Router } from 'express';
 
-import { createWorkspaceController } from './workspace.controller.js';
-import { createWorkspaceSchema } from '../../validators/workspace.validation.js';
+import {
+  createWorkspaceController,
+  getMyWorkspacesController,
+  updateWorkspaceController,
+  deleteWorkspaceController,
+} from './workspace.controller.js';
+
+import {
+  createWorkspaceSchema,
+  updateWorkspaceSchema,
+} from '../../validators/workspace.validation.js';
+
 import { validate } from '../../middlewares/authMiddleware.js';
-import protect from '../../middlewares/authMiddleware.js';
+import { userAuth } from '../../middlewares/authMiddleware.js';
 
 const router = Router();
 
 router.post(
   '/',
-  protect,
+  userAuth,
   validate(createWorkspaceSchema),
   createWorkspaceController,
 );
+
+router.get('/', userAuth, getMyWorkspacesController);
+
+router.patch(
+  '/:id',
+  userAuth,
+  validate(updateWorkspaceSchema),
+  updateWorkspaceController,
+);
+
+router.delete('/:id', userAuth, deleteWorkspaceController);
 
 export default router;
