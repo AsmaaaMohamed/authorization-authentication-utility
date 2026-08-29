@@ -7,7 +7,7 @@ export default function Field({ label, required, icon: Icon, type = "text", plac
       <Label required={required}>{label}</Label>
       <div style={{ display: "flex", alignItems: "center", gap: 9, background: C.panel2, border: `1px solid ${C.border}`, borderRadius: 8, padding: "10px 12px" }}>
         {Icon && <Icon size={14} color={C.textFaint} />}
-        <input type={type} placeholder={placeholder} value={value} onChange={onChange} style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 13.5, color: C.text, fontFamily: FONT}} />
+        <input required={required} type={type} placeholder={placeholder} value={value} onChange={onChange} style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 13.5, color: C.text, fontFamily: FONT}} />
         {right}
       </div>
     </div>
