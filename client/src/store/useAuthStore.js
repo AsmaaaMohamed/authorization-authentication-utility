@@ -76,7 +76,6 @@ export const useAuthStore = create((set) => ({
         error.response?.data?.message || error.message
       );
     } finally {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
       set({ isLoading: false });
     }
   },

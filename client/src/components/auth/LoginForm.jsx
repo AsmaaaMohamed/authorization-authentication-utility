@@ -5,12 +5,14 @@ import AuthShell from './AuthShell';
 import { C } from '../../constants/theme';
 import Field from '../ui/Field';
 import Button from '../ui/Button';
+import { Link} from 'react-router-dom';
 
-const LoginForm = ({ goTo }) => {
+const LoginForm = () => {
   const { login, isLoading } = useAuthStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-   const [showPw, setShowPw] = useState(false);
+  const [showPw, setShowPw] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -26,12 +28,13 @@ const LoginForm = ({ goTo }) => {
             <Field label="Password" required icon={Lock} type={showPw ? "text" : "password"} placeholder="••••••••"
               right={<span onClick={() => setShowPw(!showPw)} style={{ cursor: "pointer" }}>{showPw ? <Eye size={14} color={C.textFaint} /> : <EyeOff size={14} color={C.textFaint} />}</span>} value={password} onChange={(e) => setPassword(e.target.value)}/>
             <div style={{ textAlign: "right", marginBottom: 20 }}>
-              <span onClick={() => goTo("otp")} style={{ fontSize: 12, color: C.accent, cursor: "pointer" }}>Forgot password?</span>
+              <Link to="/reset-password" style={{ fontSize: 12, color: C.accent }}>Forgot password?</Link>
             </div>
             <Button full disabled={isLoading} type="submit">{isLoading ? "Logging in..." : "Login"}</Button>
             <div style={{ textAlign: "center", marginTop: 18, fontSize: 12.5, color: C.textFaint }}>
-              No account? <span onClick={() => goTo("register")} style={{ color: C.accent, cursor: "pointer" }}>Sign up</span>
+              No account? <Link to="/signup" style={{ color: C.accent }}>Sign up</Link>
             </div>
+            
         </form>
       </AuthShell>
     </>
