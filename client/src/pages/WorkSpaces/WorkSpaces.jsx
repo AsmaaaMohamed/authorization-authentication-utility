@@ -6,11 +6,12 @@ import CreateWorkspaceModal from "./CreateWorkSpacesModal";
 
 function WorkspacesPage({ goTo }) {
   const [showCreate, setShowCreate] = useState(false);
-  const workspaces = [
+  const workspacesData = [
     { name: "Product Team", role: "Owner", members: 6, projects: 3 },
     { name: "Backend Utils", role: "Admin", members: 4, projects: 1 },
     { name: "Freelance Clients", role: "Member", members: 2, projects: 5 },
   ];
+  const [workspaces, setWorkspaces] = useState(workspacesData);
   return (
     <div style={{ minHeight: "100vh", background: C.bg, fontFamily: FONT, padding: "40px 28px",display:"flex", alignItems:"center" }}>
       <div style={{ maxWidth: 760, margin: "0 auto" , width: "100%" }}>
