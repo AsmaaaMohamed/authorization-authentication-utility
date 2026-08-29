@@ -6,8 +6,11 @@ import ResetPassword from "../pages/auth/ResetPassword/ResetPassword";
 import Login from "../pages/auth/Login";
 import ProtectedRoute from "./ProtectedRoute";
 import RootRedirect from "./RootRedirect";
+import WorkspacesPage from "../pages/WorkSpaces/WorkSpaces";
+import { useAuthStore } from "../store";
 
 export default function AppRoutes() {
+  const { isLoggedIn } = useAuthStore();
   return (
     <Routes>
       <Route element={<AuthLayout />}>
@@ -19,12 +22,12 @@ export default function AppRoutes() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         {/* Protected */}
-      <Route element={<ProtectedRoute />}>
-        {/* <Route path="/workspaces" element={<Workspaces />} />
-        <Route path="/board" element={<Board />} />
+      <Route element={<ProtectedRoute isLoggedIn={true} />}>
+        <Route path="/workspaces" element={<WorkspacesPage />} />
+        {/* <Route path="/board" element={<Board />} />
         <Route path="/members" element={<Members />} />
         <Route path="/notifications" element={<Notifications />} />
-        <Route path="/settings" element={<Settings />} /> */}
+        <Route path="/settings" element={<Settings />} />  */}
       </Route>
       </Route>
     </Routes>
