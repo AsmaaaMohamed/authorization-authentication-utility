@@ -1,89 +1,111 @@
 import { create } from "zustand";
 import axios from "axios";
 
-// const backendUrl = import.meta.env.VITE_BACKEND_URL || "";
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "";
+
 axios.defaults.withCredentials = true;
+
 const dummyWorkspaces = [
   {
-    id: "1",
+    _id: "1",
     name: "Product Team",
     role: "Owner",
     members: 6,
     projects: 3,
   },
-  {
-    id: "2",
-    name: "Backend Utils",
-    role: "Admin",
-    members: 4,
-    projects: 1,
-  },
-  {
-    id: "3",
-    name: "Freelance Clients",
-    role: "Member",
-    members: 2,
-    projects: 5,
-  },
 ];
+
 export const useWorkspaceStore = create((set) => ({
   workspaces: dummyWorkspaces,
   isLoading: false,
   error: null,
 
-  createWorkspace: async (workspaceData) => {
+  // ==================== Get Workspaces ====================
+
+  getAllWorkspace: async () => {
     try {
-        console.log("Creating workspace:", workspaceData);
-      set({ isLoading: true, error: null });
+      set({
+        isLoading: true,
+        error: null,
+      });
 
-      const data = new FormData();
+      const response = await axios.get(`${backendUrl}/workspace`);
 
-      data.append("name", workspaceData.name);
-      data.append("description", workspaceData.description);
+      set({
+        workspaces: response.data.data || [],
+        isLoading: false,
+        error: null,
+      });
 
-      if (workspaceData.icon) {
-        data.append("icon", workspaceData.icon);
-      }
-
-    //   const response = await axios.post(
-    //     `${backendUrl}/api/workspaces`,
-    //     data,
-    //   );
-
-      set((state) => ({
-      workspaces: [
-        ...state.workspaces,
-        {
-          ...workspaceData,
-          id: Date.now().toString(),
-          role: "Owner",
-          members: 1,
-          projects: 0,
-        },
-      ],
-      isLoading: false,
-      error: null,
-    }));
-        console.log("Workspace added");
-    //   return response.data.workspace;
-    return workspaceData; // Return the new workspace data for immediate use
+      return response.data.data;
     } catch (error) {
       set({
-        error:
-          error.response?.data?.message ||
-          "Failed to create workspace",
+        workspaces: [],
         isLoading: false,
+        error: error.response?.data?.message || "Failed to fetch workspaces",
       });
 
       throw error;
     }
   },
+
+  // ==================== Create Workspace ====================
+
+  createWorkspace: async (workspaceData) => {
+    try {
+      set({
+        isLoading: true,
+        error: null,
+      });
+
+      const response = await axios.post(
+        `${backendUrl}/workspace`,
+        workspaceData,
+      );
+
+      const newWorkspace = response.data.data;
+
+      set((state) => ({
+        workspaces: [...state.workspaces, newWorkspace],
+        isLoading: false,
+        error: null,
+      }));
+
+      return newWorkspace;
+    } catch (error) {
+      set({
+        isLoading: false,
+        error: error.response?.data?.message || "Failed to create workspace",
+      });
+
+      throw error;
+    }
+  },
+
+  // ==================== Delete Workspace ====================
+
   deleteWorkspace: async (id) => {
-    // await axios.delete(`${backendUrl}/api/workspaces/${id}`);
-    set((state) => ({
-      workspaces: state.workspaces.filter(
-        (workspace) => workspace.id !== id
-      ),
-    }));
+    try {
+      set({
+        isLoading: true,
+        error: null,
+      });
+
+      await axios.delete(`${backendUrl}/workspace/${id}`);
+
+      set((state) => ({
+        workspaces: state.workspaces.filter(
+          (workspace) => workspace._id !== id,
+        ),
+        isLoading: false,
+      }));
+    } catch (error) {
+      set({
+        isLoading: false,
+        error: error.response?.data?.message || "Failed to delete workspace",
+      });
+
+      throw error;
+    }
   },
 }));
