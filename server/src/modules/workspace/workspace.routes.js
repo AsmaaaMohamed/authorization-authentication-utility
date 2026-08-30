@@ -5,6 +5,7 @@ import {
   getMyWorkspacesController,
   updateWorkspaceController,
   deleteWorkspaceController,
+  getWorkspaceMembersController,
 } from './workspace.controller.js';
 
 import {
@@ -26,6 +27,9 @@ router.post(
 
 router.get('/', userAuth, getMyWorkspacesController);
 
+router.get('/:workspaceId/members', userAuth, getWorkspaceMembersController);
+router.get('/:id/members', userAuth, getWorkspaceMembersController);
+
 router.patch(
   '/:id',
   userAuth,
@@ -36,3 +40,4 @@ router.patch(
 router.delete('/:id', userAuth, deleteWorkspaceController);
 
 export default router;
+

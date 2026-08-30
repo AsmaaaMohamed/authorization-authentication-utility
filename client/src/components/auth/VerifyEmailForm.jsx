@@ -1,11 +1,10 @@
 import { Mail } from "lucide-react";
-
-import AuthCard from "../ui/AuthCard";
 import Button from "../ui/Button";
+import AuthShell from "./AuthShell";
 
 export default function VerifyEmailForm() {
   return (
-    <AuthCard className="max-w-[380px]">
+    <AuthShell>
       <div className="text-center">
         <div
           className="
@@ -61,6 +60,6 @@ export default function VerifyEmailForm() {
         Didn't receive the code?{" "}
         <button className="text-[#667cff] underline">Resend</button>
       </p>
-    </AuthCard>
+    </AuthShell>
   );
 }

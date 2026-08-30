@@ -1,14 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;700&display=swap');
+
 @import "tailwindcss";
 
 * {
-  font-family: "Outfit", sans-serif;
+  font-family: "Inter", -apple-system, sans-serif;
 }
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
   -webkit-text-fill-color: #d1d5db;
-  -webkit-box-shadow: 0 0 0 1000px #333a5c inset;
-  box-shadow: 0 0 0 1000px #333a5c inset;
+  -webkit-box-shadow: 0 0 0 1000px #1b1f26 inset;
+  box-shadow: 0 0 0 1000px #1b1f26 inset;
 }

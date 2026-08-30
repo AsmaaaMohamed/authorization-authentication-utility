@@ -1,6 +1,9 @@
 import asyncHandler from '../../utilities/asyncHandler.js';
 
-import { createWorkspaceInvitation } from './workspaceInvitation.service.js';
+import {
+  createWorkspaceInvitation,
+  acceptWorkspaceInvitation,
+} from './workspaceInvitation.service.js';
 
 /**
  * Send a workspace invitation.
@@ -20,3 +23,24 @@ export const createWorkspaceInvitationController = asyncHandler(
     });
   },
 );
+
+/**
+ * Accept a workspace invitation.
+ */
+export const acceptWorkspaceInvitationController = asyncHandler(
+  async (req, res) => {
+    const result = await acceptWorkspaceInvitation({
+      inviteToken: req.body.inviteToken,
+      userId: req.user.id,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Invitation accepted successfully.',
+      workspaceId: result.workspaceId,
+      role: result.role,
+      data: result,
+    });
+  },
+);
+
