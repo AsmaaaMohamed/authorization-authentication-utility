@@ -79,7 +79,38 @@ export const useAuthStore = create((set) => ({
       set({ isLoading: false });
     }
   },
+ // Send Reset OTP
+  sendResetOtp: async (email) => {
+    try {
+      set({ isLoading: true });
+      const { data } = await axios.post(
+        `${backendUrl}/api/auth/send-reset-otp`,
+        { email }
+      );
 
+      return data;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+  // Reset Password
+  resetPassword: async (email, otp, newPassword) => {
+    try {
+      set({ isLoading: true });
+      const { data } = await axios.post(
+        `${backendUrl}/api/auth/reset-password`,
+        {
+          email,
+          otp,
+          newPassword,
+        }
+      );
+
+      return data;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
   // ==================== Get User Data ====================
 
   getUserData: async () => {
