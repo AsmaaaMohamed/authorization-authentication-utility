@@ -13,14 +13,15 @@ const projectSchema = new mongoose.Schema(
       trim: true,
     },
     workspaceId: {
-      type: String,
-      trim: true,
-      default: '',
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Workspace',
+      required: [true, 'Workspace is required'],
     },
   },
   { timestamps: true },
 );
 
-const Project = mongoose.models.Project || mongoose.model('Project', projectSchema);
+const Project =
+  mongoose.models.Project || mongoose.model('Project', projectSchema);
 
 export default Project;

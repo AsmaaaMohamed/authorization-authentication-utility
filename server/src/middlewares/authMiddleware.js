@@ -12,7 +12,10 @@
  */
 
 import jwt from 'jsonwebtoken';
-import { isTokenBlacklisted } from '../config/redisService.js';
+import {
+  isTokenBlacklisted,
+  getUserRevokeAllBefore,
+} from '../config/redisService.js';
 import AppError from '../utilities/AppError.js';
 
 // helper function
@@ -27,39 +30,39 @@ export const userAuth = async (req, res, next) => {
   try {
     let token = null;
 
-    if (req.cookies && req.cookies.token) {
+    if (req.cookies?.token) {
       token = req.cookies.token;
-    } else if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith('Bearer ')
-    ) {
+    } else if (req.headers.authorization?.startsWith('Bearer ')) {
       token = req.headers.authorization.split(' ')[1];
-    } else if (req.headers.token) {
-      token = req.headers.token;
     }
 
     if (!token) {
-      throw new AppError(
-        'Not Authorized. Token is missing, please log in.',
-        401,
+      return next(
+        new AppError('Not Authorized. Token is missing, please log in.', 401),
       );
     }
 
     const isRevoked = await isTokenBlacklisted(token);
     if (isRevoked) {
-      throw new AppError(
-        'Session has been invalidated. Please log in again.',
-        401,
+      return next(
+        new AppError('Session has been invalidated. Please log in again.', 401),
       );
     }
 
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || 'jwt_secret_key_default',
+      process.env.JWT_ACCESS_TOKEN_SECRET || 'jwt_secret_key_default',
     );
 
     if (!decoded || !decoded.id) {
-      throw new AppError('Not Authorized. Invalid token payload.', 401);
+      return next(new AppError('Not Authorized. Invalid token payload.', 401));
+    }
+
+    const revokeAllBefore = await getUserRevokeAllBefore(decoded.id);
+    if (revokeAllBefore && decoded.iat * 1000 < revokeAllBefore) {
+      return next(
+        new AppError('Session has been invalidated. Please log in again.', 401),
+      );
     }
 
     req.user = {
@@ -68,15 +71,11 @@ export const userAuth = async (req, res, next) => {
       email: decoded.email || '',
     };
 
-    req.body = req.body || {};
-    req.body.userId = decoded.id;
+    req.token = token;
 
     next();
   } catch (error) {
-    throw new AppError(
-      'Invalid or expired access token. Please login again.',
-      401,
-    );
+    return next(error);
   }
 };
 
