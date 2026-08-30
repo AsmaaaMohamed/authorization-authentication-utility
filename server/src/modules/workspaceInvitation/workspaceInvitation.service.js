@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import mongoose from 'mongoose';
 
 import User from '../user/user.model.js';
 import Workspace from '../workspace/workspace.model.js';
@@ -102,3 +103,84 @@ export const createWorkspaceInvitation = async ({
 
   return invitation;
 };
+
+/**
+ * Accept a workspace invitation.
+ *
+ * Validates the inviteToken, ensures it is active and not expired,
+ * adds the user to the workspace as a member with the invited role,
+ * and updates the invitation status to 'ACCEPTED' inside a transaction.
+ *
+ * @param {Object} params
+ * @param {string} params.inviteToken - The invitation token.
+ * @param {string} params.userId - The ID of the accepting authenticated user.
+ * @returns {Promise<{ workspaceId: string, role: string }>}
+ */
+export const acceptWorkspaceInvitation = async ({ inviteToken, userId }) => {
+  if (!inviteToken) {
+    throw new AppError('inviteToken is required.', 400);
+  }
+
+  const invitation = await WorkspaceInvitation.findOne({
+    token: inviteToken,
+  });
+
+  if (!invitation) {
+    throw new AppError('Invalid invitation token.', 400);
+  }
+
+  const isExpired =
+    invitation.status !== 'PENDING' ||
+    new Date(invitation.expiresAt) < new Date();
+
+  if (isExpired) {
+    if (invitation.status === 'PENDING') {
+      invitation.status = 'EXPIRED';
+      await invitation.save();
+    }
+    throw new AppError(
+      'Invitation token is expired or has already been used.',
+      400,
+    );
+  }
+
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    const existingMember = await WorkspaceMember.findOne({
+      workspaceId: invitation.workspaceId,
+      userId,
+    }).session(session);
+
+    if (!existingMember) {
+      await WorkspaceMember.create(
+        [
+          {
+            userId,
+            workspaceId: invitation.workspaceId,
+            role: invitation.role,
+          },
+        ],
+        { session },
+      );
+    }
+
+    invitation.status = 'ACCEPTED';
+    await invitation.save({ session });
+
+    await session.commitTransaction();
+
+    return {
+      workspaceId: invitation.workspaceId,
+      role: invitation.role,
+    };
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    await session.endSession();
+  }
+};
+

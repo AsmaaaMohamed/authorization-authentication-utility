@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 import WorkspaceMember from './workspaceMember.model.js';
+import Workspace from '../workspace/workspace.model.js';
+import AppError from '../../utilities/AppError.js';
 
 /**
  * Retrieve all workspaces available to the authenticated user.
@@ -58,3 +60,43 @@ export const getMyWorkspaces = async (userId) => {
 
   return workspaces;
 };
+
+/**
+ * Retrieve all members belonging to the requested workspace.
+ *
+ * @param {string} workspaceId - ID of the workspace.
+ * @param {string} [requestingUserId] - ID of the authenticated user requesting the list.
+ * @returns {Promise<Array<{ userId: string, name: string, role: string }>>}
+ */
+export const getWorkspaceMembers = async (workspaceId, requestingUserId) => {
+  if (!workspaceId || !mongoose.Types.ObjectId.isValid(workspaceId)) {
+    throw new AppError('Invalid workspace ID.', 400);
+  }
+
+  const workspace = await Workspace.findById(workspaceId);
+  if (!workspace) {
+    throw new AppError('Workspace not found.', 404);
+  }
+
+  if (requestingUserId) {
+    const isMember = await WorkspaceMember.findOne({
+      workspaceId,
+      userId: requestingUserId,
+    });
+
+    if (!isMember) {
+      throw new AppError('You are not authorized to view members of this workspace.', 403);
+    }
+  }
+
+  const members = await WorkspaceMember.find({ workspaceId })
+    .populate('userId', 'name email avatar')
+    .lean();
+
+  return members.map((member) => ({
+    userId: member.userId?._id?.toString() || member.userId?.toString(),
+    name: member.userId?.name || 'Unknown',
+    role: member.role,
+  }));
+};
+

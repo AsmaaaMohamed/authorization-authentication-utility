@@ -1,13 +1,25 @@
 import { Router } from 'express';
 
-import { userAuth } from '../../middlewares/authMiddleware.js';
-import { validate } from '../../middlewares/authMiddleware.js';
+import { userAuth, validate } from '../../middlewares/authMiddleware.js';
 
-import { createWorkspaceInvitationController } from './workspaceInvitation.controller.js';
+import {
+  createWorkspaceInvitationController,
+  acceptWorkspaceInvitationController,
+} from './workspaceInvitation.controller.js';
 
-import { createWorkspaceInvitationSchema } from '../../validators/workspaceInvitation.validation.js';
+import {
+  createWorkspaceInvitationSchema,
+  acceptWorkspaceInvitationSchema,
+} from '../../validators/workspaceInvitation.validation.js';
 
 const router = Router();
+
+router.post(
+  '/invitations/accept',
+  userAuth,
+  validate(acceptWorkspaceInvitationSchema),
+  acceptWorkspaceInvitationController,
+);
 
 router.post(
   '/:workspaceId/invitations',
@@ -17,3 +29,4 @@ router.post(
 );
 
 export default router;
+

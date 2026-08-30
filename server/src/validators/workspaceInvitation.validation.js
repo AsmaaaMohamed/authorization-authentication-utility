@@ -7,3 +7,11 @@ export const createWorkspaceInvitationSchema = z.object({
     message: 'Role must be either ADMIN or MEMBER',
   }),
 });
+
+export const acceptWorkspaceInvitationSchema = z.object({
+  inviteToken: z
+    .string({ required_error: 'inviteToken is required' })
+    .trim()
+    .min(1, 'inviteToken is required'),
+});
+

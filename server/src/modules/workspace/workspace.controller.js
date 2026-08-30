@@ -4,6 +4,7 @@ import {
   updateWorkspace,
   deleteWorkspace,
 } from './workspace.service.js';
+import { getWorkspaceMembers } from '../workspaceMember/workspaceMember.service.js';
 
 import asyncHandler from '../../utilities/asyncHandler.js';
 
@@ -58,3 +59,21 @@ export const deleteWorkspaceController = asyncHandler(async (req, res) => {
     message: 'Workspace deleted successfully.',
   });
 });
+
+/**
+ * Get all members belonging to a workspace.
+ */
+export const getWorkspaceMembersController = asyncHandler(async (req, res) => {
+  const workspaceId = req.params.workspaceId || req.params.id;
+  const members = await getWorkspaceMembers(workspaceId, req.user?.id);
+
+  res.status(200).json({
+    success: true,
+    results: members.length,
+    members,
+    data: {
+      members,
+    },
+  });
+});
+
