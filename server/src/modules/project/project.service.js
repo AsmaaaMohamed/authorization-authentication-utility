@@ -29,3 +29,13 @@ export const deleteProject = async (projectId, userId) => {
     deletedAt: new Date().toISOString(),
   };
 };
+
+export const getProjectsByWorkspace = async (workspaceId) => {
+  const projects = await Project.find({
+    workspaceId,
+  });
+
+  return projects;
+};
+
+
