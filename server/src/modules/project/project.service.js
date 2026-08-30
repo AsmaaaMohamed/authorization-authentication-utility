@@ -1,13 +1,11 @@
 import Project from './project.model.js';
 import AppError from '../../utilities/AppError.js';
 
-export const createProject = async (projectData, workspaceIdFromParam = '') => {
-  const workspaceId = projectData.workspaceId || workspaceIdFromParam || '';
-
+export const createProject = async (projectData) => {
   const project = await Project.create({
     name: projectData.name,
     description: projectData.description || '',
-    workspaceId,
+    workspaceId: projectData.workspaceId,
   });
 
   return project;
