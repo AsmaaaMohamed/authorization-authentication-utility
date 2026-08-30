@@ -2,6 +2,7 @@ import { C } from "../../constants/theme";
 import { X } from  "lucide-react";
 
 function Modal({ title, onClose, children, width = 460 }) {
+  console.log(title);
   return (
     <div style={{ position: "fixed", inset: 0, background: "#000000AA", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 60 }} onClick={onClose}>
       <div onClick={(e) => e.stopPropagation()} style={{ width, maxWidth: "90vw", maxHeight: "85vh", overflowY: "auto", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, padding: 22 }}>

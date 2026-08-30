@@ -5,18 +5,21 @@ import axios from "axios";
 axios.defaults.withCredentials = true;
 const dummyWorkspaces = [
   {
+    id: "1",
     name: "Product Team",
     role: "Owner",
     members: 6,
     projects: 3,
   },
   {
+    id: "2",
     name: "Backend Utils",
     role: "Admin",
     members: 4,
     projects: 1,
   },
   {
+    id: "3",
     name: "Freelance Clients",
     role: "Member",
     members: 2,
@@ -75,5 +78,12 @@ export const useWorkspaceStore = create((set) => ({
       throw error;
     }
   },
-  
+  deleteWorkspace: async (id) => {
+    // await axios.delete(`${backendUrl}/api/workspaces/${id}`);
+    set((state) => ({
+      workspaces: state.workspaces.filter(
+        (workspace) => workspace.id !== id
+      ),
+    }));
+  },
 }));
