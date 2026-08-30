@@ -75,7 +75,7 @@ export const logout = async (req, res, next) => {
       sameSite: 'strict',
     });
 
-    return res.status(200).json({
+    return res.status(204).json({
       success: true,
       message: 'Logged out successfully.',
     });
@@ -94,7 +94,7 @@ export const logoutAllDevices = async (req, res, next) => {
       sameSite: 'strict',
     });
 
-    return res.status(200).json({
+    return res.status(204).json({
       success: true,
       message: 'Logged out from all devices.',
     });
