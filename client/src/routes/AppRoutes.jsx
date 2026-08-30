@@ -8,6 +8,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import RootRedirect from "./RootRedirect";
 import WorkspacesPage from "../pages/WorkSpaces/WorkSpaces";
 import { useAuthStore } from "../store";
+import WorkspaceSettingsPage from "../pages/WorkSpaces/WorkspaceSettingsPage";
 
 export default function AppRoutes() {
   const { isLoggedIn } = useAuthStore();
@@ -24,6 +25,7 @@ export default function AppRoutes() {
         {/* Protected */}
       <Route element={<ProtectedRoute isLoggedIn={true} />}>
         <Route path="/workspaces" element={<WorkspacesPage />} />
+        <Route path="/workspaces/:id/settings" element={<WorkspaceSettingsPage />}/>
         {/* <Route path="/board" element={<Board />} />
         <Route path="/members" element={<Members />} />
         <Route path="/notifications" element={<Notifications />} />

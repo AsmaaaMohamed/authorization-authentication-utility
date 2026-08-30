@@ -78,6 +78,38 @@ export const useWorkspaceStore = create((set) => ({
       throw error;
     }
   },
+  updateWorkspace: async (id, workspaceData) => {
+  try {
+    // const response = await axios.patch(
+    //   `${backendUrl}/api/workspaces/${id}`,
+    //   workspaceData
+    // );
+
+    // const updatedWorkspace = response.data.workspace;
+    let updatedWorkspace;
+    set((state) => ({
+      workspaces: state.workspaces.map((workspace) => {
+        if (workspace.id === id) {
+          updatedWorkspace = {
+            ...workspace,
+            ...workspaceData,
+          };
+          return updatedWorkspace;
+        }
+        return workspace;
+      }),
+    }));
+    return updatedWorkspace;
+  } catch (error) {
+    set({
+      error:
+        error.response?.data?.message ||
+        "Failed to update workspace",
+    });
+
+    throw error;
+  }
+},
   deleteWorkspace: async (id) => {
     // await axios.delete(`${backendUrl}/api/workspaces/${id}`);
     set((state) => ({
