@@ -9,15 +9,7 @@ import { useWorkspaceStore } from "../../store/useWorkspaceStore";
 function WorkspacesPage() {
   const [showCreate, setShowCreate] = useState(false);
   const navigate = useNavigate();
-   const {workspaces } = useWorkspaceStore();
-//   const handleCreateWorkspace = (newWorkspace) => {
-//   setWorkspaces((prev) => [
-//     ...prev,
-//     newWorkspace,
-//   ]);
-
-//   setShowCreate(false);
-// };
+  const {workspaces } = useWorkspaceStore();
   return (
     <div style={{ minHeight: "100vh", background: C.bg, fontFamily: FONT, padding: "40px 28px",display:"flex", alignItems:"center" }}>
       <div style={{ maxWidth: 760, margin: "0 auto" , width: "100%" }}>
