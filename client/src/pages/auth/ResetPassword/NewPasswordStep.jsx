@@ -52,8 +52,8 @@ const NewPasswordStep = ({ email, otp }) => {
             </p>
         </div>
         <form  onSubmit={handleResetPassword}>
-          <Field label="New password" required icon={Lock} type="password" placeholder="At least 8 characters" value={newPassword} onChange={(e) => setNewPassword(e.target.value)}/>
-          <Field label="Confirm new password" required icon={Lock} type="password" placeholder="Repeat password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}/>
+          <Field label="New password" name="newPassword" required icon={Lock} type="password" placeholder="At least 8 characters" value={newPassword} onChange={(e) => setNewPassword(e.target.value)}/>
+          <Field label="Confirm new password" name="confirmPassword" required icon={Lock} type="password" placeholder="Repeat password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}/>
           <Button full type="submit" disabled={isLoading || !newPassword || !confirmPassword || newPassword !== confirmPassword}>
               {isLoading ? (
                 <>

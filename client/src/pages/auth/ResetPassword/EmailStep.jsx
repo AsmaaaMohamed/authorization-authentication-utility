@@ -31,6 +31,7 @@ const EmailStep = ({ email, setEmail, onSuccess }) => {
         <Field 
             type="email"
             placeholder="Email Address"
+            name="email"
             icon={Mail}
             value={email}
             onChange={(e) => setEmail(e.target.value)}

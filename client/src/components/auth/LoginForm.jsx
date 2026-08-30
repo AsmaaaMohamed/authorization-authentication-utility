@@ -24,8 +24,8 @@ const LoginForm = () => {
         <div style={{ fontSize: 16, color: C.text, fontWeight: 600, marginBottom: 3 }}>Log in</div>
         <div style={{ fontSize: 12.5, color: C.textFaint, marginBottom: 22 }}>Required: email, password.</div>
         <form onSubmit={handleSubmit}>
-            <Field label="Email" icon={Mail} type="email" placeholder="Your Email" required value={email} onChange={(e) => setEmail(e.target.value)}/>
-            <Field label="Password" required icon={Lock} type={showPw ? "text" : "password"} placeholder="••••••••"
+            <Field label="Email" name="email" icon={Mail} type="email" placeholder="Your Email" required value={email} onChange={(e) => setEmail(e.target.value)}/>
+            <Field label="Password" name="password" required icon={Lock} type={showPw ? "text" : "password"} placeholder="••••••••"
               right={<span onClick={() => setShowPw(!showPw)} style={{ cursor: "pointer" }}>{showPw ? <Eye size={14} color={C.textFaint} /> : <EyeOff size={14} color={C.textFaint} />}</span>} value={password} onChange={(e) => setPassword(e.target.value)}/>
             <div style={{ textAlign: "right", marginBottom: 20 }}>
               <Link to="/reset-password" style={{ fontSize: 12, color: C.accent }}>Forgot password?</Link>

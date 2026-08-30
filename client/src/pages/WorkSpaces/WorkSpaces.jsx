@@ -3,15 +3,21 @@ import { C, FONT, MONO } from "../../constants/theme";
 import { ChevronRight, Plus } from "lucide-react";
 import Button from "../../components/ui/Button";
 import CreateWorkspaceModal from "./CreateWorkSpacesModal";
+import { useNavigate } from "react-router-dom";
+import { useWorkspaceStore } from "../../store/useWorkspaceStore";
 
-function WorkspacesPage({ goTo }) {
+function WorkspacesPage() {
   const [showCreate, setShowCreate] = useState(false);
-  const workspacesData = [
-    { name: "Product Team", role: "Owner", members: 6, projects: 3 },
-    { name: "Backend Utils", role: "Admin", members: 4, projects: 1 },
-    { name: "Freelance Clients", role: "Member", members: 2, projects: 5 },
-  ];
-  const [workspaces, setWorkspaces] = useState(workspacesData);
+  const navigate = useNavigate();
+   const {workspaces } = useWorkspaceStore();
+//   const handleCreateWorkspace = (newWorkspace) => {
+//   setWorkspaces((prev) => [
+//     ...prev,
+//     newWorkspace,
+//   ]);
+
+//   setShowCreate(false);
+// };
   return (
     <div style={{ minHeight: "100vh", background: C.bg, fontFamily: FONT, padding: "40px 28px",display:"flex", alignItems:"center" }}>
       <div style={{ maxWidth: 760, margin: "0 auto" , width: "100%" }}>
@@ -23,7 +29,7 @@ function WorkspacesPage({ goTo }) {
           <Button icon={Plus} onClick={() => setShowCreate(true)}>New workspace</Button>
         </div>
         {workspaces.map((w) => (
-          <div key={w.name} onClick={() => goTo("board")} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: "16px 18px", marginBottom: 10, cursor: "pointer" }}>
+          <div key={w.name} onClick={() => navigate("/board")} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: "16px 18px", marginBottom: 10, cursor: "pointer" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
               <div style={{ width: 36, height: 36, borderRadius: 8, background: C.panel2, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: MONO, fontSize: 14, color: C.accent }}>{w.name[0]}</div>
               <div>
@@ -38,7 +44,7 @@ function WorkspacesPage({ goTo }) {
           </div>
         ))}
       </div>
-      {showCreate && <CreateWorkspaceModal onClose={() => setShowCreate(false)} />}
+      {showCreate && <CreateWorkspaceModal onClose={() => setShowCreate(false)}/>}
     </div>
   );
 }
