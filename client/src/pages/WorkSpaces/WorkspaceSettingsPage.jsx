@@ -62,10 +62,9 @@ function WorkspaceSettingsPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!hasChanges) return;
-
     await updateWorkspace(id, formData);
+    toast.success("Workspace updated successfully");
   };
 
   if (!workspace) {
@@ -136,7 +135,7 @@ function WorkspaceSettingsPage() {
             borderTop: `1px solid ${C.border}`,
           }}
         >
-          <h3 style={{ color: C.text }}>
+          <h3 style={{ color: C.text, marginBottom: 16 }}>
             Danger zone
           </h3>
 
