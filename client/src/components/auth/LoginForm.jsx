@@ -14,8 +14,7 @@ const LoginForm = () => {
   const [showPw, setShowPw] = useState(false);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    
+    e.preventDefault();  
     await login(email, password);
   };
   return (
@@ -33,8 +32,7 @@ const LoginForm = () => {
             <Button full disabled={isLoading} type="submit">{isLoading ? "Logging in..." : "Login"}</Button>
             <div style={{ textAlign: "center", marginTop: 18, fontSize: 12.5, color: C.textFaint }}>
               No account? <Link to="/signup" style={{ color: C.accent }}>Sign up</Link>
-            </div>
-            
+            </div>           
         </form>
       </AuthShell>
     </>

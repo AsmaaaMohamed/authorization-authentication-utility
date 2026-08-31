@@ -36,7 +36,7 @@ export default function AuthLayout() {
       </nav>
       <main className="min-h-screen bg" style={{ background: C.bg}}>      
         {/* Page Content */}
-        <div className="min-h-screen items-center justify-center px-4">
+        <div className="min-h-screen items-center justify-center">
           <Outlet />
         </div>
       </main>

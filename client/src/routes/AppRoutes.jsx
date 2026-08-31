@@ -9,28 +9,32 @@ import RootRedirect from "./RootRedirect";
 import WorkspacesPage from "../pages/WorkSpaces/WorkSpaces";
 import { useAuthStore } from "../store";
 import WorkspaceSettingsPage from "../pages/WorkSpaces/WorkspaceSettingsPage";
+import MembersPage from "../pages/Members/Members";
+import AppLayout from "../components/AppLayout";
 
 export default function AppRoutes() {
   const { isLoggedIn } = useAuthStore();
   return (
     <Routes>
       <Route element={<AuthLayout />}>
-        {/* Root */}
-        <Route path="/" element={<RootRedirect />} />
-        {/* Public */}
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
-        {/* Protected */}
-      <Route element={<ProtectedRoute isLoggedIn={true} />}>
-        <Route path="/workspaces" element={<WorkspacesPage />} />
-        <Route path="/workspaces/:id/settings" element={<WorkspaceSettingsPage />}/>
-        {/* <Route path="/board" element={<Board />} />
-        <Route path="/members" element={<Members />} />
-        <Route path="/notifications" element={<Notifications />} />
-        <Route path="/settings" element={<Settings />} />  */}
-      </Route>
+          {/* Root */}
+          <Route path="/" element={<RootRedirect />} />
+          {/* Public */}
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          {/* Protected */}
+        <Route element={<ProtectedRoute isLoggedIn={true} />}>
+          <Route path="/workspaces" element={<WorkspacesPage />} />
+          <Route element={<AppLayout />}>
+            <Route path="/workspaces/:id/settings" element={<WorkspaceSettingsPage />}/>
+            <Route path="/members" element={<MembersPage />} />
+            {/* <Route path="/board" element={<Board />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/settings" element={<Settings />} />  */}
+          </Route>
+        </Route>
       </Route>
     </Routes>
   );

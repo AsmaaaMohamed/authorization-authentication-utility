@@ -4,7 +4,7 @@ import Button from "../../components/ui/Button";
 import InviteModal from "../../components/InviteModal";
 import PageHeader from "../../components/PageHeader";
 import { Plus } from "lucide-react";
-import { C, MONO } from "../../constants";
+import { C, MONO } from "../../constants/theme";
 
 function MembersPage() {
   const [showInvite, setShowInvite] = useState(false);
