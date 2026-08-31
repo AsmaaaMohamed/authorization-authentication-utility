@@ -11,3 +11,8 @@ export const createProjectSchema = z.object({
   description: z.string().trim().optional().default(''),
   workspaceId: z.string().trim().optional(),
 });
+export const updateProjectSchema = z.object({
+  name: z.string().trim().min(1, 'Name is required').optional(),
+
+  description: z.string().trim().optional(),
+});
