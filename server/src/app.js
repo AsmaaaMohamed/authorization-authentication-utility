@@ -5,6 +5,7 @@ import routes from './modules/routes/index.js';
 import AppError from './utilities/AppError.js';
 import globalErrorHandler from './middlewares/errorHandler.js';
 import { setupSwagger } from './docs/swagger.js';
+import { limiter, RATE_LIMITS } from './utilities/rateLimiter.js';
 
 const app = express();
 
@@ -14,7 +15,8 @@ app.use(cookieParser());
 
 // Swagger
 setupSwagger(app);
-
+// Global Rate Limiter
+app.use(limiter(RATE_LIMITS.GLOBAL));
 // routes
 app.use('/api/v1', routes);
 

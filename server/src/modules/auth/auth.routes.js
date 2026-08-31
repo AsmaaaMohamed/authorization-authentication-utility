@@ -6,14 +6,28 @@ import {
 } from '../../validators/authValidator.js';
 
 import { validate, userAuth } from '../../middlewares/authMiddleware.js';
-
+import { limiter, RATE_LIMITS } from '../../utilities/rateLimiter.js';
 const router = express.Router();
 
-router.post('/register', validate(registerUserSchema), authController.register);
+router.post(
+  '/register',
+  limiter(RATE_LIMITS.REGISTER),
+  validate(registerUserSchema),
+  authController.register,
+);
 
-router.post('/login', validate(loginUserSchema), authController.login);
+router.post(
+  '/login',
+  limiter(RATE_LIMITS.LOGIN),
+  validate(loginUserSchema),
+  authController.login,
+);
 
-router.post('/refresh', authController.refresh);
+router.post(
+  '/refresh',
+  limiter(RATE_LIMITS.REFRESH_TOKEN),
+  authController.refresh,
+);
 router.post('/logout', userAuth, authController.logout);
 router.post('/logout-all', userAuth, authController.logoutAllDevices);
 
