@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { C, FONT, MONO } from "../../constants/theme";
-import { ChevronRight, Plus } from "lucide-react";
+import { ChevronRight, Plus, Settings } from "lucide-react";
 import Button from "../../components/ui/Button";
 import CreateWorkspaceModal from "./CreateWorkSpacesModal";
 import { useNavigate } from "react-router-dom";
@@ -34,13 +34,15 @@ function WorkspacesPage() {
             <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
               <span style={{ fontFamily: MONO, fontSize: 11, color: C.textMuted, background: C.panel2, padding: "3px 8px", borderRadius: 5, border: `1px solid ${C.border}` }}>{w.role}</span>
               <ChevronRight size={15} color={C.textFaint} />
-              <Button
-                variant="danger"
-                onClick={() => {setWorkspaceToDelete(w);
-                }}
+              <div
+                  title="Settings"
+                  onClick={() => navigate(`/workspaces/${w.id}/settings`)}
+                  style={{
+                    cursor: "pointer",
+                  }}
               >
-                Delete
-              </Button>
+                <Settings size={24} color={C.textFaint} title="Settings"/>
+              </div>
               
             </div>
           </div>
