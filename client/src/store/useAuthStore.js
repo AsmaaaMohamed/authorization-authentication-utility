@@ -15,7 +15,7 @@ export const useAuthStore = create((set) => ({
 
   // ==================== Signup ====================
 
-  signup: async (name, email, password, confirmPassword) => {
+  signup: async (name, email, password, passwordConfirm) => {
     try {
       set({ isLoading: true });
 
@@ -25,6 +25,7 @@ export const useAuthStore = create((set) => ({
           name,
           email,
           password,
+          passwordConfirm,
         }
       );
 
@@ -54,7 +55,7 @@ export const useAuthStore = create((set) => ({
       set({ isLoading: true });
 
       const { data } = await axios.post(
-        `${backendUrl}/api/auth/login`,
+        `${backendUrl}/auth/login`,
         {
           email,
           password,

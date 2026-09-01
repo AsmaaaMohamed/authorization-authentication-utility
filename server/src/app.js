@@ -10,7 +10,7 @@ import { limiter, RATE_LIMITS } from './utilities/rateLimiter.js';
 const app = express();
 
 app.use(express.json());
-app.use(cors({ credentials: true }));
+app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use(cookieParser());
 
 // Swagger
