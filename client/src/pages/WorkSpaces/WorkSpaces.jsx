@@ -28,7 +28,7 @@ function WorkspacesPage() {
               <div style={{ width: 36, height: 36, borderRadius: 8, background: C.panel2, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: MONO, fontSize: 14, color: C.accent }}>{w.name[0]}</div>
               <div>
                 <div style={{ fontSize: 14, color: C.text, fontWeight: 500 }}>{w.name}</div>
-                <div style={{ fontSize: 12, color: C.textFaint }}>{w.members} members · {w.projects} projects</div>
+                <div style={{ fontSize: 12, color: C.textFaint }}>{w.members.length} members · {w.projects} projects</div>
               </div>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
