@@ -38,4 +38,17 @@ export const getProjectsByWorkspace = async (workspaceId) => {
   return projects;
 };
 
+export const updateProject = async (projectId, workspaceId, data) => {
+  const project = await Project.findOneAndUpdate(
+    {
+      _id: projectId,
+      workspaceId,
+    },
+    {
+      $set: data,
+    },
+  );
+  return project;
+};
+
 

@@ -52,3 +52,38 @@ export const deleteProject = async (req, res, next) => {
     return next(error);
   }
 };
+ export const updateProject = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { name, description } = req.body;
+
+    const updateData = {};
+
+    if (name !== undefined) {
+      updateData.name = name;
+    }
+
+    if (description !== undefined) {
+      updateData.description = description;
+    }
+
+    const project = await updateProject(
+      id,
+      req.user.workspaceId,
+      updateData,
+    );
+
+    if (!project) {
+      return res.status(404).json({
+        message: 'Project not found or you do not have access to it',
+      });
+    }
+
+    return res.status(200).json({
+      message: 'Project updated successfully',
+      project,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
