@@ -1,4 +1,4 @@
-import { rateLimit } from 'express-rate-limit';
+import { rateLimit, ipKeyGenerator } from 'express-rate-limit';
 
 /**
  * Creates a configurable Express rate-limiting middleware.
@@ -24,9 +24,12 @@ import { rateLimit } from 'express-rate-limit';
 export const limiter = ({
   windowMinutes = 10,
   limit = 10,
-  keyGenerator = (req) => req.ip,
+  keyGenerator,
   message,
 }) => {
+  const resolvedKeyGenerator = keyGenerator
+    ? (req) => keyGenerator(req)
+    : (req) => ipKeyGenerator(req.ip);
   return rateLimit({
     windowMs: windowMinutes * 60 * 1000,
     limit: limit,
@@ -38,7 +41,7 @@ export const limiter = ({
           `Too many requests. Please try again later. please try after ${windowMinutes} minutes`,
       });
     },
-    keyGenerator,
+    keyGenerator: resolvedKeyGenerator,
     standardHeaders: true,
     legacyHeaders: false,
   });
