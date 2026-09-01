@@ -20,7 +20,7 @@ export const useAuthStore = create((set) => ({
       set({ isLoading: true });
 
       const { data } = await axios.post(
-        `${backendUrl}/api/auth/register`,
+        `${backendUrl}/auth/register`,
         {
           name,
           email,
