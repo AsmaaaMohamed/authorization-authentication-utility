@@ -19,6 +19,10 @@ import { redisClient, isRedisConnected } from './redis.js';
 const hashIdentifier = (value) =>
   crypto.createHash('sha256').update(value).digest('hex');
 
+// helper for building otp key to store in redis
+const buildOtpKey = (purpose, identifier) =>
+  `${purpose}:${identifier.toLowerCase().trim()}`;
+
 const memoryStore = new Map();
 
 const setInMemory = (key, value, ttlSeconds) => {
@@ -39,12 +43,12 @@ const getFromMemory = (key) => {
 export const setOtp = async (
   identifier,
   otp,
-  ttlSeconds = 300,
-  maxAttempts = 3,
+  { ttlSeconds = 300, maxAttempts = 3, purpose = 'otp' } = {},
 ) => {
-  const key = `otp:${identifier.toLowerCase().trim()}`;
+  const key = buildOtpKey(purpose, identifier);
+
   const payload = JSON.stringify({
-    otp: String(otp).trim(),
+    otpHash: hashIdentifier(String(otp).trim()),
     attemptsRemaining: maxAttempts,
     createdAt: Date.now(),
   });
@@ -62,8 +66,12 @@ export const setOtp = async (
   }
 };
 
-export const verifyOtp = async (identifier, inputOtp) => {
-  const key = `otp:${identifier.toLowerCase().trim()}`;
+export const verifyOtp = async (
+  identifier,
+  inputOtp,
+  { purpose = 'otp' } = {},
+) => {
+  const key = buildOtpKey(purpose, identifier);
   let rawData = null;
 
   try {
@@ -84,10 +92,10 @@ export const verifyOtp = async (identifier, inputOtp) => {
   }
 
   const data = typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
-  const submittedOtp = String(inputOtp).trim();
+  const submittedHash = hashIdentifier(String(inputOtp).trim());
 
-  if (data.otp === submittedOtp) {
-    await deleteOtp(identifier);
+  if (data.otpHash === submittedHash) {
+    await deleteOtp(identifier, { purpose });
     return {
       valid: true,
       message: 'OTP verified successfully.',
@@ -97,7 +105,7 @@ export const verifyOtp = async (identifier, inputOtp) => {
   data.attemptsRemaining -= 1;
 
   if (data.attemptsRemaining <= 0) {
-    await deleteOtp(identifier);
+    await deleteOtp(identifier, { purpose });
     return {
       valid: false,
       message:
@@ -117,6 +125,7 @@ export const verifyOtp = async (identifier, inputOtp) => {
       const remainingSeconds = item?.expiresAt
         ? Math.max(1, Math.round((item.expiresAt - Date.now()) / 1000))
         : 300;
+
       setInMemory(key, JSON.stringify(data), remainingSeconds);
     }
   } catch (err) {
@@ -130,8 +139,9 @@ export const verifyOtp = async (identifier, inputOtp) => {
   };
 };
 
-export const deleteOtp = async (identifier) => {
-  const key = `otp:${identifier.toLowerCase().trim()}`;
+export const deleteOtp = async (identifier, { purpose = 'otp' } = {}) => {
+  const key = buildOtpKey(purpose, identifier);
+
   try {
     if (isRedisConnected && redisClient.status === 'ready') {
       await redisClient.del(key);
@@ -139,6 +149,52 @@ export const deleteOtp = async (identifier) => {
   } catch (err) {}
   memoryStore.delete(key);
   return true;
+};
+
+// One-time reset-authorization token, issued after a successful OTP verification
+export const generateResetToken = async (userId, ttlSeconds = 600) => {
+  const rawToken = crypto.randomBytes(32).toString('hex');
+  const key = `resetToken:${hashIdentifier(rawToken)}`;
+
+  try {
+    if (isRedisConnected && redisClient.status === 'ready') {
+      await redisClient.set(key, String(userId), 'EX', ttlSeconds);
+    } else {
+      setInMemory(key, String(userId), ttlSeconds);
+    }
+  } catch (err) {
+    setInMemory(key, String(userId), ttlSeconds);
+  }
+
+  return rawToken;
+};
+
+export const consumeResetToken = async (rawToken) => {
+  if (!rawToken) return null;
+
+  const key = `resetToken:${hashIdentifier(rawToken)}`;
+  let userId = null;
+
+  try {
+    if (isRedisConnected && redisClient.status === 'ready') {
+      userId = await redisClient.get(key);
+    } else {
+      userId = getFromMemory(key);
+    }
+  } catch (err) {
+    userId = getFromMemory(key);
+  }
+
+  if (!userId) return null;
+
+  try {
+    if (isRedisConnected && redisClient.status === 'ready') {
+      await redisClient.del(key);
+    }
+  } catch (err) {}
+  memoryStore.delete(key);
+
+  return userId;
 };
 
 export const blacklistToken = async (token, ttlSeconds) => {
@@ -280,6 +336,8 @@ export default {
   setOtp,
   verifyOtp,
   deleteOtp,
+  generateResetToken,
+  consumeResetToken,
   blacklistToken,
   isTokenBlacklisted,
   setUserRevokeAllBefore,

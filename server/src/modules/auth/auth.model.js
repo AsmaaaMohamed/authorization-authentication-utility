@@ -38,10 +38,6 @@ const userSchema = new mongoose.Schema(
     verifyOtp: { type: String, default: '' },
 
     verifyOtpExpireAt: { type: Number, default: 0 },
-
-    resetOtp: { type: String, default: '' },
-
-    resetOtpExpireAt: { type: Number, default: 0 },
   },
   { timestamps: true },
 );
@@ -59,6 +55,6 @@ const User = mongoose.models.User || mongoose.model('User', userSchema);
 export const findByEmail = (email) => User.findOne({ email });
 
 export const findPublicById = (userId) =>
-  User.findById(userId).select('-password -verifyOtp -resetOtp');
+  User.findById(userId).select('-password -verifyOtp');
 
 export default User;
