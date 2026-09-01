@@ -7,7 +7,7 @@ axios.defaults.withCredentials = true;
 
 const dummyWorkspaces = [
   {
-    _id: "1",
+    id: "1",
     name: "Product Team",
     role: "Owner",
     members: 6,
@@ -84,7 +84,18 @@ export const useWorkspaceStore = create((set) => ({
 
   // ==================== Delete Workspace ====================
 
-  deleteWorkspace: async (id) => {
+  deleteWorkspace: async (workspaceId) => {
+    const id = workspaceId?.id || workspaceId?._id || workspaceId;
+
+    if (!id) {
+      const error = new Error("Workspace id is required for deletion");
+      set({
+        isLoading: false,
+        error: error.message,
+      });
+      throw error;
+    }
+
     try {
       set({
         isLoading: true,
@@ -95,7 +106,7 @@ export const useWorkspaceStore = create((set) => ({
 
       set((state) => ({
         workspaces: state.workspaces.filter(
-          (workspace) => workspace._id !== id,
+          (workspace) => (workspace.id || workspace._id) !== id,
         ),
         isLoading: false,
       }));

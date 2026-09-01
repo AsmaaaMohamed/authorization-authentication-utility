@@ -1,4 +1,4 @@
-import { rateLimit } from 'express-rate-limit';
+import { rateLimit, ipKeyGenerator } from 'express-rate-limit';
 
 /**
  * Creates a configurable Express rate-limiting middleware.
@@ -8,28 +8,23 @@ import { rateLimit } from 'express-rate-limit';
  * sharing one global limiter.
  *
  * @param {number} [windowMinutes=10] - Length of the rate-limit window, in minutes.
- *   After this window elapses, a client's request count resets.
  * @param {number} [limit=10] - Maximum number of requests a client can make
  *   within `windowMinutes` before being blocked.
- * @param {(req: import('express').Request) => string} [keyGenerator=(req) => req.ip]
+ * @param {(req: import('express').Request) => string} [keyGenerator]
  *   Function that determines how clients are identified/grouped for limiting.
- *   Defaults to limiting by IP address. Pass a custom function (e.g.
- *   `(req) => req.user.id`) to limit by authenticated user instead.
  * @param {string} [message] - Custom message returned in the 429 response body.
- *   Falls back to a default message referencing `windowMinutes` if omitted.
  *
- * @returns {import('express').RequestHandler} Express middleware enforcing
-
+ * @returns {import('express').RequestHandler}
  */
 export const limiter = ({
   windowMinutes = 10,
   limit = 10,
-  keyGenerator = (req) => req.ip,
+  keyGenerator = (req) => ipKeyGenerator(req.ip),
   message,
 }) => {
   return rateLimit({
     windowMs: windowMinutes * 60 * 1000,
-    limit: limit,
+    limit,
     handler: (req, res) => {
       res.status(429).json({
         success: false,
@@ -49,35 +44,41 @@ export const RATE_LIMITS = {
     windowMinutes: 15,
     limit: 100,
   },
+
   LOGIN: {
     windowMinutes: 15,
     limit: 5,
-    keyGenerator: (req) => `${req.ip}:${req.body?.email}`,
+    keyGenerator: (req) => `${ipKeyGenerator(req.ip)}:${req.body?.email}`,
     message: 'Too many login attempts. Please try again later.',
   },
+
   REGISTER: {
     windowMinutes: 60,
     limit: 5,
     message: 'Too many registration attempts. Please try again later.',
   },
+
   FORGOT_PASSWORD: {
     windowMinutes: 60,
     limit: 3,
-    keyGenerator: (req) => `${req.ip}:${req.body?.email}`,
+    keyGenerator: (req) => `${ipKeyGenerator(req.ip)}:${req.body?.email}`,
     message: 'Too many password reset requests. Please try again later.',
   },
+
   VERIFY_OTP: {
     windowMinutes: 10,
     limit: 5,
-    keyGenerator: (req) => `${req.ip}:${req.body?.email}`,
+    keyGenerator: (req) => `${ipKeyGenerator(req.ip)}:${req.body?.email}`,
     message: 'Too many OTP verification attempts. Please try again later.',
   },
+
   RESEND_OTP: {
     windowMinutes: 60,
     limit: 3,
-    keyGenerator: (req) => `${req.ip}:${req.body?.email}`,
+    keyGenerator: (req) => `${ipKeyGenerator(req.ip)}:${req.body?.email}`,
     message: 'Too many OTP resend requests. Please try again later.',
   },
+
   REFRESH_TOKEN: {
     windowMinutes: 15,
     limit: 25,
