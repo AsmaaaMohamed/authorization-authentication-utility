@@ -23,7 +23,7 @@ function WorkspacesPage() {
   const handleDelete = async () => {
     if (!workspaceToDelete) return;
 
-    const workspaceId = workspaceToDelete._id;
+    const workspaceId = workspaceToDelete.id || workspaceToDelete._id;
 
     setWorkspaceToDelete(null);
 
@@ -170,7 +170,8 @@ function WorkspacesPage() {
                       color: C.textFaint,
                     }}
                   >
-                    {w.members ?? 0} members · {w.projects ?? 0} projects
+                    {w.memberCount ?? 0} members · {w.projectCount ?? 0}{" "}
+                    projects
                   </div>
                 </div>
               </div>
