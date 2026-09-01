@@ -16,7 +16,7 @@ export default function SignupForm() {
     const [confirmPassword, setConfirmPassword] = useState("");
     const handleSubmit = async (e) => {
       e.preventDefault();
-      await signup(fullName, email, password);
+      await signup(fullName, email, password, confirmPassword);
     };
   return (
     <>
