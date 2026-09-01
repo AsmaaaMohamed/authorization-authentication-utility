@@ -5,14 +5,34 @@ import InviteModal from "../../components/InviteModal";
 import PageHeader from "../../components/PageHeader";
 import { Plus } from "lucide-react";
 import { C, MONO } from "../../constants/theme";
+import { useParams } from "react-router-dom";
+import { useWorkspaceStore } from "../../store/useWorkspaceStore";
 
 function MembersPage() {
   const [showInvite, setShowInvite] = useState(false);
-  const members = [
-    { name: "Ali Fouda", initials: "AF", email: "ali@example.com", role: "Owner" },
-    { name: "Sara Adel", initials: "SA", email: "sara@example.com", role: "Admin" },
-    { name: "Omar Nabil", initials: "ON", email: "omar@example.com", role: "Member" },
-  ];
+  const {workspaceId} = useParams(); // Get workspaceId from the URL params
+  const { workspaces, users } = useWorkspaceStore();
+  const workspace = workspaces.find(
+    (workspace) => workspace.id === workspaceId
+  );
+  const getInitials = (name) => {
+    return name
+      .split(" ")
+      .filter(Boolean)
+      .map((word) => word[0].toUpperCase())
+      .slice(0, 2)
+      .join("");
+  };
+  const members = workspace?.members.map((member) => {
+    const user = users.find((user) => user.id === member.userId);
+
+    return {
+      ...user,
+      role: member.role,
+      status: member.status,
+      initials: getInitials(user.name),
+    };
+  }) || [];
   return (
     <div>
       <PageHeader title="Members" subtitle="3 people in Product Team" action={<Button icon={Plus} onClick={() => setShowInvite(true)}>Invite</Button>} />
@@ -30,7 +50,7 @@ function MembersPage() {
           </div>
         ))}
       </div>
-      {showInvite && <InviteModal onClose={() => setShowInvite(false)} />}
+      {showInvite && <InviteModal onClose={() => setShowInvite(false)} workspaceId={workspaceId} />}
     </div>
   );
 }

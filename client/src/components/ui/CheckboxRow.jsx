@@ -1,5 +1,4 @@
 import { C, TAGS } from "../../constants/theme";
-import Label from "./Label";
 
 export default function CheckboxRow({ tagKey, checked, onToggle }) {
   const tag = TAGS[tagKey];

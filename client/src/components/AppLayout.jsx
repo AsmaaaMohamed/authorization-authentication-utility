@@ -1,14 +1,17 @@
 import { Bell, Hash, LayoutGrid, LogOut, SettingsIcon, Users } from "lucide-react";
 import Avatar from "./ui/Avatar";
 import { C, FONT, MONO } from "../constants/theme";
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { Outlet, useNavigate, useLocation, useParams } from "react-router-dom";
 
 function AppLayout() {
   const navigate = useNavigate();
   const location = useLocation();
-
+  const { workspaceId } = useParams();
+  const handleNavigate = (path) => {
+    navigate(`/workspaces/${workspaceId}${path}`);
+  };
   const nav = [
-    { id: "board", icon: LayoutGrid, label: "Board", path: "/board" },
+    { id: "board", icon: LayoutGrid, label: "Board", path: "" },
     { id: "members", icon: Users, label: "Members", path: "/members" },
     { id: "notifications", icon: Bell, label: "Notifications", path: "/notifications" },
     { id: "settings", icon: SettingsIcon, label: "Settings", path: "/settings" },
@@ -30,7 +33,7 @@ function AppLayout() {
           const active = location.pathname === item.path;
 
           return (
-            <div key={item.id} onClick={() => navigate(item.path)} style={{ display: "flex", alignItems: "center", gap: 9, padding: "7px 8px", borderRadius: 6, marginBottom: 2, cursor: "pointer", background: active ? C.panel2 : "transparent", color: active ? C.text : C.textMuted }}>
+            <div key={item.id} onClick={() => handleNavigate(item.path)} style={{ display: "flex", alignItems: "center", gap: 9, padding: "7px 8px", borderRadius: 6, marginBottom: 2, cursor: "pointer", background: active ? C.panel2 : "transparent", color: active ? C.text : C.textMuted }}>
               <Icon size={14} />
               <span style={{ fontSize: 13 }}>{item.label}</span>
             </div>

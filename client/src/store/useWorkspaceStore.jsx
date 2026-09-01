@@ -8,26 +8,72 @@ const dummyWorkspaces = [
     id: "1",
     name: "Product Team",
     role: "Owner",
-    members: 6,
+    members: [
+      {
+        userId: "101",
+        role: "Admin",
+        status: "Active",
+      },
+      {
+        userId: "102",
+        role: "Member",
+        status: "Active",
+      },
+    ],
     projects: 3,
   },
   {
     id: "2",
     name: "Backend Utils",
     role: "Admin",
-    members: 4,
+    members: [
+      {
+        id: "201",
+        role: "Member",
+        status: "Active",
+      },
+    ],
     projects: 1,
   },
   {
     id: "3",
     name: "Freelance Clients",
     role: "Member",
-    members: 2,
+    members: [
+      {
+        id: "301",
+        role: "Member",
+        status: "Active",
+      },
+    ],
     projects: 5,
+  },
+];
+const dummyUsers = [
+  {
+    id: "101",
+    name: "Ahmed Ali",
+    email: "ahmed@gmail.com",
+  },
+  {
+    id: "102",
+    name: "Sara Ahmed",
+    email: "sara@gmail.com",
+  },
+  {
+    id: "103",
+    name: "Ali Hassan",
+    email: "ali@gmail.com",
+  },
+  {
+    id: "104",
+    name: "Mona Samir",
+    email: "mona@gmail.com",
   },
 ];
 export const useWorkspaceStore = create((set) => ({
   workspaces: dummyWorkspaces,
+  users: dummyUsers,
   isLoading: false,
   error: null,
 
@@ -118,4 +164,46 @@ export const useWorkspaceStore = create((set) => ({
       ),
     }));
   },
+  /////////////  Members store ////////////
+inviteMember: async (workspaceId, data) => {
+  set({ isLoading: true });
+  try {
+    // const response = await axios.post(
+    //   `${backendUrl}/api/workspaces/${workspaceId}/invite`,
+    //   data
+    // );
+    // return response.data;
+      const user = dummyUsers.find(
+        (user) => user.email.toLowerCase() === data.email.toLowerCase()
+      );
+
+      if (!user) {
+        throw new Error("User not found");
+      }
+      await new Promise((resolve) => setTimeout(resolve, 800));
+       const invitation = {
+          ...user,
+          role: data.role,
+          status: "Pending",
+      };
+      set((state) => ({
+        workspaces: state.workspaces.map((workspace) =>
+          workspace.id === Number(workspaceId)
+            ? {
+                ...workspace,
+                members: [...(workspace.members || []), invitation],
+              }
+            : workspace
+        ),
+      }));
+      return invitation;
+  } catch (error){
+    console.log(error);
+    throw error;
+  }
+   finally {
+    set({ isLoading: false });
+  }
+},
 }));
+

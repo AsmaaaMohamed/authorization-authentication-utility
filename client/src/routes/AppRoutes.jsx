@@ -11,6 +11,7 @@ import { useAuthStore } from "../store";
 import WorkspaceSettingsPage from "../pages/WorkSpaces/WorkspaceSettingsPage";
 import MembersPage from "../pages/Members/Members";
 import AppLayout from "../components/AppLayout";
+import BoardPage from "../pages/Board/Board";
 
 export default function AppRoutes() {
   const { isLoggedIn } = useAuthStore();
@@ -27,13 +28,12 @@ export default function AppRoutes() {
           {/* Protected */}
         <Route element={<ProtectedRoute isLoggedIn={true} />}>
           <Route path="/workspaces" element={<WorkspacesPage />} />
-          <Route element={<AppLayout />}>
-            <Route path="/workspaces/:id/settings" element={<WorkspaceSettingsPage />}/>
-            <Route path="/members" element={<MembersPage />} />
-            {/* <Route path="/board" element={<Board />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="/settings" element={<Settings />} />  */}
-          </Route>
+            <Route path="/workspaces/:workspaceId" element={<AppLayout />}>
+              <Route path="board" element={<BoardPage />} />
+              <Route path="members" element={<MembersPage />} />
+              {/* <Route path="notifications" element={<NotificationsPage />} />
+              <Route path="settings" element={<SettingsPage />} /> */}
+            </Route>
         </Route>
       </Route>
     </Routes>

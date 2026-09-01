@@ -1,4 +1,4 @@
-import { C, MONO, TAGS } from "../../constants/theme";
+import { MONO, TAGS } from "../../constants/theme";
 
 export default function TagChip({ tagKey }) {
   const tag = TAGS[tagKey];
