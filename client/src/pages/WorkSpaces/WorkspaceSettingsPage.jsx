@@ -15,9 +15,11 @@ function WorkspaceSettingsPage() {
     workspaces,
     updateWorkspace,
     deleteWorkspace,
+    getAllWorkspace,
   } = useWorkspaceStore();
 
   const workspace = workspaces.find((w) => w.id === id);
+console.log("workspace", workspace);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -35,7 +37,7 @@ function WorkspaceSettingsPage() {
   const handleDelete = async () => {
     if (!workspaceToDelete) return;
 
-    const workspaceId = workspaceToDelete._id;
+    const workspaceId = workspaceToDelete.id;
 
     setWorkspaceToDelete(null);
 
@@ -45,7 +47,10 @@ function WorkspaceSettingsPage() {
       console.error("Delete workspace failed:", error);
     }
   };
-
+useEffect(() => {
+    getAllWorkspace();
+  }, [getAllWorkspace]);
+  
   useEffect(() => {
     if (!workspace) return;
 
