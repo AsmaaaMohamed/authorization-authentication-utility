@@ -1,17 +1,15 @@
 import { useEffect, useState } from "react";
 import { C, FONT, MONO } from "../../constants/theme";
-import { ChevronRight, Plus } from "lucide-react";
+import { ChevronRight, Plus, Settings } from "lucide-react";
 import Button from "../../components/ui/Button";
 import CreateWorkspaceModal from "./CreateWorkSpacesModal";
 import { useNavigate } from "react-router-dom";
 import { useWorkspaceStore } from "../../store/useWorkspaceStore";
-import ConfirmationModal from "../../components/ui/ConfirmationModal";
 
 function WorkspacesPage() {
   const [showCreate, setShowCreate] = useState(false);
-  const [workspaceToDelete, setWorkspaceToDelete] = useState(null);
   const navigate = useNavigate();
-  const {workspaces, getAllWorkspace, deleteWorkspace , isLoading, error} = useWorkspaceStore();
+  const {workspaces, getAllWorkspace, isLoading, error} = useWorkspaceStore();
   useEffect(() => {
     getAllWorkspace();
   }, [getAllWorkspace]);
@@ -74,6 +72,8 @@ function WorkspacesPage() {
             </div>
           </div>
         ))}
+        </div>
+        </div>
 
   );
 }
