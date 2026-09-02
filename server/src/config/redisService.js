@@ -46,7 +46,7 @@ export const setOtp = async (
   { ttlSeconds = 300, maxAttempts = 3, purpose = 'otp' } = {},
 ) => {
   const key = buildOtpKey(purpose, identifier);
-
+  console.log(key);
   const payload = JSON.stringify({
     otpHash: hashIdentifier(String(otp).trim()),
     attemptsRemaining: maxAttempts,
@@ -73,9 +73,11 @@ export const verifyOtp = async (
 ) => {
   const key = buildOtpKey(purpose, identifier);
   let rawData = null;
-
+  console.log(key);
   try {
     if (isRedisConnected && redisClient.status === 'ready') {
+      console.log('redis connected');
+      console.log(redisClient.status);
       rawData = await redisClient.get(key);
     } else {
       rawData = getFromMemory(key);
@@ -83,7 +85,7 @@ export const verifyOtp = async (
   } catch (err) {
     rawData = getFromMemory(key);
   }
-
+  console.log(rawData);
   if (!rawData) {
     return {
       valid: false,

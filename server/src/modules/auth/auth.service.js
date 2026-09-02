@@ -3,13 +3,18 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import User from './auth.model.js';
 import { findByEmail } from './auth.model.js';
-import AppError from '../../utilities/AppError.js';
+import AppError from '../../utilities/appError.js';
 import RefreshToken from '../token/refreshToken.model.js';
 import * as refreshTokenService from '../token/refreshToken.services.js';
 import * as redisService from '../../config/redisService.js';
 import * as mailer from '../../utilities/mailer.js';
+import { otpVerificationTemplate } from '../../utilities/emailTemplates/otp-verification.js';
+import { passwordResetConfirmationTemplate } from '../../utilities/emailTemplates/password-reset-confirm.js';
+import { passwordResetOtpTemplate } from '../../utilities/emailTemplates/password-reset-otp.js';
+import { addInQueue } from '../../config/queuesServices.js';
 
-const OTP_TTL_SECONDS = 5 * 60;
+const OTP_TTL_SECONDS =
+  Number(process.env.OTP_RESET_PASSWORD_EXPIRATION) || 5 * 60;
 const OTP_MAX_ATTEMPTS = 3;
 const RESET_TOKEN_TTL_SECONDS = 10 * 60;
 
@@ -56,8 +61,52 @@ export const signupUser = async (userData) => {
     passwordConfirm: userData.passwordConfirm,
     isVerified: false,
   });
-
+  const otp = generateNumericOtp();
+  // send verification email using bullmq and redis
+  await addInQueue(
+    'emailQueue',
+    {
+      to: newUser.email,
+      subject: 'Verify your email address',
+      html: otpVerificationTemplate(
+        otp,
+        process.env.OTP_VERIFICATION_EXPIRATION || 10,
+      ),
+      otp: otp,
+      purpose: 'verification',
+    },
+    {
+      removeOnComplete: true,
+      removeOnFail: true,
+    },
+  );
   return sanitizeUser(newUser);
+};
+/**
+ *Verify User Account
+ */
+
+export const verifyUserAccount = async (email, otp) => {
+  // check the existence of user account
+  const user = await findByEmail(email);
+  if (!user) {
+    throw new AppError('User not found.', 404);
+  }
+  // check if user is already verified
+  if (user.isVerified) {
+    throw new AppError('User account is already verified.', 400);
+  }
+  // get the otp from redis and verify it
+  const verifyOtp = await redisService.verifyOtp(email, otp, {
+    purpose: 'verification',
+  });
+
+  if (!verifyOtp.valid) {
+    throw new AppError(verifyOtp.message, 400);
+  }
+  // update User isVerified to true
+  await User.findByIdAndUpdate(user._id, { isVerified: true }, { new: true });
+  return sanitizeUser(user);
 };
 
 /**

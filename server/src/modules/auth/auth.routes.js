@@ -19,7 +19,11 @@ router.post(
   validate(validationSchema.loginUserSchema),
   authController.login,
 );
-
+router.post(
+  '/verify-email',
+  validate(validationSchema.verifyResetOtpSchema),
+  authController.verifyEmail,
+);
 router.post(
   '/refresh',
   limiter(RATE_LIMITS.REFRESH_TOKEN),

@@ -40,7 +40,19 @@ export const login = async (req, res, next) => {
     return next(error);
   }
 };
+export const verifyEmail = async (req, res, next) => {
+  try {
+    const { email, otp } = req.body;
+    await authService.verifyUserAccount(email, otp);
 
+    res.status(200).json({
+      success: true,
+      message: 'Email has been verified successfully.You can now log in.',
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
 export const refresh = async (req, res, next) => {
   try {
     const refreshToken = req.cookies?.refreshToken;
