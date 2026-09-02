@@ -25,7 +25,7 @@ const stream = {
 // Morgan HTTP request logger
 app.use(morgan('combined', { stream }));
 // Global Rate Limiter
-app.use(limiter(RATE_LIMITS.GLOBAL));
+// app.use(limiter(RATE_LIMITS.GLOBAL));
 // routes
 app.use('/api/v1', routes);
 

@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { toast } from "react-toastify";
 import api from "../services/api";
+import axios from "axios";
 
 
 export const useAuthStore = create((set) => ({
@@ -14,8 +15,37 @@ export const useAuthStore = create((set) => ({
   // ==================== set token ====================
 
   setToken: (token) => set({ token }),
-  // ==================== Signup ====================
+    // Reset helper invoked when authentication sessions expire completely
+  clearAuth: () => set({ isLoggedIn: false, token: null, userData: null }),
 
+  // ==================== Signup ====================
+ // Cold start initialization action triggered on page refresh
+  initializeAuth: async () => {
+    try {
+      set({ isLoading: true });
+      
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/auth/refresh`, 
+        {}, 
+        { withCredentials: true }
+      );
+
+      // Matches your backend structure: data.data.token
+      if (data?.success && data?.data?.token) { 
+        set({
+          isLoggedIn: true,
+          token: data.data.token,
+          userData: data.data.user || null, // Ensure your backend includes user models if desired
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      // Refresh token cookie is missing or invalid, fail silently without error UI
+      set({ isLoggedIn: false, token: null, userData: null });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
   signup: async (name, email, password, passwordConfirm) => {
     try {
       set({ isLoading: true });

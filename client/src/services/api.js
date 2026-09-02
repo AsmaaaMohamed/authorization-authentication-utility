@@ -1,42 +1,16 @@
-import axios from "axios";
-import { useAuthStore } from "../store/useAuthStore";
+import axios from 'axios';
+import { useAuthStore } from '../store';
 
 
-const api = axios.create({
+export const api = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,
   withCredentials: true,
 });
 
-// =========================
-// Request Interceptor
-// =========================
-
-api.interceptors.request.use(
-  (config) => {
-    const token = useAuthStore.getState().token;
-
-    // Make sure headers exist
-    config.headers = config.headers || {};
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    } else {
-      delete config.headers.Authorization;
-    }
-
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
-
-// =========================
-// Response Interceptor
-// =========================
-
 let isRefreshing = false;
 let failedQueue = [];
 
-// Helper function to process the queue when the refresh completes or fails
+// Helper function to handle queued requests
 const processQueue = (error, token = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
@@ -48,17 +22,38 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
+// ==========================================
+// Request Interceptor (Attaches Token)
+// ==========================================
+api.interceptors.request.use(
+  (config) => {
+    const token = useAuthStore.getState().token;
+    config.headers = config.headers || {};
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error),
+);
+
+// ==========================================
+// Response Interceptor (Handles Token Rotation)
+// ==========================================
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // Catch BOTH 401 Unauthorized AND your backend's specific "missing token" response
+    // Detects both a standard 401 error or your custom missing token text message
     const isUnauthorized = error.response?.status === 401;
     const isMissingTokenMessage = error.response?.data?.message?.includes("Token is missing");
 
     if ((isUnauthorized || isMissingTokenMessage) && !originalRequest._retry) {
       
+      // If a refresh request is already active, queue this request
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -74,26 +69,35 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Try to get a fresh access token using the HTTP-only refresh cookie
-        // Change '/auth/refresh' to your exact backend endpoint
-        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/refresh`, {}, { withCredentials: true }); 
+        // Use standard axios to bypass interceptors and avoid infinite loops
+        const response = await axios.post(
+          `${import.meta.env.VITE_BACKEND_URL}/auth/refresh`,
+          {},
+          { withCredentials: true }
+        ); 
         
-        const { accessToken } = response.data; 
+        // Matches your backend structure: data.data.token
+        const newAccessToken = response.data?.data?.token; 
 
-        // Update Zustand store
-        useAuthStore.getState().setToken(accessToken); 
+        if (!newAccessToken) {
+          throw new Error("Token payload missing from backend response");
+        }
 
-        processQueue(null, accessToken);
+        // Commit the new token to Zustand store memory
+        useAuthStore.getState().setToken(newAccessToken); 
 
-        // Retry the original request with the brand new token
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+        // Flush all suspended queued requests
+        processQueue(null, newAccessToken);
+
+        // Update the current failed request and re-execute it
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return api(originalRequest);
         
       } catch (refreshError) {
         processQueue(refreshError, null);
         
-        // Optional: clear store and send user to login if refresh cookie is expired/missing
-        // useAuthStore.getState().clearAuth(); 
+        // If refresh fails, silently wipe authorization so the user is prompted to sign in
+        useAuthStore.getState().clearAuth(); 
         
         return Promise.reject(refreshError);
       } finally {
