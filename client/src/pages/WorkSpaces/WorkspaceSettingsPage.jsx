@@ -78,6 +78,7 @@ function WorkspaceSettingsPage() {
     if (!hasChanges) return;
     await updateWorkspace(id, formData);
     toast.success("Workspace updated successfully");
+    navigate("/workspaces");
   };
 
   if (!workspace) {
@@ -167,12 +168,7 @@ function WorkspaceSettingsPage() {
             confirmText="Delete"
             cancelText="Cancel"
             onCancel={() => setWorkspaceToDelete(false)}
-            onConfirm={async () => {
-                await deleteWorkspace(id);
-                setWorkspaceToDelete(false);
-                toast.success("Workspace deleted successfully");
-                navigate("/workspaces");
-            }}
+            onConfirm={handleDelete}
           />
         )}
       </div>
