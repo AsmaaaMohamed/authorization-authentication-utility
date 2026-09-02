@@ -32,6 +32,19 @@ function WorkspaceSettingsPage() {
   });
 
   const [workspaceToDelete, setWorkspaceToDelete] = useState(false);
+  const handleDelete = async () => {
+    if (!workspaceToDelete) return;
+
+    const workspaceId = workspaceToDelete._id;
+
+    setWorkspaceToDelete(null);
+
+    try {
+      await deleteWorkspace(workspaceId);
+    } catch (error) {
+      console.error("Delete workspace failed:", error);
+    }
+  };
 
   useEffect(() => {
     if (!workspace) return;
