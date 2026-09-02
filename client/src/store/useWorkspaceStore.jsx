@@ -1,9 +1,5 @@
 import { create } from "zustand";
-import axios from "axios";
-
-const backendUrl = import.meta.env.VITE_BACKEND_URL || "";
-
-axios.defaults.withCredentials = true;
+import api from "../services/api";
 
 const dummyWorkspaces = [
   {
@@ -29,7 +25,7 @@ export const useWorkspaceStore = create((set) => ({
         error: null,
       });
 
-      const response = await axios.get(`${backendUrl}/workspace`);
+      const response = await api.get("/workspace");
 
       set({
         workspaces: response.data.data || [],
@@ -58,10 +54,7 @@ export const useWorkspaceStore = create((set) => ({
         error: null,
       });
 
-      const response = await axios.post(
-        `${backendUrl}/workspace`,
-        workspaceData,
-      );
+      const response = await api.post("/workspace", workspaceData);
 
       const newWorkspace = response.data.data;
 
@@ -91,7 +84,7 @@ export const useWorkspaceStore = create((set) => ({
         error: null,
       });
 
-      await axios.delete(`${backendUrl}/workspace/${id}`);
+      await api.delete(`/workspace/${id}`);
 
       set((state) => ({
         workspaces: state.workspaces.filter(

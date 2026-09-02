@@ -1,10 +1,7 @@
 import { create } from "zustand";
-import axios from "axios";
 import { toast } from "react-toastify";
+import api from "../services/api";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
-
-axios.defaults.withCredentials = true;
 
 export const useAuthStore = create((set) => ({
   // ==================== State ====================
@@ -12,14 +9,18 @@ export const useAuthStore = create((set) => ({
   isLoggedIn: false,
   userData: null,
   isLoading: false,
+  token: null,
 
+  // ==================== set token ====================
+
+  setToken: (token) => set({ token }),
   // ==================== Signup ====================
 
   signup: async (name, email, password, passwordConfirm) => {
     try {
       set({ isLoading: true });
 
-      const { data } = await axios.post(`${backendUrl}/auth/register`, {
+      const { data } = await api.post("/auth/register", {
         name,
         email,
         password,
@@ -49,17 +50,19 @@ export const useAuthStore = create((set) => ({
     try {
       set({ isLoading: true });
 
-      const { data } = await axios.post(`${backendUrl}/auth/login`, {
+      const { data } = await api.post("/auth/login", {
         email,
         password,
       });
 
       if (data.success) {
         toast.success(data.message || "Logged in successfully");
-
+        console.log(data);
+       // Set the token in axios headers
         set({
           isLoggedIn: true,
           userData: data.userData || null,
+          token: data.data.token || null,
         });
         return true;
       } else {
@@ -75,7 +78,7 @@ export const useAuthStore = create((set) => ({
   sendResetOtp: async (email) => {
     try {
       set({ isLoading: true });
-      const { data } = await axios.post(`${backendUrl}/auth/send-reset-otp`, {
+      const { data } = await api.post("/auth/send-reset-otp", {
         email,
       });
 
@@ -88,7 +91,7 @@ export const useAuthStore = create((set) => ({
   resetPassword: async (email, otp, newPassword) => {
     try {
       set({ isLoading: true });
-      const { data } = await axios.post(`${backendUrl}/auth/reset-password`, {
+      const { data } = await api.post("/auth/reset-password", {
         email,
         otp,
         newPassword,
@@ -105,7 +108,7 @@ export const useAuthStore = create((set) => ({
     try {
       set({ isLoading: true });
 
-      const { data } = await axios.get(`${backendUrl}/api/user/data`);
+      const { data } = await api.get("/api/user/data");
 
       if (data.success) {
         set({
@@ -136,7 +139,7 @@ export const useAuthStore = create((set) => ({
     try {
       set({ isLoading: true });
 
-      const { data } = await axios.post(`${backendUrl}/auth/logout`);
+      const { data } = await api.post("/auth/logout");
 
       if (data.success) {
         set({
