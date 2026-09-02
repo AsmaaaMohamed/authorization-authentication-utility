@@ -28,7 +28,6 @@ router.post(
 router.get('/', userAuth, getMyWorkspacesController);
 
 router.get('/:workspaceId/members', userAuth, getWorkspaceMembersController);
-router.get('/:id/members', userAuth, getWorkspaceMembersController);
 
 router.patch(
   '/:id',
@@ -40,4 +39,3 @@ router.patch(
 router.delete('/:id', userAuth, deleteWorkspaceController);
 
 export default router;
-

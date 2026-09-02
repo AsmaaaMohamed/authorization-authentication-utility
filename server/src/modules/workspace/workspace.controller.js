@@ -70,10 +70,8 @@ export const getWorkspaceMembersController = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     results: members.length,
-    members,
     data: {
       members,
     },
   });
 });
-
