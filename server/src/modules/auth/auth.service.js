@@ -48,7 +48,16 @@ export const signupUser = async (userData) => {
     isVerified: false,
   });
 
+  // send verification email using bullmq and redis
+
   return sanitizeUser(newUser);
+};
+/**
+ *Verify User Account
+ */
+
+export const verifyUserAccount = async (userId) => {
+  // check existence
 };
 
 /**

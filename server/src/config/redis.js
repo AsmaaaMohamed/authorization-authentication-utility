@@ -1,7 +1,7 @@
 /**
  * File: src/config/redis.js
  * Description: Redis client connection configuration using ioredis with auto-reconnect strategy, event monitoring, and non-blocking fallback handling.
- * 
+ *
  * Steps:
  * 1. Reads process.env.REDIS_URL (default: redis://localhost:6379) and configures connection parameters.
  * 2. Instantiates ioredis client with exponential backoff retry strategy and lazy connection.
@@ -21,7 +21,7 @@ export let isRedisConnected = false;
 
 export const redisClient = new Redis(redisUrl, {
   lazyConnect: true,
-  maxRetriesPerRequest: 3,
+  maxRetriesPerRequest: null,
   retryStrategy(times) {
     if (times > 5) {
       return null;
@@ -55,7 +55,9 @@ export const connectRedis = async () => {
     isRedisConnected = true;
   } catch (err) {
     isRedisConnected = false;
-    console.warn('⚠ Redis not reachable. Memory fallback cache will be utilized.');
+    console.warn(
+      '⚠ Redis not reachable. Memory fallback cache will be utilized.',
+    );
   }
 };
 
