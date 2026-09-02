@@ -1,4 +1,4 @@
-import { NavLink, Outlet} from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
 import { C } from "../../constants/theme";
 
 export default function AuthLayout() {
@@ -6,6 +6,7 @@ export default function AuthLayout() {
     { path: "/login", label: "Login" },
     { path: "/signup", label: "Sign Up" },
     { path: "/workspaces", label: "Workspaces" },
+    { path: "/settings", label: "Settings" },
   ];
 
   return (
@@ -18,10 +19,9 @@ export default function AuthLayout() {
             className={({ isActive }) =>
               `
               rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200
-              ${
-                isActive
-                  ? "bg-[#4FE0C4] text-[#08130F] shadow-sm"
-                  : "text-[#8890A0] hover:bg-[#1B1F26] hover:text-[#E4E7EC]"
+              ${isActive
+                ? "bg-[#4FE0C4] text-[#08130F] shadow-sm"
+                : "text-[#8890A0] hover:bg-[#1B1F26] hover:text-[#E4E7EC]"
               }
               `
             }
@@ -30,7 +30,7 @@ export default function AuthLayout() {
           </NavLink>
         ))}
       </nav>
-      <main className="min-h-screen bg" style={{ background: C.bg}}>      
+      <main className="min-h-screen bg" style={{ background: C.bg }}>
         {/* Page Content */}
         <div className="min-h-screen items-center justify-center">
           <Outlet />
