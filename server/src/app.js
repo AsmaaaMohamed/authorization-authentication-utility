@@ -1,18 +1,20 @@
 import express from 'express';
+import crypto from 'crypto';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import routes from './modules/routes/index.js';
-import AppError from './utilities/AppError.js';
+import AppError from './utilities/appError.js';
 import globalErrorHandler from './middlewares/errorHandler.js';
 import { setupSwagger } from './docs/swagger.js';
 import { limiter, RATE_LIMITS } from './utilities/rateLimiter.js';
 import morgan from 'morgan';
 import { logger } from './utilities/logger.js';
+import './workers/email.worker.js'; // Import the email worker to start processing jobs
 
 const app = express();
 
 app.use(express.json());
-app.use(cors({ credentials: true }));
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 app.use(cookieParser());
 
 // Swagger

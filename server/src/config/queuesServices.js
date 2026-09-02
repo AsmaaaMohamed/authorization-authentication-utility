@@ -12,7 +12,7 @@ export const get = async (queueName) => {
 
 export const addInQueue = async (queueName, data, options) => {
   const queue = await get(queueName);
-  return queue.addInQueue(queueName, data, options);
+  return queue.add(queueName, data, options);
 };
 
 export const removeFromQueue = async (queueName, jobId) => {

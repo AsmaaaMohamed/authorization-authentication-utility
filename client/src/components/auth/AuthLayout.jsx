@@ -6,10 +6,6 @@ export default function AuthLayout() {
     { path: "/login", label: "Login" },
     { path: "/signup", label: "Sign Up" },
     { path: "/workspaces", label: "Workspaces" },
-    { path: "/board", label: "Board" },
-    { path: "/members", label: "Members" },
-    { path: "/notifications", label: "Notifications" },
-    { path: "/settings", label: "Settings" },
   ];
 
   return (
@@ -36,7 +32,7 @@ export default function AuthLayout() {
       </nav>
       <main className="min-h-screen bg" style={{ background: C.bg}}>      
         {/* Page Content */}
-        <div className="min-h-screen items-center justify-center px-4">
+        <div className="min-h-screen items-center justify-center">
           <Outlet />
         </div>
       </main>

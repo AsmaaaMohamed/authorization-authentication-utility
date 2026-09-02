@@ -2,7 +2,7 @@ import { create } from "zustand";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL || "";
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 axios.defaults.withCredentials = true;
 
@@ -15,18 +15,16 @@ export const useAuthStore = create((set) => ({
 
   // ==================== Signup ====================
 
-  signup: async (name, email, password) => {
+  signup: async (name, email, password, passwordConfirm) => {
     try {
       set({ isLoading: true });
 
-      const { data } = await axios.post(
-        `${backendUrl}/api/auth/register`,
-        {
-          name,
-          email,
-          password,
-        }
-      );
+      const { data } = await axios.post(`${backendUrl}/auth/register`, {
+        name,
+        email,
+        password,
+        passwordConfirm,
+      });
 
       if (data.success) {
         toast.success(data.message || "Account created successfully");
@@ -39,9 +37,7 @@ export const useAuthStore = create((set) => ({
         toast.error(data.message || "Signup failed");
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.message || error.message
-      );
+      toast.error(error.response?.data?.message || error.message);
     } finally {
       set({ isLoading: false });
     }
@@ -53,13 +49,10 @@ export const useAuthStore = create((set) => ({
     try {
       set({ isLoading: true });
 
-      const { data } = await axios.post(
-        `${backendUrl}/api/auth/login`,
-        {
-          email,
-          password,
-        }
-      );
+      const { data } = await axios.post(`${backendUrl}/auth/login`, {
+        email,
+        password,
+      });
 
       if (data.success) {
         toast.success(data.message || "Logged in successfully");
@@ -68,25 +61,23 @@ export const useAuthStore = create((set) => ({
           isLoggedIn: true,
           userData: data.userData || null,
         });
+        return true;
       } else {
         toast.error(data.message || "Login failed");
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.message || error.message
-      );
+      toast.error(error.response?.data?.message || error.message);
     } finally {
       set({ isLoading: false });
     }
   },
- // Send Reset OTP
+  // Send Reset OTP
   sendResetOtp: async (email) => {
     try {
       set({ isLoading: true });
-      const { data } = await axios.post(
-        `${backendUrl}/api/auth/send-reset-otp`,
-        { email }
-      );
+      const { data } = await axios.post(`${backendUrl}/auth/send-reset-otp`, {
+        email,
+      });
 
       return data;
     } finally {
@@ -97,14 +88,11 @@ export const useAuthStore = create((set) => ({
   resetPassword: async (email, otp, newPassword) => {
     try {
       set({ isLoading: true });
-      const { data } = await axios.post(
-        `${backendUrl}/api/auth/reset-password`,
-        {
-          email,
-          otp,
-          newPassword,
-        }
-      );
+      const { data } = await axios.post(`${backendUrl}/auth/reset-password`, {
+        email,
+        otp,
+        newPassword,
+      });
 
       return data;
     } finally {
@@ -117,9 +105,7 @@ export const useAuthStore = create((set) => ({
     try {
       set({ isLoading: true });
 
-      const { data } = await axios.get(
-        `${backendUrl}/api/user/data`
-      );
+      const { data } = await axios.get(`${backendUrl}/api/user/data`);
 
       if (data.success) {
         set({
@@ -138,9 +124,7 @@ export const useAuthStore = create((set) => ({
         isLoggedIn: false,
       });
 
-      toast.error(
-        error.response?.data?.message || error.message
-      );
+      toast.error(error.response?.data?.message || error.message);
     } finally {
       set({ isLoading: false });
     }
@@ -152,9 +136,7 @@ export const useAuthStore = create((set) => ({
     try {
       set({ isLoading: true });
 
-      const { data } = await axios.post(
-        `${backendUrl}/api/auth/logout`
-      );
+      const { data } = await axios.post(`${backendUrl}/auth/logout`);
 
       if (data.success) {
         set({
@@ -162,16 +144,12 @@ export const useAuthStore = create((set) => ({
           userData: null,
         });
 
-        toast.success(
-          data.message || "Logged out successfully"
-        );
+        toast.success(data.message || "Logged out successfully");
       } else {
         toast.error(data.message || "Logout failed");
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.message || error.message
-      );
+      toast.error(error.response?.data?.message || error.message);
     } finally {
       set({ isLoading: false });
     }

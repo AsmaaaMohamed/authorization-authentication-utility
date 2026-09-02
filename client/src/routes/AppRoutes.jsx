@@ -8,27 +8,33 @@ import ProtectedRoute from "./ProtectedRoute";
 import RootRedirect from "./RootRedirect";
 import WorkspacesPage from "../pages/WorkSpaces/WorkSpaces";
 import { useAuthStore } from "../store";
+import WorkspaceSettingsPage from "../pages/WorkSpaces/WorkspaceSettingsPage";
+import MembersPage from "../pages/Members/Members";
+import AppLayout from "../components/AppLayout";
+import BoardPage from "../pages/Board/Board";
 
 export default function AppRoutes() {
   const { isLoggedIn } = useAuthStore();
   return (
     <Routes>
       <Route element={<AuthLayout />}>
-        {/* Root */}
-        <Route path="/" element={<RootRedirect />} />
-        {/* Public */}
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
-        {/* Protected */}
-      <Route element={<ProtectedRoute isLoggedIn={true} />}>
-        <Route path="/workspaces" element={<WorkspacesPage />} />
-        {/* <Route path="/board" element={<Board />} />
-        <Route path="/members" element={<Members />} />
-        <Route path="/notifications" element={<Notifications />} />
-        <Route path="/settings" element={<Settings />} />  */}
-      </Route>
+          {/* Root */}
+          <Route path="/" element={<RootRedirect />} />
+          {/* Public */}
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          {/* Protected */}
+        <Route element={<ProtectedRoute isLoggedIn={true} />}>
+          <Route path="/workspaces" element={<WorkspacesPage />} />
+            <Route path="/workspaces/:workspaceId" element={<AppLayout />}>
+              <Route path="board" element={<BoardPage />} />
+              <Route path="members" element={<MembersPage />} />
+              {/* <Route path="notifications" element={<NotificationsPage />} />
+              <Route path="settings" element={<SettingsPage />} /> */}
+            </Route>
+        </Route>
       </Route>
     </Routes>
   );
