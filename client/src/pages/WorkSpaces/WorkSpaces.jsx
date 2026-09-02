@@ -72,8 +72,9 @@ function WorkspacesPage() {
             </div>
           </div>
         ))}
-        </div>
-        </div>
+      </div>
+      {showCreate && <CreateWorkspaceModal onClose={() => setShowCreate(false)}/>}
+    </div>
 
   );
 }
