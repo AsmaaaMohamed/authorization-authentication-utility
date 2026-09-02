@@ -29,7 +29,7 @@ export const useAuthStore = create((set) => ({
 
       if (data.success) {
         toast.success(data.message || "Account created successfully");
-
+        console.log(data);
         set({
           isLoggedIn: true,
           userData: data.userData || null,
@@ -61,10 +61,10 @@ export const useAuthStore = create((set) => ({
        // Set the token in axios headers
         set({
           isLoggedIn: true,
-          userData: data.userData || null,
+          userData: data.data.user || null,
           token: data.data.token || null,
         });
-        return true;
+        return data.success;
       } else {
         toast.error(data.message || "Login failed");
       }
