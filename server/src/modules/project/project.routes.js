@@ -1,8 +1,9 @@
 
 import express from 'express';
-import { createProject, deleteProject , getWorkspaceProjects } from './project.controller.js';
+import { createProject, deleteProject , getWorkspaceProjects,updateProject} from './project.controller.js';
 import { createProjectSchema } from '../../validators/projectValidator.js';
 import { validate, userAuth } from '../../middlewares/authMiddleware.js';
+import { updateProjectSchema } from '../../validators/projectValidator.js';
 
 const router = express.Router();
 
@@ -13,6 +14,9 @@ router.get(
   "/workspaces/:id/projects",
   getWorkspaceProjects
 );
+router.patch(
+  "/:id/project",validate(updateProjectSchema ),updateProject
 
+);
 
 export default router;

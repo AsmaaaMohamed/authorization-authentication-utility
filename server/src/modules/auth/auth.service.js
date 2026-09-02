@@ -1,11 +1,25 @@
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import User from './auth.model.js';
 import { findByEmail } from './auth.model.js';
-import AppError from '../../utilities/AppError.js';
+import AppError from '../../utilities/appError.js';
 import RefreshToken from '../token/refreshToken.model.js';
 import * as refreshTokenService from '../token/refreshToken.services.js';
 import * as redisService from '../../config/redisService.js';
+import * as mailer from '../../utilities/mailer.js';
+import { otpVerificationTemplate } from '../../utilities/emailTemplates/otp-verification.js';
+import { passwordResetConfirmationTemplate } from '../../utilities/emailTemplates/password-reset-confirm.js';
+import { passwordResetOtpTemplate } from '../../utilities/emailTemplates/password-reset-otp.js';
+import { addInQueue } from '../../config/queuesServices.js';
+
+const OTP_TTL_SECONDS =
+  Number(process.env.OTP_RESET_PASSWORD_EXPIRATION) || 5 * 60;
+const OTP_MAX_ATTEMPTS = 3;
+const RESET_TOKEN_TTL_SECONDS = 10 * 60;
+
+// helper for generating secure OTP
+const generateNumericOtp = () => String(crypto.randomInt(100000, 1000000));
 
 // helper functions
 const sanitizeUser = (user) => ({
@@ -47,8 +61,52 @@ export const signupUser = async (userData) => {
     passwordConfirm: userData.passwordConfirm,
     isVerified: false,
   });
-
+  const otp = generateNumericOtp();
+  // send verification email using bullmq and redis
+  await addInQueue(
+    'emailQueue',
+    {
+      to: newUser.email,
+      subject: 'Verify your email address',
+      html: otpVerificationTemplate(
+        otp,
+        process.env.OTP_VERIFICATION_EXPIRATION || 10,
+      ),
+      otp: otp,
+      purpose: 'verification',
+    },
+    {
+      removeOnComplete: true,
+      removeOnFail: true,
+    },
+  );
   return sanitizeUser(newUser);
+};
+/**
+ *Verify User Account
+ */
+
+export const verifyUserAccount = async (email, otp) => {
+  // check the existence of user account
+  const user = await findByEmail(email);
+  if (!user) {
+    throw new AppError('User not found.', 404);
+  }
+  // check if user is already verified
+  if (user.isVerified) {
+    throw new AppError('User account is already verified.', 400);
+  }
+  // get the otp from redis and verify it
+  const verifyOtp = await redisService.verifyOtp(email, otp, {
+    purpose: 'verification',
+  });
+
+  if (!verifyOtp.valid) {
+    throw new AppError(verifyOtp.message, 400);
+  }
+  // update User isVerified to true
+  await User.findByIdAndUpdate(user._id, { isVerified: true }, { new: true });
+  return sanitizeUser(user);
 };
 
 /**
@@ -94,7 +152,6 @@ export const loginUser = async (userData) => {
  *
  * @param {string} refreshToken - Raw refresh token (unhashed) from the client.
  * @returns {Promise<{
- *   user: object,
  *   token: string,
  *   newRefreshToken: string,
  *   refreshTokenExpiresAt: Date
@@ -154,7 +211,6 @@ export const refreshUser = async (refreshToken) => {
   const newAccessToken = signToken(user);
 
   return {
-    user: sanitizeUser(user),
     token: newAccessToken,
     newRefreshToken,
     refreshTokenExpiresAt: expiresAt,
@@ -215,4 +271,73 @@ export const logoutUser = async (refreshToken, accessToken) => {
 
 export const logoutUserFromAllDevices = async (userId) => {
   await refreshTokenService.revokeTokenUser(userId);
+};
+
+export const requestPasswordResetOtp = async (email) => {
+  const user = await findByEmail(email);
+  if (!user) return;
+
+  const otp = generateNumericOtp();
+
+  await redisService.setOtp(user.email, otp, {
+    ttlSeconds: OTP_TTL_SECONDS,
+    maxAttempts: OTP_MAX_ATTEMPTS,
+    purpose: 'reset-otp',
+  });
+
+  await mailer.sendPasswordResetOtpEmail(user.email, otp);
+};
+
+export const verifyPasswordResetOtp = async (email, otp) => {
+  const user = await findByEmail(email);
+
+  if (!user) {
+    throw new AppError('Invalid or expired OTP.', 400);
+  }
+
+  const result = await redisService.verifyOtp(user.email, otp, {
+    purpose: 'reset-otp',
+  });
+
+  if (!result.valid) {
+    throw new AppError(result.message, 400);
+  }
+
+  const resetToken = await redisService.generateResetToken(
+    user._id.toString(),
+    RESET_TOKEN_TTL_SECONDS,
+  );
+
+  return { resetToken };
+};
+
+export const resetPassword = async (resetToken, password, passwordConfirm) => {
+  const userId = await redisService.consumeResetToken(resetToken);
+
+  if (!userId) {
+    throw new AppError(
+      'Invalid or expired reset session. Please request a new code.',
+      401,
+    );
+  }
+
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new AppError('User not found.', 404);
+  }
+
+  user.password = password;
+  user.passwordConfirm = passwordConfirm;
+  await user.save();
+
+  // Reuse the same "logout everywhere" logic.
+  await logoutUserFromAllDevices(user._id);
+
+  try {
+    await mailer.sendPasswordResetConfirmationEmail(user.email);
+  } catch (err) {
+    // Don't fail the reset if the confirmation email can't be sent.
+  }
+
+  return sanitizeUser(user);
 };

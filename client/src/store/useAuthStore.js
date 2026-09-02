@@ -1,10 +1,8 @@
 import { create } from "zustand";
-import axios from "axios";
 import { toast } from "react-toastify";
+import api from "../services/api";
+import axios from "axios";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL || "";
-
-axios.defaults.withCredentials = true;
 
 export const useAuthStore = create((set) => ({
   // ==================== State ====================
@@ -12,26 +10,56 @@ export const useAuthStore = create((set) => ({
   isLoggedIn: false,
   userData: null,
   isLoading: false,
+  token: null,
+
+  // ==================== set token ====================
+
+  setToken: (token) => set({ token }),
+    // Reset helper invoked when authentication sessions expire completely
+  clearAuth: () => set({ isLoggedIn: false, token: null, userData: null }),
 
   // ==================== Signup ====================
+ // Cold start initialization action triggered on page refresh
+  initializeAuth: async () => {
+    try {
+      set({ isLoading: true });
+      
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/auth/refresh`, 
+        {}, 
+        { withCredentials: true }
+      );
 
+      // Matches your backend structure: data.data.token
+      if (data?.success && data?.data?.token) { 
+        set({
+          isLoggedIn: true,
+          token: data.data.token,
+          userData: data.data.user || null, // Ensure your backend includes user models if desired
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      // Refresh token cookie is missing or invalid, fail silently without error UI
+      set({ isLoggedIn: false, token: null, userData: null });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
   signup: async (name, email, password, passwordConfirm) => {
     try {
       set({ isLoading: true });
 
-      const { data } = await axios.post(
-        `${backendUrl}/auth/register`,
-        {
-          name,
-          email,
-          password,
-          passwordConfirm,
-        }
-      );
+      const { data } = await api.post("/auth/register", {
+        name,
+        email,
+        password,
+        passwordConfirm,
+      });
 
       if (data.success) {
         toast.success(data.message || "Account created successfully");
-
+        console.log(data);
         set({
           isLoggedIn: true,
           userData: data.userData || null,
@@ -54,21 +82,21 @@ export const useAuthStore = create((set) => ({
     try {
       set({ isLoading: true });
 
-      const { data } = await axios.post(
-        `${backendUrl}/auth/login`,
-        {
-          email,
-          password,
-        }
-      );
+      const { data } = await api.post("/auth/login", {
+        email,
+        password,
+      });
 
       if (data.success) {
         toast.success(data.message || "Logged in successfully");
-
+        console.log(data);
+       // Set the token in axios headers
         set({
           isLoggedIn: true,
-          userData: data.userData || null,
+          userData: data.data.user || null,
+          token: data.data.token || null,
         });
+        return data.success;
       } else {
         toast.error(data.message || "Login failed");
       }
@@ -84,10 +112,9 @@ export const useAuthStore = create((set) => ({
   sendResetOtp: async (email) => {
     try {
       set({ isLoading: true });
-      const { data } = await axios.post(
-        `${backendUrl}/api/auth/send-reset-otp`,
-        { email }
-      );
+      const { data } = await api.post("/auth/send-reset-otp", {
+        email,
+      });
 
       return data;
     } finally {
@@ -98,14 +125,11 @@ export const useAuthStore = create((set) => ({
   resetPassword: async (email, otp, newPassword) => {
     try {
       set({ isLoading: true });
-      const { data } = await axios.post(
-        `${backendUrl}/api/auth/reset-password`,
-        {
-          email,
-          otp,
-          newPassword,
-        }
-      );
+      const { data } = await api.post("/auth/reset-password", {
+        email,
+        otp,
+        newPassword,
+      });
 
       return data;
     } finally {
@@ -118,9 +142,7 @@ export const useAuthStore = create((set) => ({
     try {
       set({ isLoading: true });
 
-      const { data } = await axios.get(
-        `${backendUrl}/api/user/data`
-      );
+      const { data } = await api.get("/api/user/data");
 
       if (data.success) {
         set({
@@ -153,9 +175,7 @@ export const useAuthStore = create((set) => ({
     try {
       set({ isLoading: true });
 
-      const { data } = await axios.post(
-        `${backendUrl}/api/auth/logout`
-      );
+      const { data } = await api.post("/auth/logout");
 
       if (data.success) {
         set({
