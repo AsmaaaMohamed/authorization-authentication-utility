@@ -2,6 +2,7 @@ import nodemailer from 'nodemailer';
 import { otpVerificationTemplate } from '../utilities/emailTemplates/otp-verification.js';
 import { passwordResetConfirmationTemplate } from '../utilities/emailTemplates/password-reset-confirm.js';
 import { passwordResetOtpTemplate } from '../utilities/emailTemplates/password-reset-otp.js';
+
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: Number(process.env.SMTP_PORT) || 587,

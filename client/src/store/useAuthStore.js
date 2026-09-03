@@ -59,7 +59,6 @@ export const useAuthStore = create((set) => ({
 
       if (data.success) {
         toast.success(data.message || "Account created successfully");
-        console.log(data);
         set({
           isLoggedIn: true,
           userData: data.userData || null,
@@ -89,7 +88,6 @@ export const useAuthStore = create((set) => ({
 
       if (data.success) {
         toast.success(data.message || "Logged in successfully");
-        console.log(data);
        // Set the token in axios headers
         set({
           isLoggedIn: true,
@@ -112,8 +110,8 @@ export const useAuthStore = create((set) => ({
   sendResetOtp: async (email) => {
     try {
       set({ isLoading: true });
-      const { data } = await api.post("/auth/send-reset-otp", {
-        email,
+      const { data } = await api.post("/auth/forgot-password", {
+        email: email.trim(),
       });
 
       return data;
@@ -121,14 +119,43 @@ export const useAuthStore = create((set) => ({
       set({ isLoading: false });
     }
   },
-  // Reset Password
-  resetPassword: async (email, otp, newPassword) => {
+  // Verify OTP
+  verifyOtp: async (email, otp) => {
     try {
-      set({ isLoading: true });
-      const { data } = await api.post("/auth/reset-password", {
+      set({
+        isLoading: true,
+        error: null,
+      });
+
+      const { data } = await api.post("/auth/verify-otp", {
         email,
         otp,
-        newPassword,
+      });
+
+      set({
+        isLoading: false,
+        error: null,
+      });
+
+      return data;
+    } catch (error) {
+      set({
+        isLoading: false,
+        error: error.response?.data?.message || "Invalid or expired OTP",
+      });
+
+      throw error;
+    }
+  },
+  // Reset Password
+  resetPassword: async (resetToken, password, passwordConfirm) => {
+    try {
+      set({ isLoading: true });
+
+      const { data } = await api.post("/auth/reset-password", {
+        resetToken,
+        password,
+        passwordConfirm,
       });
 
       return data;

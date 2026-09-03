@@ -9,6 +9,9 @@ import RootRedirect from "./RootRedirect";
 import WorkspacesPage from "../pages/WorkSpaces/WorkSpaces";
 import { useAuthStore } from "../store";
 import WorkspaceSettingsPage from "../pages/WorkSpaces/WorkspaceSettingsPage";
+import AppLayout from "../components/AppLayout";
+import BoardPage from "../pages/Board/Board";
+import MembersPage from "../pages/Members/Members";
 
 export default function AppRoutes() {
   const { isLoggedIn } = useAuthStore();
@@ -23,14 +26,16 @@ export default function AppRoutes() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         {/* Protected */}
-      <Route element={<ProtectedRoute isLoggedIn={true} />}>
-        <Route path="/workspaces" element={<WorkspacesPage />} />
-        <Route path="/workspaces/:id/settings" element={<WorkspaceSettingsPage />}/>
-        {/* <Route path="/board" element={<Board />} />
-        <Route path="/members" element={<Members />} />
-        <Route path="/notifications" element={<Notifications />} />
-        <Route path="/settings" element={<Settings />} />  */}
-      </Route>
+        <Route element={<ProtectedRoute isLoggedIn={true} />}>
+          <Route path="/workspaces" element={<WorkspacesPage />} />
+          <Route path="/workspaces/:workspaceId" element={<AppLayout />}>
+            <Route path="board" element={<BoardPage />} />
+            <Route path="members" element={<MembersPage />} />
+            <Route path="settings" element={<WorkspaceSettingsPage />} />
+            {/* <Route path="notifications" element={<NotificationsPage />} />
+            <Route path="settings" element={<SettingsPage />} /> */}
+          </Route>
+        </Route>
       </Route>
     </Routes>
   );

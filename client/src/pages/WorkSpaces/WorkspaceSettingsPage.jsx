@@ -9,7 +9,7 @@ import TextArea from "../../components/ui/TextArea";
 import { toast } from "react-toastify";
 
 function WorkspaceSettingsPage() {
-  const { id } = useParams();
+  const { workspaceId: id } = useParams();
     const navigate = useNavigate();
   const {
     workspaces,
@@ -17,16 +17,13 @@ function WorkspaceSettingsPage() {
     deleteWorkspace,
     getAllWorkspace,
   } = useWorkspaceStore();
-
   const workspace = workspaces.find((w) => w.id === id);
-console.log("workspace", workspace);
-
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    iconUrl: "",
+    name: workspace?.name || "",
+    description: workspace?.description || "",
+    iconUrl: workspace?.iconUrl || "",
   });
-
+// console.log("workspace", formData);
   const [originalData, setOriginalData] = useState({
     name: "",
     description: "",
@@ -36,11 +33,8 @@ console.log("workspace", workspace);
   const [workspaceToDelete, setWorkspaceToDelete] = useState(false);
   const handleDelete = async () => {
     if (!workspaceToDelete) return;
-
     const workspaceId = workspaceToDelete.id;
-
     setWorkspaceToDelete(null);
-
     try {
       await deleteWorkspace(workspaceId);
     } catch (error) {
@@ -49,17 +43,14 @@ console.log("workspace", workspace);
   };
 useEffect(() => {
     getAllWorkspace();
-  }, [getAllWorkspace]);
-  
+  }, [getAllWorkspace]);  
   useEffect(() => {
     if (!workspace) return;
-
     const data = {
       name: workspace.name || "",
       description: workspace.description || "",
       iconUrl: workspace.iconUrl || "",
     };
-
     setFormData(data);
     setOriginalData(data);
   }, [workspace]);
@@ -71,25 +62,22 @@ useEffect(() => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!hasChanges) return;
+    // console.log("workspace", formData);
     await updateWorkspace(id, formData);
     toast.success("Workspace updated successfully");
     navigate("/workspaces");
   };
-
   if (!workspace) {
     return <div>Workspace not found</div>;
   }
-
   return (
     <div
       style={{
@@ -116,7 +104,6 @@ useEffect(() => {
         >
           Workspace settings
         </h2>
-
         <form onSubmit={handleSubmit}>
           <Field
             name="name"
@@ -124,21 +111,18 @@ useEffect(() => {
             onChange={handleChange}
             placeholder="Workspace name"
           />
-
           <TextArea
             name="description"
             value={formData.description}
             onChange={handleChange}
             placeholder="Description"
           />
-
           <Field
             name="iconUrl"
             value={formData.iconUrl}
             onChange={handleChange}
             placeholder="Icon URL"
           />
-
           <Button
             type="submit"
             disabled={!hasChanges}
@@ -146,7 +130,6 @@ useEffect(() => {
             Update
           </Button>
         </form>
-
         <div
           style={{
             marginTop: 40,
@@ -157,7 +140,6 @@ useEffect(() => {
           <h3 style={{ color: C.text, marginBottom: 16 }}>
             Danger zone
           </h3>
-
           <Button
             variant="danger"
             onClick={() => setWorkspaceToDelete(true)}
@@ -165,7 +147,6 @@ useEffect(() => {
             Delete workspace
           </Button>
         </div>
-
         {workspaceToDelete && (
           <ConfirmationModal
             title="Delete workspace"

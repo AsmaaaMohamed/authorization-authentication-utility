@@ -3,7 +3,6 @@ import * as authService from './auth.service.js';
 export const register = async (req, res, next) => {
   try {
     const newUser = await authService.signupUser(req.body);
-
     res.status(201).json({
       success: true,
       message:
@@ -28,7 +27,6 @@ export const login = async (req, res, next) => {
       sameSite: 'strict',
       expires: refreshTokenExpiresAt,
     });
-
     return res.status(200).json({
       success: true,
       data: {
@@ -44,7 +42,6 @@ export const verifyEmail = async (req, res, next) => {
   try {
     const { email, otp } = req.body;
     await authService.verifyUserAccount(email, otp);
-
     res.status(200).json({
       success: true,
       message: 'Email has been verified successfully.You can now log in.',
@@ -56,17 +53,14 @@ export const verifyEmail = async (req, res, next) => {
 export const refresh = async (req, res, next) => {
   try {
     const refreshToken = req.cookies?.refreshToken;
-
     const { token, newRefreshToken, refreshTokenExpiresAt } =
       await authService.refreshUser(refreshToken);
-
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       expires: refreshTokenExpiresAt,
     });
-
     return res.status(200).json({
       success: true,
       data: {
@@ -81,15 +75,12 @@ export const refresh = async (req, res, next) => {
 export const logout = async (req, res, next) => {
   try {
     const refreshToken = req.cookies?.refreshToken;
-
     await authService.logoutUser(refreshToken, req.token);
-
     res.clearCookie('refreshToken', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
     });
-
     return res.status(204).json({
       success: true,
       message: 'Logged out successfully.',
@@ -102,13 +93,11 @@ export const logout = async (req, res, next) => {
 export const logoutAllDevices = async (req, res, next) => {
   try {
     await authService.logoutUserFromAllDevices(req.user.id);
-
     res.clearCookie('refreshToken', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
     });
-
     return res.status(204).json({
       success: true,
       message: 'Logged out from all devices.',
@@ -122,7 +111,6 @@ export const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
     await authService.requestPasswordResetOtp(email);
-
     res.status(200).json({
       success: true,
       message:
@@ -138,7 +126,6 @@ export const verifyResetOtp = async (req, res, next) => {
   try {
     const { email, otp } = req.body;
     const { resetToken } = await authService.verifyPasswordResetOtp(email, otp);
-
     res.status(200).json({
       success: true,
       resetToken,

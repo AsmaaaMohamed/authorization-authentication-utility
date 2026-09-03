@@ -23,7 +23,7 @@ function MembersPage() {
       .slice(0, 2)
       .join("");
   };
-  const members = workspace?.members.map((member) => {
+  const members = workspace?.members?.map((member) => {
     const user = users.find((user) => user.id === member.userId);
 
     return {

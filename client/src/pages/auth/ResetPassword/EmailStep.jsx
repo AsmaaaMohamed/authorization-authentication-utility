@@ -10,7 +10,6 @@ const EmailStep = ({ email, setEmail, onSuccess }) => {
     e.preventDefault();
     try {
       const data = await sendResetOtp(email);
-      console.log("sendResetOtp response:", data);
       if (data.success) {
         toast.success(data.message || "OTP sent successfully!");
         onSuccess();

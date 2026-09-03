@@ -54,6 +54,8 @@ export const getMyWorkspaces = async (userId) => {
         role: 1,
         memberCount: { $size: '$members' },
         projectCount: { $size: '$projects' },
+        description: '$workspace.description',
+        iconUrl: '$workspace.iconUrl',
       },
     },
   ]);

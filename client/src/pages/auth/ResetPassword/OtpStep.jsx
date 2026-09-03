@@ -1,10 +1,11 @@
 import { useRef } from "react";
 import { toast } from "react-toastify";
 import Button from "../../../components/ui/Button";
+import { useAuthStore } from "../../../store/useAuthStore";
 
-const OtpStep = ({ onSuccess, onChangeEmail }) => {
+const OtpStep = ({ email, onSuccess, onChangeEmail }) => {
   const inputRefs = useRef([]);
-
+  const { verifyOtp, isLoading } = useAuthStore();
   const handleOtpInput = (e, index) => {
     if (
       e.target.value.length > 0 &&
@@ -13,7 +14,6 @@ const OtpStep = ({ onSuccess, onChangeEmail }) => {
       inputRefs.current[index + 1]?.focus();
     }
   };
-
   const handleOtpKeyDown = (e, index) => {
     if (
       e.key === "Backspace" &&
@@ -23,30 +23,22 @@ const OtpStep = ({ onSuccess, onChangeEmail }) => {
       inputRefs.current[index - 1]?.focus();
     }
   };
-
   const handleOtpPaste = (e) => {
     e.preventDefault();
-
     const pasteData = e.clipboardData
       .getData("text")
+      .replace(/\D/g, "")
       .slice(0, 6);
-
-    const pasteArray = pasteData.split("");
-
-    pasteArray.forEach((char, index) => {
+    pasteData.split("").forEach((char, index) => {
       if (inputRefs.current[index]) {
         inputRefs.current[index].value = char;
       }
     });
-
-    const nextIndex = Math.min(pasteArray.length, 5);
-
+    const nextIndex = Math.min(pasteData.length, 5);
     inputRefs.current[nextIndex]?.focus();
   };
-
-  const handleVerifyOtp = (e) => {
+  const handleVerifyOtp = async (e) => {
     e.preventDefault();
-
     const otpValue = inputRefs.current
       .map((input) => input?.value || "")
       .join("");
@@ -55,8 +47,18 @@ const OtpStep = ({ onSuccess, onChangeEmail }) => {
       toast.error("Please enter the complete 6-digit OTP");
       return;
     }
-
-    onSuccess(otpValue);
+    try {
+      const data = await verifyOtp(email, otpValue);
+      toast.success("OTP verified successfully");
+      onSuccess({
+          otp: otpValue,
+          sentResetToken: data.resetToken,
+      });
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Invalid or expired OTP"
+      );
+    }
   };
 
   return (
@@ -73,7 +75,6 @@ const OtpStep = ({ onSuccess, onChangeEmail }) => {
           Enter the 6-digit code sent to your email.
         </p>
       </div>
-
       <div
         className="flex justify-between gap-2 sm:gap-3 my-2"
         onPaste={handleOtpPaste}
@@ -82,6 +83,7 @@ const OtpStep = ({ onSuccess, onChangeEmail }) => {
           <input
             key={index}
             type="text"
+            inputMode="numeric"
             maxLength={1}
             required
             ref={(el) => {
@@ -89,18 +91,17 @@ const OtpStep = ({ onSuccess, onChangeEmail }) => {
             }}
             onInput={(e) => handleOtpInput(e, index)}
             onKeyDown={(e) => handleOtpKeyDown(e, index)}
-            className="w-11 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-bold text-white bg-slate-800/90 border border-slate-700 rounded-xl  focus:ring-indigo-500/30 outline-none transition-all"
+            className="w-11 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-bold text-white bg-slate-800/90 border border-slate-700 rounded-xl focus:ring-indigo-500/30 outline-none transition-all"
             aria-label={`Digit ${index + 1}`}
           />
         ))}
       </div>
-
       <Button
         type="submit"
+        disabled={isLoading}
       >
-        Verify OTP
+        {isLoading ? "Verifying..." : "Verify OTP"}
       </Button>
-
       <div className="flex justify-between items-center text-xs text-slate-400">
         <Button
           type="button"
@@ -109,7 +110,6 @@ const OtpStep = ({ onSuccess, onChangeEmail }) => {
         >
           Change Email
         </Button>
-
         <Button
           type="button"
           variant="textAccent"

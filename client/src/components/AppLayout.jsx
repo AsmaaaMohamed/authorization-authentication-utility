@@ -6,12 +6,12 @@ import { Outlet, useNavigate, useLocation, useParams } from "react-router-dom";
 function AppLayout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { workspaceId } = useParams();
+  const {workspaceId} = useParams();
   const handleNavigate = (path) => {
-    navigate(`/workspaces/${workspaceId}${path}`);
+    navigate(`/workspaces/${workspaceId}/${path}`);
   };
   const nav = [
-    { id: "board", icon: LayoutGrid, label: "Board", path: "" },
+    { id: "board", icon: LayoutGrid, label: "Board", path: "/board" },
     { id: "members", icon: Users, label: "Members", path: "/members" },
     { id: "notifications", icon: Bell, label: "Notifications", path: "/notifications" },
     { id: "settings", icon: SettingsIcon, label: "Settings", path: "/settings" },

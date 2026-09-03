@@ -19,7 +19,6 @@ const LoginForm = () => {
     e.preventDefault();
 
     const success = await login(email, password);
-    console.log(success);
     if (success) {
       navigate("/workspaces");
     }

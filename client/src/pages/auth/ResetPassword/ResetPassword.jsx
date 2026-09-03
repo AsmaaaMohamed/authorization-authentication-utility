@@ -8,10 +8,9 @@ import { C } from "../../../constants/theme";
 
 const ResetPassword = () => {
   const backendUrl = useAuthStore((state) => state.backendUrl);
-
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
-
+  const [resetToken, setResetToken] = useState(null);
   const [step, setStep] = useState("email");
 
   return (
@@ -28,23 +27,20 @@ const ResetPassword = () => {
                       onSuccess={() => setStep("otp")}
                     />
                   )}
-
                   {step === "otp" && (
                     <OtpStep
-                      onSuccess={(otpValue) => {
-                        setOtp(otpValue);
+                      onSuccess={({ otp, sentResetToken }) => {
+                        setOtp(otp);
+                        setResetToken(sentResetToken);
                         setStep("password");
                       }}
                       onChangeEmail={() => setStep("email")}
+                      email={email}
                     />
                   )}
 
                   {step === "password" && (
-                    <NewPasswordStep
-                      email={email}
-                      otp={otp}
-                      backendUrl={backendUrl}
-                    />
+                      <NewPasswordStep resetToken={resetToken} />
                   )}
           </AuthShell>
 
