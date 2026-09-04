@@ -105,7 +105,7 @@ export const useAuthStore = create((set) => ({
     try {
       set({ isLoading: true });
 
-      const { data } = await axios.get(`${backendUrl}/api/user/data`);
+      const { data } = await axios.get(`${backendUrl}/api/v1/user/data`);
 
       if (data.success) {
         set({
