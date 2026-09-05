@@ -3,21 +3,16 @@ import { toast } from "react-toastify";
 import api from "../services/api";
 import axios from "axios";
 
-
 export const useAuthStore = create((set) => ({
   // ==================== State ====================
-
   isLoggedIn: false,
   userData: null,
   isLoading: false,
   token: null,
-
   // ==================== set token ====================
-
   setToken: (token) => set({ token }),
     // Reset helper invoked when authentication sessions expire completely
   clearAuth: () => set({ isLoggedIn: false, token: null, userData: null }),
-
   // ==================== Signup ====================
  // Cold start initialization action triggered on page refresh
   initializeAuth: async () => {
