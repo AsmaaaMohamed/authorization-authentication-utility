@@ -25,7 +25,6 @@ function MembersPage() {
   };
   const members = workspace?.members?.map((member) => {
     const user = users.find((user) => user.id === member.userId);
-
     return {
       ...user,
       role: member.role,

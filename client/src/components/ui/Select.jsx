@@ -9,10 +9,12 @@ export default function Select({
   icon: Icon,
   options,
   value,
+  onChange,
 }) {
+  console.log("Select component options:", options); // Log the options to verify they are being passed correctly
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState(value || options[0]);
-
+  const selected =
+    options.find((option) => option.value === value) || options[0];
   return (
     <div
       style={{
@@ -21,7 +23,6 @@ export default function Select({
       }}
     >
       <Label required={required}>{label}</Label>
-
       <div
         onClick={() => setOpen(!open)}
         style={{
@@ -36,7 +37,6 @@ export default function Select({
         }}
       >
         {Icon && <Icon size={14} color={C.textFaint} />}
-
         <span
           style={{
             flex: 1,
@@ -44,12 +44,10 @@ export default function Select({
             color: C.text,
           }}
         >
-          {selected}
+          {selected.label}
         </span>
-
         <ChevronsUpDown size={13} color={C.textFaint} />
       </div>
-
       {open && (
         <div
           style={{
@@ -67,20 +65,20 @@ export default function Select({
         >
           {options.map((option) => (
             <div
-              key={option}
+              key={option.value}
               onClick={() => {
-                setSelected(option);
                 setOpen(false);
+                onChange?.(option.value);
               }}
               style={{
                 padding: "9px 12px",
                 fontSize: 13,
                 color: C.text,
                 cursor: "pointer",
-                background: option === selected ? C.border : "transparent",
+                background: option.value === selected.value ? C.border : "transparent",
               }}
             >
-              {option}
+              {option.label}
             </div>
           ))}
         </div>

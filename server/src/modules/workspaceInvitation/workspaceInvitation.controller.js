@@ -16,7 +16,6 @@ export const createWorkspaceInvitationController = asyncHandler(
       email: req.body.email,
       role: req.body.role,
     });
-
     res.status(200).json({
       success: true,
       message: 'Invitation sent successfully.',
@@ -33,7 +32,6 @@ export const acceptWorkspaceInvitationController = asyncHandler(
       inviteToken: req.body.inviteToken,
       userId: req.user.id,
     });
-
     res.status(200).json({
       success: true,
       message: 'Invitation accepted successfully.',

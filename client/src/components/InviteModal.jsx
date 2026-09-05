@@ -8,26 +8,22 @@ import { Mail, Shield } from "lucide-react";
 import { toast } from "react-toastify";
 
 function InviteModal({ workspaceId, onClose }) {
-   const { inviteMember, isLoading } = useWorkspaceStore();
-
+  const { inviteMember, isLoading } = useWorkspaceStore();
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("Member");
+  const [role, setRole] = useState("MEMBER");
   const [error, setError] = useState("");
 // console.log("workspaceId in InviteModal:", workspaceId); // Log the workspaceId to verify it's being passed correctly
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
     if (!email.trim()) {
       setError("Email is required");
       return;
     }
-
-    if (!["Member", "Admin"].includes(role)) {
+    if (!["MEMBER", "ADMIN"].includes(role)) {
       setError("Role must be Member or Admin");
       return;
     }
-
     try {
       await inviteMember(workspaceId, { email, role });
       toast.success("Invitation sent successfully!");
@@ -42,7 +38,7 @@ function InviteModal({ workspaceId, onClose }) {
     <Modal title="Invite a member" onClose={onClose}>
       <form onSubmit={handleSubmit}>
         <Field label="Email" required icon={Mail} placeholder="teammate@example.com" type="email" value={email} onChange={(e) => setEmail(e.target.value)}/>
-        <Select label="Role" required icon={Shield} options={["Member", "Admin"]} />
+        <Select label="Role" required icon={Shield} options={[{ label: "Member", value: "MEMBER" },{ label: "Admin", value: "ADMIN" },]} value={role} onChange={setRole}/>
         <div style={{ display: "flex", gap: 10, marginTop: 6 }}>
           <Button variant="secondary" full onClick={onClose}>Cancel</Button>
           <Button full type="submit" disabled={isLoading}>
