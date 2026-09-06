@@ -75,6 +75,8 @@ export const useWorkspaceStore = create((set) => ({
   users: dummyUsers,
   isLoading: false,
   error: null,
+  // ==================== Clear Workspaces ====================
+  clearWorkspaces: () => set({ workspaces: [] }),
   // ==================== Get Workspaces ====================
   getAllWorkspace: async () => {
     try {

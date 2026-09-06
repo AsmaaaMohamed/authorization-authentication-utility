@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { toast } from "react-toastify";
 import api from "../services/api";
 import axios from "axios";
+import { useWorkspaceStore } from "./useWorkspaceStore";
 
 export const useAuthStore = create((set) => ({
   // ==================== State ====================
@@ -196,21 +197,17 @@ export const useAuthStore = create((set) => ({
   logout: async () => {
     try {
       set({ isLoading: true });
-
-      const { data } = await api.post("/auth/logout");
-
-      if (data.success) {
+      await api.post("/auth/logout");
+      
         set({
           isLoggedIn: false,
           userData: null,
+          token: null,
         });
-
+        useWorkspaceStore.getState().clearWorkspaces();
         toast.success(
-          data.message || "Logged out successfully"
+           "Logged out successfully"
         );
-      } else {
-        toast.error(data.message || "Logout failed");
-      }
     } catch (error) {
       toast.error(
         error.response?.data?.message || error.message

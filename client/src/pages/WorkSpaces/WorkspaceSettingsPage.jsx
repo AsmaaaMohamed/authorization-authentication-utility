@@ -34,10 +34,11 @@ function WorkspaceSettingsPage() {
   const [workspaceToDelete, setWorkspaceToDelete] = useState(false);
   const handleDelete = async () => {
     if (!workspaceToDelete) return;
-    const workspaceId = workspaceToDelete.id;
-    setWorkspaceToDelete(null);
+    setWorkspaceToDelete(false);
     try {
-      await deleteWorkspace(workspaceId);
+      await deleteWorkspace(id);
+      toast.success("Workspace deleted successfully");
+      navigate("/workspaces");
     } catch (error) {
       console.error("Delete workspace failed:", error);
     }
