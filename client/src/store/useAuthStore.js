@@ -164,7 +164,7 @@ export const useAuthStore = create((set) => ({
     try {
       set({ isLoading: true });
 
-      const { data } = await api.get("/api/user/data");
+      const { data } = await api.get("/user/data");
 
       if (data.success) {
         set({
