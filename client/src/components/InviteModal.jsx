@@ -11,27 +11,30 @@ function InviteModal({ workspaceId, onClose }) {
   const { inviteMember, isLoading } = useWorkspaceStore();
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("MEMBER");
-  const [error, setError] = useState("");
+  // const [error, setError] = useState("");
 // console.log("workspaceId in InviteModal:", workspaceId); // Log the workspaceId to verify it's being passed correctly
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    // setError("");
     if (!email.trim()) {
-      setError("Email is required");
+      // setError("Email is required");
+      toast.error("Email is required");
       return;
     }
     if (!["MEMBER", "ADMIN"].includes(role)) {
-      setError("Role must be Member or Admin");
+      // setError("Role must be Member or Admin");
+      toast.error("Role must be Member or Admin");
       return;
     }
     try {
       await inviteMember(workspaceId, { email, role });
       toast.success("Invitation sent successfully!");
       onClose();
-    } catch (error) {
-      setError(
-        error.response?.data?.message || "Failed to send invitation"
-      );
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to send invitation");
+    } finally {
+      setEmail("");
+      setRole("MEMBER");
     }
   };
   return (
