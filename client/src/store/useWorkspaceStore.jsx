@@ -192,4 +192,25 @@ inviteMember: async (workspaceId, data) => {
     set({ isLoading: false });
   }
 },
+acceptInvitation: async (inviteToken) => {
+  try {
+    set({ isLoading: true, error: null });
+
+    const { data } = await api.post(
+      "/workspace/invitations/accept",
+      { inviteToken }
+    );
+
+    return data;
+  } catch (error) {
+    const message =
+      error.response?.data?.message ||
+      "Failed to accept invitation";
+
+    set({ error: message });
+    throw error;
+  } finally {
+    set({ isLoading: false });
+  }
+},
 }));
