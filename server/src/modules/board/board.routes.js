@@ -29,4 +29,7 @@ router.patch(
 
 router.delete('/:projectId/boards/:boardId', boardController.deleteBoard);
 
+
+router.get('/:boardId/tasks', userAuth, boardController.getBoardTasksController);
+
 export default router;
