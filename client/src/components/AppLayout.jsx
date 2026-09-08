@@ -2,11 +2,13 @@ import { Bell, Hash, LayoutGrid, LogOut, SettingsIcon, Users } from "lucide-reac
 import Avatar from "./ui/Avatar";
 import { C, FONT, MONO } from "../constants/theme";
 import { Outlet, useNavigate, useLocation, useParams } from "react-router-dom";
+import { useAuthStore } from "../store";
 
 function AppLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const {workspaceId} = useParams();
+  const{logout} = useAuthStore();
   const handleNavigate = (path) => {
     navigate(`/workspaces/${workspaceId}/${path}`);
   };
@@ -55,7 +57,7 @@ function AppLayout() {
             <div style={{ fontSize: 12.5, color: C.text }}>Ali Fouda</div>
             <div style={{ fontSize: 10.5, color: C.textFaint }}>Owner</div>
           </div>
-          <LogOut size={13} color={C.textFaint} />
+          <LogOut size={13} color={C.textFaint} onClick={()=>{logout(); navigate("/login")}} />
         </div>
       </div>
 

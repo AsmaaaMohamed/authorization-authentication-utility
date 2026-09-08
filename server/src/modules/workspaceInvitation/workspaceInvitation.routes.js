@@ -1,19 +1,15 @@
 import { Router } from 'express';
-
 import { userAuth, validate } from '../../middlewares/authMiddleware.js';
-
 import {
   createWorkspaceInvitationController,
   acceptWorkspaceInvitationController,
 } from './workspaceInvitation.controller.js';
-
 import {
   createWorkspaceInvitationSchema,
   acceptWorkspaceInvitationSchema,
 } from '../../validators/workspaceInvitation.validation.js';
 
 const router = Router();
-
 router.post(
   '/invitations/accept',
   userAuth,
