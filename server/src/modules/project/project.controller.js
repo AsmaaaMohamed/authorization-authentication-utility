@@ -6,17 +6,13 @@ export const getWorkspaceProjects = async (req, res, next) => {
     const projects = await projectService.getProjectsByWorkspace(id);
 
     return res.status(200).json({
-      status: "success",
+      status: 'success',
       data: projects,
     });
-
   } catch (error) {
     next(error);
   }
 };
-
-
-
 
 export const createProject = async (req, res, next) => {
   try {
@@ -52,7 +48,7 @@ export const deleteProject = async (req, res, next) => {
     return next(error);
   }
 };
- export const updateProject = async (req, res, next) => {
+export const updateProject = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { name, description } = req.body;
@@ -67,7 +63,7 @@ export const deleteProject = async (req, res, next) => {
       updateData.description = description;
     }
 
-    const project = await updateProject(
+    const project = await projectService.updateProject(
       id,
       req.user.workspaceId,
       updateData,

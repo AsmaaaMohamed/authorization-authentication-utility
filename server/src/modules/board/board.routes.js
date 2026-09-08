@@ -1,9 +1,35 @@
-﻿import { Router } from 'express';
-import { userAuth } from '../../middlewares/authMiddleware.js';
-import { getBoardTasksController } from '../task/task.controller.js';
+import express from 'express';
 
-const router = Router();
+import * as boardController from './board.controller.js';
 
-router.get('/:boardId/tasks', userAuth, getBoardTasksController);
+import { userAuth, validate } from '../../middlewares/authMiddleware.js';
+
+import {
+  createBoardBodySchema,
+  updateBoardBodySchema,
+} from '../../validators/board.validator.js';
+
+const router = express.Router();
+
+router.use(userAuth);
+
+router.post(
+  '/:projectId/boards',
+  validate(createBoardBodySchema),
+  boardController.createBoard,
+);
+
+router.get('/:projectId/boards', boardController.listProjectBoards);
+
+router.patch(
+  '/:projectId/boards/:boardId',
+  validate(updateBoardBodySchema),
+  boardController.updateBoard,
+);
+
+router.delete('/:projectId/boards/:boardId', boardController.deleteBoard);
+
+
+router.get('/:boardId/tasks', userAuth, boardController.getBoardTasksController);
 
 export default router;
