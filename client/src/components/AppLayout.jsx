@@ -13,7 +13,7 @@ function AppLayout() {
     navigate(`/workspaces/${workspaceId}/${path}`);
   };
   const nav = [
-    { id: "board", icon: LayoutGrid, label: "Board", path: "/board" },
+    { id: "boards", icon: LayoutGrid, label: "Boards", path: "/boards" },
     { id: "members", icon: Users, label: "Members", path: "/members" },
     { id: "notifications", icon: Bell, label: "Notifications", path: "/notifications" },
     { id: "settings", icon: SettingsIcon, label: "Settings", path: "/settings" },
