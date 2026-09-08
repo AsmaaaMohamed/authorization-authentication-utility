@@ -2,22 +2,18 @@ import { create } from "zustand";
 import { toast } from "react-toastify";
 import api from "../services/api";
 import axios from "axios";
-
+import { useWorkspaceStore } from "./useWorkspaceStore";
 
 export const useAuthStore = create((set) => ({
   // ==================== State ====================
-
   isLoggedIn: false,
   userData: null,
   isLoading: false,
   token: null,
-
   // ==================== set token ====================
-
   setToken: (token) => set({ token }),
     // Reset helper invoked when authentication sessions expire completely
   clearAuth: () => set({ isLoggedIn: false, token: null, userData: null }),
-
   // ==================== Signup ====================
  // Cold start initialization action triggered on page refresh
   initializeAuth: async () => {
@@ -169,7 +165,7 @@ export const useAuthStore = create((set) => ({
     try {
       set({ isLoading: true });
 
-      const { data } = await api.get("/api/user/data");
+      const { data } = await api.get("/user/data");
 
       if (data.success) {
         set({
@@ -201,21 +197,17 @@ export const useAuthStore = create((set) => ({
   logout: async () => {
     try {
       set({ isLoading: true });
-
-      const { data } = await api.post("/auth/logout");
-
-      if (data.success) {
+      await api.post("/auth/logout");
+      
         set({
           isLoggedIn: false,
           userData: null,
+          token: null,
         });
-
+        useWorkspaceStore.getState().clearWorkspaces();
         toast.success(
-          data.message || "Logged out successfully"
+           "Logged out successfully"
         );
-      } else {
-        toast.error(data.message || "Logout failed");
-      }
     } catch (error) {
       toast.error(
         error.response?.data?.message || error.message

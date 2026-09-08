@@ -12,6 +12,8 @@ import WorkspaceSettingsPage from "../pages/WorkSpaces/WorkspaceSettingsPage";
 import AppLayout from "../components/AppLayout";
 import BoardPage from "../pages/Board/Board";
 import MembersPage from "../pages/Members/Members";
+import GeneralSettingsPage from "../pages/GeneralSettings/GeneralSettings";
+import AcceptInvitePage from "../pages/Members/AcceptInvite";
 
 export default function AppRoutes() {
   const { isLoggedIn } = useAuthStore();
@@ -25,9 +27,11 @@ export default function AppRoutes() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/accept-invite" element={<AcceptInvitePage />} />
         {/* Protected */}
         <Route element={<ProtectedRoute isLoggedIn={true} />}>
           <Route path="/workspaces" element={<WorkspacesPage />} />
+          <Route path="general-settings" element={<GeneralSettingsPage />} />
           <Route path="/workspaces/:workspaceId" element={<AppLayout />}>
             <Route path="board" element={<BoardPage />} />
             <Route path="members" element={<MembersPage />} />

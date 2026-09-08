@@ -6,6 +6,7 @@ export default function AuthLayout() {
     { path: "/login", label: "Login" },
     { path: "/signup", label: "Sign Up" },
     { path: "/workspaces", label: "Workspaces" },
+    { path: "/general-settings", label: "General Settings" },
   ];
 
   return (

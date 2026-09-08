@@ -1,11 +1,11 @@
 import Project from './project.model.js';
 import AppError from '../../utilities/AppError.js';
 
-export const createProject = async (projectData) => {
+export const createProject = async (projectData, workspaceId) => {
   const project = await Project.create({
     name: projectData.name,
     description: projectData.description || '',
-    workspaceId: projectData.workspaceId,
+    workspaceId: workspaceId,
   });
 
   return project;
@@ -50,5 +50,3 @@ export const updateProject = async (projectId, workspaceId, data) => {
   );
   return project;
 };
-
-

@@ -7,6 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Field from "../../components/ui/Field";
 import TextArea from "../../components/ui/TextArea";
 import { toast } from "react-toastify";
+import { Trash2 } from "lucide-react";
 
 function WorkspaceSettingsPage() {
   const { workspaceId: id } = useParams();
@@ -33,10 +34,11 @@ function WorkspaceSettingsPage() {
   const [workspaceToDelete, setWorkspaceToDelete] = useState(false);
   const handleDelete = async () => {
     if (!workspaceToDelete) return;
-    const workspaceId = workspaceToDelete.id;
-    setWorkspaceToDelete(null);
+    setWorkspaceToDelete(false);
     try {
-      await deleteWorkspace(workspaceId);
+      await deleteWorkspace(id);
+      toast.success("Workspace deleted successfully");
+      navigate("/workspaces");
     } catch (error) {
       console.error("Delete workspace failed:", error);
     }
@@ -130,22 +132,22 @@ useEffect(() => {
             Update
           </Button>
         </form>
-        <div
-          style={{
-            marginTop: 40,
-            paddingTop: 24,
-            borderTop: `1px solid ${C.border}`,
-          }}
-        >
-          <h3 style={{ color: C.text, marginBottom: 16 }}>
-            Danger zone
-          </h3>
-          <Button
-            variant="danger"
-            onClick={() => setWorkspaceToDelete(true)}
-          >
-            Delete workspace
-          </Button>
+        {/* <div style={{ fontSize: 11, color: C.textFaint, textTransform: "uppercase", letterSpacing: 0.4, margin: "30px 0 12px" }}>Notifications</div>
+        {["Task assigned to me", "Someone comments on my task", "Weekly digest email"].map((label) => (
+        <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: `1px solid ${C.borderSoft}` }}>
+            <span style={{ fontSize: 13, color: C.text }}>{label}</span>
+            <div style={{ width: 34, height: 19, borderRadius: 10, background: C.accentDim, position: "relative", cursor: "pointer" }}>
+                <div style={{ width: 15, height: 15, borderRadius: 8, background: C.accent, position: "absolute", top: 2, right: 2 }} />
+            </div>
+        </div>
+        ))} */}
+        <div style={{ fontSize: 11, color: C.textFaint, textTransform: "uppercase", letterSpacing: 0.4, margin: "30px 0 12px" }}>Danger zone</div>
+        <div style={{ border: `1px solid ${C.red}33`, borderRadius: 10, padding: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+                <div style={{ fontSize: 13, color: C.text }}>Delete this workspace</div>
+                <div style={{ fontSize: 11.5, color: C.textFaint }}>This can't be undone.</div>
+            </div>
+            <Button variant="danger" icon={Trash2} onClick={() => setWorkspaceToDelete(true)}>Delete</Button>
         </div>
         {workspaceToDelete && (
           <ConfirmationModal

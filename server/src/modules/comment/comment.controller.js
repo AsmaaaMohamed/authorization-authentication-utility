@@ -34,8 +34,9 @@ export const addTaskComment = async (req, res, next) => {
 export const getTaskComment = async (req, res, next) => {
   try {
     const { taskId } = req.params;
+    const userId = req.user.id;
 
-    const comments = await commentService.getTaskComment(taskId);
+    const comments = await commentService.getTaskComment(taskId,userId);
 
     return res.status(200).json({
       status: 'success',
@@ -49,9 +50,9 @@ export const getTaskComment = async (req, res, next) => {
 export const editTaskComment = async (req, res, next) => {
   try {
     const { commentId } = req.params;
-
+ const userId = req.user.id;
     const comment = await commentService.editTaskComment(
-      commentId,
+      commentId,userId,
       req.body,
     );
 
