@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import routes from './modules/routes/index.js';
-import AppError from './utilities/appError.js';
+import AppError from './utilities/AppError.js';
 import globalErrorHandler from './middlewares/errorHandler.js';
 import { setupSwagger } from './docs/swagger.js';
 import { limiter, RATE_LIMITS } from './utilities/rateLimiter.js';
