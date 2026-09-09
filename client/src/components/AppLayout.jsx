@@ -2,13 +2,13 @@ import { Bell, Hash, LayoutGrid, LogOut, SettingsIcon, Users } from "lucide-reac
 import Avatar from "./ui/Avatar";
 import { C, FONT, MONO } from "../constants/theme";
 import { Outlet, useNavigate, useLocation, useParams } from "react-router-dom";
-import { useAuthStore } from "../store";
+import { logout } from "../store";
 
 function AppLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const {workspaceId} = useParams();
-  const{logout} = useAuthStore();
+
   const handleNavigate = (path) => {
     navigate(`/workspaces/${workspaceId}/${path}`);
   };

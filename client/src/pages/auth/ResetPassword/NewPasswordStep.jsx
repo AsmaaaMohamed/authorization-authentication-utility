@@ -4,13 +4,13 @@ import { toast } from "react-toastify";
 import Field from "../../../components/ui/Field";
 import Button from "../../../components/ui/Button";
 import { Lock } from "lucide-react";
-import { useAuthStore } from "../../../store";
+import { resetPassword, useAuthStore } from "../../../store";
 
 const NewPasswordStep = ({ resetToken }) => {
   const navigate = useNavigate();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const { resetPassword, isLoading } = useAuthStore();
+  const {isResettingPassword } = useAuthStore();
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
@@ -75,13 +75,13 @@ const NewPasswordStep = ({ resetToken }) => {
           full
           type="submit"
           disabled={
-            isLoading ||
+            isResettingPassword ||
             !newPassword ||
             !confirmPassword ||
             newPassword !== confirmPassword
           }
         >
-          {isLoading ? (
+          {isResettingPassword ? (
             <>
               <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               <span>Updating Password...</span>

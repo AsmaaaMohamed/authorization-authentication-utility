@@ -1,11 +1,11 @@
 import { useRef } from "react";
 import { toast } from "react-toastify";
 import Button from "../../../components/ui/Button";
-import { useAuthStore } from "../../../store/useAuthStore";
+import { verifyOtp , useAuthStore} from "../../../store";
 
 const OtpStep = ({ email, onSuccess, onChangeEmail }) => {
   const inputRefs = useRef([]);
-  const { verifyOtp, isLoading } = useAuthStore();
+  const { isVerifyingOtp} = useAuthStore();
   const handleOtpInput = (e, index) => {
     if (
       e.target.value.length > 0 &&
@@ -98,9 +98,9 @@ const OtpStep = ({ email, onSuccess, onChangeEmail }) => {
       </div>
       <Button
         type="submit"
-        disabled={isLoading}
+        disabled={isVerifyingOtp}
       >
-        {isLoading ? "Verifying..." : "Verify OTP"}
+        {isVerifyingOtp ? "Verifying..." : "Verify OTP"}
       </Button>
       <div className="flex justify-between items-center text-xs text-slate-400">
         <Button

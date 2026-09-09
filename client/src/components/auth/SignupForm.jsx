@@ -1,15 +1,15 @@
 import { User, Mail, Lock } from "lucide-react";
 import Button from "../ui/Button";
-import { useAuthStore } from "../../store/useAuthStore";
 import { useState } from "react";
 import AuthShell from "./AuthShell";
 import Field from "../ui/Field";
 import { Link } from "react-router-dom";
 import { C } from "../../constants/theme";
 import FileDrop from "../ui/FileDrop";
+import { signup, useAuthStore } from "../../store";
 
 export default function SignupForm() {
-  const { signup, isLoading } = useAuthStore();
+  const { isSigningUp } = useAuthStore();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -76,8 +76,8 @@ export default function SignupForm() {
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
           <FileDrop label="Avatar (optional)" hint="JPG or PNG, up to 5MB" />
-          <Button full type="submit" disabled={isLoading}>
-            {isLoading ? "Signing up..." : "Sign Up"}
+          <Button full type="submit" disabled={isSigningUp}>
+            {isSigningUp ? "Signing up..." : "Sign Up"}
           </Button>
           <div
             style={{
