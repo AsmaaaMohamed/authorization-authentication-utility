@@ -8,7 +8,7 @@ const boardSchema = new mongoose.Schema(
       trim: true,
     },
     createdBy: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: [true, 'Creator is required'],
     },

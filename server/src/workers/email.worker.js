@@ -2,7 +2,7 @@ import { Worker } from 'bullmq';
 import { redisClient } from '../config/redis.js';
 import { sendMail } from '../utilities/mailer.js';
 import { logger } from '../utilities/logger.js';
-import AppError from '../utilities/appError.js';
+import AppError from '../utilities/AppError.js';
 import * as redisService from '../config/redisService.js';
 
 // todo: refactor the email worker to handle different types of email - To Be General not coupled with OTP verification only. For example, welcome email, password reset email,
