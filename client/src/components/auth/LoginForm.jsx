@@ -1,20 +1,20 @@
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
-import { useAuthStore } from "../../store/useAuthStore";
 import { useState } from "react";
 import AuthShell from "./AuthShell";
 import { C } from "../../constants/theme";
 import Field from "../ui/Field";
 import Button from "../ui/Button";
 import { Link, useNavigate } from "react-router-dom";
+import { login, useAuthStore } from "../../store";
 
 const LoginForm = () => {
-  const { login, isLoading } = useAuthStore();
+  const { isLoggingIn } = useAuthStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
-
   const navigate = useNavigate();
 
+  console.log("isLoggingIn:", isLoggingIn);
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -80,8 +80,8 @@ const LoginForm = () => {
               Forgot password?
             </Link>
           </div>
-          <Button full disabled={isLoading} type="submit">
-            {isLoading ? "Logging in..." : "Login"}
+          <Button full disabled={isLoggingIn} type="submit">
+            {isLoggingIn ? "Logging in..." : "Login"}
           </Button>
           <div
             style={{

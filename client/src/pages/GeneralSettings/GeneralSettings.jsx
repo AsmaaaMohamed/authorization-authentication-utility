@@ -4,14 +4,14 @@ import FileDrop from "../../components/ui/FileDrop";
 import Button from "../../components/ui/Button";
 import { User, Mail } from "lucide-react";
 import { C } from "../../constants/theme";
-import { useAuthStore } from "../../store";
+import { useAuthStore, getUserData } from "../../store";
 import { useEffect } from "react";
 
 function GeneralSettingsPage() {
-  const {getUserData,userData} = useAuthStore();
+  const {userData} = useAuthStore();
   useEffect(() => {
     getUserData();
-  }, [getUserData]);
+  }, []);
   console.log("userData:", userData);
   return (
     <div style={{ paddingTop:100,display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>

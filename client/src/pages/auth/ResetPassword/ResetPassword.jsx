@@ -2,12 +2,10 @@ import { useState } from "react";
 import EmailStep from "./EmailStep";
 import OtpStep from "./OtpStep";
 import NewPasswordStep from "./NewPasswordStep";
-import { useAuthStore } from "../../../store";
 import AuthShell from "../../../components/auth/AuthShell";
 import { C } from "../../../constants/theme";
 
 const ResetPassword = () => {
-  const backendUrl = useAuthStore((state) => state.backendUrl);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [resetToken, setResetToken] = useState(null);
@@ -23,7 +21,6 @@ const ResetPassword = () => {
                     <EmailStep
                       email={email}
                       setEmail={setEmail}
-                      backendUrl={backendUrl}
                       onSuccess={() => setStep("otp")}
                     />
                   )}

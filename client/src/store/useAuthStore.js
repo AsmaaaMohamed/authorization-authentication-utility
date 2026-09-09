@@ -1,219 +1,57 @@
 import { create } from "zustand";
-import { toast } from "react-toastify";
-import api from "../services/api";
-import axios from "axios";
-import { useWorkspaceStore } from "./useWorkspaceStore";
 
+/**
+ * Auth store
+ *
+ * Holds authentication state only. Does NOT import api.js, which avoids
+ * a circular dependency (api.js's interceptor imports this store to read
+ * the token and to check isLoggedOut).
+ *
+ * All actions that call the backend (signup, login, logout, etc.) live in
+ * authActions.js instead - they call the API, then update this store
+ * through the setters below.
+ */
 export const useAuthStore = create((set) => ({
   // ==================== State ====================
   isLoggedIn: false,
+  isLoggedOut: false,
   userData: null,
-  isLoading: false,
   token: null,
-  // ==================== set token ====================
-  setToken: (token) => set({ token }),
-    // Reset helper invoked when authentication sessions expire completely
-  clearAuth: () => set({ isLoggedIn: false, token: null, userData: null }),
-  // ==================== Signup ====================
- // Cold start initialization action triggered on page refresh
-  initializeAuth: async () => {
-    try {
-      set({ isLoading: true });
-      
-      const { data } = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/auth/refresh`, 
-        {}, 
-        { withCredentials: true }
-      );
 
-      // Matches your backend structure: data.data.token
-      if (data?.success && data?.data?.token) { 
-        set({
-          isLoggedIn: true,
-          token: data.data.token,
-          userData: data.data.user || null, // Ensure your backend includes user models if desired
-        });
-      }
-    } catch (error) {
-      console.log(error);
-      // Refresh token cookie is missing or invalid, fail silently without error UI
-      set({ isLoggedIn: false, token: null, userData: null });
-    } finally {
-      set({ isLoading: false });
-    }
-  },
-  signup: async (name, email, password, passwordConfirm) => {
-    try {
-      set({ isLoading: true });
+    // Separate loading flags per action. Keeping a single shared isLoading
+  // meant unrelated background calls (e.g. initializeAuth running on app
+  // mount) could flip the same flag a login button was disabled on.
+  isInitializing: false,
+  isLoggingIn: false,
+  isSigningUp: false,
+  isLoggingOut: false,
+  isFetchingUser: false,
+  isSendingOtp: false,
+  isVerifyingOtp: false,
+  isResettingPassword: false,
+  // ==================== Setters ====================
 
-      const { data } = await api.post("/auth/register", {
-        name,
-        email,
-        password,
-        passwordConfirm,
-      });
+  setLoadingState: (key, value) => set({ [key]: value }),
 
-      if (data.success) {
-        toast.success(data.message || "Account created successfully");
-        set({
-          isLoggedIn: true,
-          userData: data.userData || null,
-        });
-      } else {
-        toast.error(data.message || "Signup failed");
-      }
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message || error.message
-      );
-    } finally {
-      set({ isLoading: false });
-    }
-  },
+  setToken: (token) => set({ token, isLoggedOut: false }),
 
-  // ==================== Login ====================
+  setUserData: (userData) => set({ userData }),
 
-  login: async (email, password) => {
-    try {
-      set({ isLoading: true });
+  setLoggedIn: (userData, token) =>
+    set({
+      isLoggedIn: true,
+      userData: userData || null,
+      token: token || null,
+      isLoggedOut: false,
+    }),
 
-      const { data } = await api.post("/auth/login", {
-        email,
-        password,
-      });
-
-      if (data.success) {
-        toast.success(data.message || "Logged in successfully");
-       // Set the token in axios headers
-        set({
-          isLoggedIn: true,
-          userData: data.data.user || null,
-          token: data.data.token || null,
-        });
-        return data.success;
-      } else {
-        toast.error(data.message || "Login failed");
-      }
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message || error.message
-      );
-    } finally {
-      set({ isLoading: false });
-    }
-  },
- // Send Reset OTP
-  sendResetOtp: async (email) => {
-    try {
-      set({ isLoading: true });
-      const { data } = await api.post("/auth/forgot-password", {
-        email: email.trim(),
-      });
-
-      return data;
-    } finally {
-      set({ isLoading: false });
-    }
-  },
-  // Verify OTP
-  verifyOtp: async (email, otp) => {
-    try {
-      set({
-        isLoading: true,
-        error: null,
-      });
-
-      const { data } = await api.post("/auth/verify-otp", {
-        email,
-        otp,
-      });
-
-      set({
-        isLoading: false,
-        error: null,
-      });
-
-      return data;
-    } catch (error) {
-      set({
-        isLoading: false,
-        error: error.response?.data?.message || "Invalid or expired OTP",
-      });
-
-      throw error;
-    }
-  },
-  // Reset Password
-  resetPassword: async (resetToken, password, passwordConfirm) => {
-    try {
-      set({ isLoading: true });
-
-      const { data } = await api.post("/auth/reset-password", {
-        resetToken,
-        password,
-        passwordConfirm,
-      });
-
-      return data;
-    } finally {
-      set({ isLoading: false });
-    }
-  },
-  // ==================== Get User Data ====================
-
-  getUserData: async () => {
-    try {
-      set({ isLoading: true });
-
-      const { data } = await api.get("/user/data");
-
-      if (data.success) {
-        set({
-          userData: data.userData,
-          isLoggedIn: true,
-        });
-      } else {
-        set({
-          userData: null,
-          isLoggedIn: false,
-        });
-      }
-    } catch (error) {
-      set({
-        userData: null,
-        isLoggedIn: false,
-      });
-
-      toast.error(
-        error.response?.data?.message || error.message
-      );
-    } finally {
-      set({ isLoading: false });
-    }
-  },
-
-  // ==================== Logout ====================
-
-  logout: async () => {
-    try {
-      set({ isLoading: true });
-      await api.post("/auth/logout");
-      
-        set({
-          isLoggedIn: false,
-          userData: null,
-          token: null,
-        });
-        useWorkspaceStore.getState().clearWorkspaces();
-        toast.success(
-           "Logged out successfully"
-        );
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message || error.message
-      );
-    } finally {
-      set({ isLoading: false });
-    }
-  },
+  // Reset helper invoked when authentication sessions expire completely
+  // or the user explicitly logs out.
+  clearAuth: () =>
+    set({
+      isLoggedIn: false,
+      token: null,
+      userData: null,
+      isLoggedOut: true,
+    }),
 }));
