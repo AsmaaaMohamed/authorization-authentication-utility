@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import User from './auth.model.js';
 import { findByEmail } from './auth.model.js';
-import AppError from '../../utilities/appError.js';
+import AppError from '../../utilities/AppError.js';
 import RefreshToken from '../token/refreshToken.model.js';
 import * as refreshTokenService from '../token/refreshToken.services.js';
 import * as redisService from '../../config/redisService.js';
