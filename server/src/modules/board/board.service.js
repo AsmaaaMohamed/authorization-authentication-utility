@@ -3,6 +3,16 @@ import Project from '../project/project.model.js';
 import WorkspaceMember from '../workspaceMember/workspaceMember.model.js';
 import AppError from '../../utilities/AppError.js';
 
+// helper functions
+const sanitizeBoard = (board) => ({
+  id: board._id,
+  name: board.name,
+  createdBy: board.createdBy,
+  projectId: board.projectId,
+  createdAt: board.createdAt,
+  updatedAt: board.updatedAt,
+});
+
 const assertProjectAccess = async (projectId, userId) => {
   const project = await Project.findById(projectId);
 
@@ -26,11 +36,13 @@ export const createBoard = async (projectId, userId, name) => {
   await assertProjectAccess(projectId, userId);
 
   try {
-    return await Board.create({
+    const board = await Board.create({
       name,
       projectId,
       createdBy: userId,
     });
+
+    return sanitizeBoard(board);
   } catch (err) {
     if (err.code === 11000) {
       throw new AppError(
@@ -46,7 +58,15 @@ export const createBoard = async (projectId, userId, name) => {
 export const listProjectBoards = async (projectId, userId) => {
   await assertProjectAccess(projectId, userId);
 
-  return Board.find({ projectId }).sort({ createdAt: -1 });
+  const boards = await Board.find({ projectId })
+    .populate({ path: 'createdBy', select: 'name email' })
+    .populate({
+      path: 'projectId',
+      select: 'name description',
+    })
+    .sort({ createdAt: -1 });
+
+  return boards.map(sanitizeBoard);
 };
 
 export const updateBoard = async (projectId, boardId, userId, updates) => {
@@ -79,7 +99,7 @@ export const updateBoard = async (projectId, boardId, userId, updates) => {
     throw err;
   }
 
-  return board;
+  return sanitizeBoard(board);
 };
 
 export const deleteBoard = async (projectId, boardId, userId) => {

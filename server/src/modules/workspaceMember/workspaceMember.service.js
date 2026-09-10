@@ -87,7 +87,10 @@ export const getWorkspaceMembers = async (workspaceId, requestingUserId) => {
     });
 
     if (!isMember) {
-      throw new AppError('You are not authorized to view members of this workspace.', 403);
+      throw new AppError(
+        'You are not authorized to view members of this workspace.',
+        403,
+      );
     }
   }
 
@@ -101,4 +104,3 @@ export const getWorkspaceMembers = async (workspaceId, requestingUserId) => {
     role: member.role,
   }));
 };
-

@@ -1,6 +1,16 @@
 import Project from './project.model.js';
 import AppError from '../../utilities/AppError.js';
 
+// helper functions
+const sanitizeProject = (project) => ({
+  id: project._id,
+  name: project.name,
+  description: project.description,
+  workspaceId: project.workspaceId,
+  createdAt: project.createdAt,
+  updatedAt: project.updatedAt,
+});
+
 export const createProject = async (projectData, workspaceId) => {
   const project = await Project.create({
     name: projectData.name,
@@ -8,7 +18,7 @@ export const createProject = async (projectData, workspaceId) => {
     workspaceId: workspaceId,
   });
 
-  return project;
+  return sanitizeProject(project);
 };
 
 export const deleteProject = async (projectId, userId) => {
@@ -35,7 +45,7 @@ export const getProjectsByWorkspace = async (workspaceId) => {
     workspaceId,
   });
 
-  return projects;
+  return projects.map(sanitizeProject);
 };
 
 export const updateProject = async (projectId, workspaceId, data) => {
@@ -48,5 +58,5 @@ export const updateProject = async (projectId, workspaceId, data) => {
       $set: data,
     },
   );
-  return project;
+  return sanitizeProject(project);
 };
