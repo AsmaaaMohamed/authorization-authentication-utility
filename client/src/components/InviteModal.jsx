@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useWorkspaceStore } from "../store/useWorkspaceStore";
+import { useWorkspaceStore } from "../store";
 import Button from "./ui/Button";
 import Field from "./ui/Field";
 import Modal from "./ui/Modal";

@@ -3,10 +3,12 @@ import Button from "../../components/ui/Button";
 import Field from "../../components/ui/Field";
 import Modal from "../../components/ui/Modal";
 import { useState } from "react";
-import { useWorkspaceStore } from "../../store/useWorkspaceStore";
+import { useWorkspaceStore } from "../../store";
+import { useParams } from "react-router-dom";
 
 function CreateBoardModal({ onClose  }) {
-  const { createWorkspace, isLoading } = useWorkspaceStore();
+  const { createBoard, isLoading } = useWorkspaceStore();
+  const {projectId} = useParams();
   const [boardName, setBoardName] = useState("");
   const [error, setError] = useState("");
   const handleChange = (e) => {
@@ -19,7 +21,8 @@ function CreateBoardModal({ onClose  }) {
       return;
     }
     try {
-      await createWorkspace({ name: boardName });
+        console.log("Creating board with nameeeeeeeeggggg:", boardName); // Log the board name to verify it's being passed correctly
+      await createBoard({ projectId, name: boardName });
       onClose();
     } catch (error) {
       console.log(error);

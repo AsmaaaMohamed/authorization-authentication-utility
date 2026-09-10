@@ -4,7 +4,7 @@ import { ChevronRight, Plus, Settings } from "lucide-react";
 import Button from "../../components/ui/Button";
 import CreateWorkspaceModal from "./CreateWorkSpacesModal";
 import { useNavigate } from "react-router-dom";
-import { useWorkspaceStore } from "../../store/useWorkspaceStore";
+import { useWorkspaceStore } from "../../store";
 
 function WorkspacesPage() {
   const [showCreate, setShowCreate] = useState(false);
@@ -48,7 +48,7 @@ function WorkspacesPage() {
         )}
         {!isLoading &&
           !error && workspaces.map((w,idx) => {
-            console.log("workspacesdddfffffggggggggggg", w.id);
+            console.log("freeeee", w.id);
             return(
             
           <div key={idx}  style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: "16px 18px", marginBottom: 10,  }}>

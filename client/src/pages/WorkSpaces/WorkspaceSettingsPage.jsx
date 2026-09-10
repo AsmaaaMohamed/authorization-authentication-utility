@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Button from "../../components/ui/Button";
 import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import { C, FONT } from "../../constants/theme";
-import { useWorkspaceStore } from "../../store/useWorkspaceStore";
+import { useWorkspaceStore } from "../../store";
 import { useNavigate, useParams } from "react-router-dom";
 import Field from "../../components/ui/Field";
 import TextArea from "../../components/ui/TextArea";

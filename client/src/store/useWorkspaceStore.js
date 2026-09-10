@@ -73,6 +73,7 @@ const dummyUsers = [
 export const useWorkspaceStore = create((set) => ({
   workspaces: dummyWorkspaces,
   users: dummyUsers,
+  workspaceMembers: [],
   isLoading: false,
   error: null,
   // ==================== Clear Workspaces ====================
@@ -213,22 +214,64 @@ acceptInvitation: async (inviteToken) => {
     set({ isLoading: false });
   }
 },
-createBoard: async (workspaceId, boardName) => {
+getMembers: async (workspaceId) => {
   try {
-    set({ isLoading: true, error: null });    
-    const { data } = await api.post(
-      `/workspace/${workspaceId}/boards`,
-      { name: boardName }
+    set({
+      isLoading: true,
+      error: null,
+    });
+    const response = await api.get(
+      `/workspace/${workspaceId}/members`
     );
-    return data;
+    const members = response.data.data.members || [];
+    set({
+      workspaceMembers: members,
+      isLoading: false,
+      error: null,
+    });
+    return members;
   } catch (error) {
-    const message =
-      error.response?.data?.message ||
-      "Failed to create board";
-    set({ error: message });
+    set({
+      workspaceMembers: [],
+      isLoading: false,
+      error:
+        error.response?.data?.message ||
+        "Failed to fetch workspace members",
+    });
     throw error;
-  } finally {
-    set({ isLoading: false });
+  }
+},
+createBoard: async (projectId, name) => {
+  try {
+    set({ isLoading: true, error: null });
+    if (!name.trim()) {
+      set({
+        isLoading: false,
+        error: "Board name is required",
+      });
+      return;
+    }
+    const response = await api.post(
+      `/projects/${projectId}/boards`,
+      {
+        name: name.trim(),
+      }
+    );
+    const board = response.data.data;
+    set((state) => ({
+      boards: [...state.boards, board],
+      isLoading: false,
+      error: null,
+    }));
+    return board;
+  } catch (error) {
+    set({
+      isLoading: false,
+      error:
+        error.response?.data?.message ||
+        "Failed to create board",
+    });
+    throw error;
   }
 },
 }));

@@ -2,7 +2,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import api from "../services/api";
 import { useAuthStore } from "./useAuthStore";
-import { useWorkspaceStore } from "./useWorkspaceStore";
+import { useWorkspaceStore } from "./";
 
 /**
  * Auth actions

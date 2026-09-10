@@ -5,7 +5,7 @@ import FileDrop from "../../components/ui/FileDrop";
 import TextArea from "../../components/ui/TextArea";
 import Modal from "../../components/ui/Modal";
 import { useState } from "react";
-import { useWorkspaceStore } from "../../store/useWorkspaceStore";
+import { useWorkspaceStore } from "../../store";
 
 function CreateWorkspaceModal({ onClose  }) {
   const { createWorkspace, isLoading } = useWorkspaceStore();

@@ -7,6 +7,7 @@ import CreateBoardModal from "./CreateBoardModal";
 
 function BoardsPage() {
     const [showCreate, setShowCreate] = useState(false);
+    console.log("Rendering BoardsPage, showCreate:", showCreate); // Log the state of showCreate
     return (
         <div>
             <PageHeader

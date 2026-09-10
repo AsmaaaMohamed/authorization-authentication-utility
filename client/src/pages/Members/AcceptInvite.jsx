@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useWorkspaceStore } from "../../store/useWorkspaceStore";
+import { useWorkspaceStore } from "../../store";
 import Button from "../../components/ui/Button";
 
 function AcceptInvitePage() {
