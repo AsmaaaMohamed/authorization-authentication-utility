@@ -1,4 +1,4 @@
-import { Bell, Hash, LayoutGrid, LogOut, SettingsIcon, Users } from "lucide-react";
+import { Bell, FolderKanban, Hash, LayoutGrid, LogOut, SettingsIcon, Users } from "lucide-react";
 import Avatar from "./ui/Avatar";
 import { C, FONT, MONO } from "../constants/theme";
 import { Outlet, useNavigate, useLocation, useParams } from "react-router-dom";
@@ -14,6 +14,7 @@ function AppLayout() {
   };
   const nav = [
     { id: "boards", icon: LayoutGrid, label: "Boards", path: "/boards" },
+    { id: "projects", icon: FolderKanban, label: "Projects", path: "/projects" },
     { id: "members", icon: Users, label: "Members", path: "/members" },
     { id: "notifications", icon: Bell, label: "Notifications", path: "/notifications" },
     { id: "settings", icon: SettingsIcon, label: "Settings", path: "/settings" },
