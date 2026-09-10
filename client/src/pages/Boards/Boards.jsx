@@ -3,17 +3,17 @@ import PageHeader from "../../components/PageHeader";
 import Button from "../../components/ui/Button";
 import { C, MONO } from "../../constants/theme";
 import Avatar from "../../components/ui/Avatar";
+import CreateBoardModal from "./CreateBoardModal";
 
 function BoardsPage() {
-    const [showInvite, setShowInvite] = useState(false);
-    console.log("showInvite", showInvite);
+    const [showCreate, setShowCreate] = useState(false);
     return (
         <div>
             <PageHeader
                 title="Boards"
                 subtitle="Manage your boards"
                 action={
-                    <Button variant="primary" onClick={() => console.log("new board")}>
+                    <Button variant="primary" onClick={() => setShowCreate(true)}>
                         New Board
                     </Button>
                 }
@@ -72,6 +72,7 @@ function BoardsPage() {
                     </div>
                 ))}
             </div>
+            {showCreate && <CreateBoardModal onClose={() => setShowCreate(false)}/>}
         </div>
     );
 }

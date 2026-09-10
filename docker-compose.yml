@@ -2,6 +2,10 @@ services:
 
   server:
     build: ./server
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    command: npm run start:dev
     ports:
       - "5000:5000"
     env_file:
@@ -13,6 +17,10 @@ services:
       context: ./client
       args:
         VITE_BACKEND_URL: http://localhost:5000/api/v1
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0
     ports:
       - "5173:5173"
     depends_on:
