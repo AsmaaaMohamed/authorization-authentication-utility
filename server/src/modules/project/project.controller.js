@@ -1,4 +1,5 @@
 import * as projectService from './project.service.js';
+
 export const getWorkspaceProjects = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -7,7 +8,9 @@ export const getWorkspaceProjects = async (req, res, next) => {
 
     return res.status(200).json({
       status: 'success',
-      data: projects,
+      data: {
+        projects,
+      },
     });
   } catch (error) {
     next(error);

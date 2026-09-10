@@ -5,6 +5,17 @@ import { getMyWorkspaces as getMyWorkspacesWithStats } from '../workspaceMember/
 
 import mongoose from 'mongoose';
 
+// helper functions
+const sanitizeWorkspace = (workspace) => ({
+  id: workspace._id,
+  name: workspace.name,
+  description: workspace.description,
+  iconUrl: workspace.iconUrl,
+  ownerId: workspace.ownerId,
+  createdAt: workspace.createdAt,
+  updatedAt: workspace.updatedAt,
+});
+
 /**
  * Create a new workspace for the authenticated user.
  *
@@ -65,7 +76,7 @@ export const createWorkspace = async ({
 
     await session.commitTransaction();
 
-    return workspace;
+    return sanitizeWorkspace(workspace);
   } catch (error) {
     await session.abortTransaction();
     throw error;
@@ -122,7 +133,7 @@ export const updateWorkspace = async (workspaceId, ownerId, data) => {
 
   await workspace.save();
 
-  return workspace;
+  return sanitizeWorkspace(workspace);
 };
 
 /**
