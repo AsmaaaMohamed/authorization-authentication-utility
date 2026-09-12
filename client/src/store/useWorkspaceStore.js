@@ -213,4 +213,22 @@ acceptInvitation: async (inviteToken) => {
     set({ isLoading: false });
   }
 },
+createBoard: async (workspaceId, boardName) => {
+  try {
+    set({ isLoading: true, error: null });    
+    const { data } = await api.post(
+      `/workspace/${workspaceId}/boards`,
+      { name: boardName }
+    );
+    return data;
+  } catch (error) {
+    const message =
+      error.response?.data?.message ||
+      "Failed to create board";
+    set({ error: message });
+    throw error;
+  } finally {
+    set({ isLoading: false });
+  }
+},
 }));
