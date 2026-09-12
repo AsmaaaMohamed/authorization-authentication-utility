@@ -47,12 +47,12 @@ function WorkspacesPage() {
           </div>
         )}
         {!isLoading &&
-          !error && workspaces.map((w,idx) => {
+          !error && workspaces?.map((w,idx) => {
             console.log("freeeee", w.id);
             return(
             
           <div key={idx}  style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: "16px 18px", marginBottom: 10,  }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 13, cursor: "pointer"}} onClick={() => navigate(`/workspaces/${w.id}/board`)}>
+            <div style={{ display: "flex", alignItems: "center", gap: 13, cursor: "pointer"}} onClick={() => navigate(`/workspaces/${w.id}/projects`)}>
               <div style={{ width: 36, height: 36, borderRadius: 8, background: C.panel2, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: MONO, fontSize: 14, color: C.accent }}>{w.name[0]}</div>
               <div>
                 <div style={{ fontSize: 14, color: C.text, fontWeight: 500 }}>{w.name}</div>
