@@ -15,7 +15,7 @@ function BoardsPage() {
     const navigate = useNavigate();
     const getInitials = (name) => {
         return name
-        .split(" ")
+        ?.split(" ")
         .filter(Boolean)
         .map((word) => word[0].toUpperCase())
         .slice(0, 2)
@@ -44,6 +44,23 @@ function BoardsPage() {
                     overflow: "hidden",
                 }}
             >
+                 {isLoading && (
+                          <div style={{ color: C.textMuted, textAlign: "center", padding: 30 }}>
+                            Loading boards...
+                          </div>
+                        )}
+                
+                        {error && !isLoading && (
+                          <div style={{ color: C.red, textAlign: "center", padding: 20 }}>
+                            {error}
+                          </div>
+                        )}
+                
+                        {!isLoading && !error && boards.length === 0 && (
+                          <div style={{ color: C.textFaint, textAlign: "center", padding: 30, fontSize: 13.5 }}>
+                            No boards yet. Create your first one to get started.
+                          </div>
+                        )}
                 {/* Header */}
                 <div
                     style={{
@@ -64,7 +81,7 @@ function BoardsPage() {
 
                 {/* Rows */}
                 {console.log("Boards data:", boards)} {/* Log the boards data to verify it's being retrieved correctly */}
-                {boards?.map((board, idx) => (
+                {!isLoading && !error && boards?.map((board, idx) => (
                     <div
                         key={idx}
                         style={{
