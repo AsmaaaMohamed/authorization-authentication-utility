@@ -304,4 +304,51 @@ getBoards: async (projectId) => {
     throw error;
   }
 },
+updateBoard: async (projectId, boardId, name) => {
+  try {
+    set({ isLoading: true, error: null });
+    const response = await api.patch(
+      `/projects/${projectId}/boards/${boardId}`,
+      { name: name.trim() }
+    );
+    const updatedBoard = response.data.data.board;
+    set((state) => ({
+      boards: state.boards.map((board) =>
+        board.id === boardId ? updatedBoard : board
+      ),
+      isLoading: false,
+    }));
+    return updatedBoard;
+  } catch (error) {
+    set({
+      isLoading: false,
+      error:
+        error.response?.data?.message ||
+        "Failed to update board",
+    });
+    throw error;
+  }
+},
+deleteBoard: async (projectId, boardId) => {
+  try {
+    set({ isLoading: true, error: null });
+    await api.delete(
+      `/projects/${projectId}/boards/${boardId}`
+    );
+    set((state) => ({
+      boards: state.boards.filter(
+        (board) => board.id !== boardId
+      ),
+      isLoading: false,
+    }));
+  } catch (error) {
+    set({
+      isLoading: false,
+      error:
+        error.response?.data?.message ||
+        "Failed to delete board",
+    });
+    throw error;
+  }
+},
 }));

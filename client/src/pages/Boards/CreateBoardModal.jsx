@@ -7,15 +7,17 @@ import { useWorkspaceStore } from "../../store";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
-function CreateBoardModal({ onClose  }) {
-  const { createBoard, isLoading } = useWorkspaceStore();
+function CreateBoardModal({ onClose , board = null  }) {
+  const { createBoard, updateBoard, isLoading } = useWorkspaceStore();
   const {projectId} = useParams();
-  const [boardName, setBoardName] = useState("");
+  const [boardName, setBoardName] = useState(board?.name || "");
   const [error, setError] = useState("");
+  const isEditMode = !!board;
   const handleChange = (e) => {
-    setBoardName(e.target.value);    
+    setBoardName(e.target.value);
+    setError(""); // Clear error when user starts typing    
   };
-  console.log("Project ID in CreateBoardModal:", boardName); // Log the projectId to verify it's being passed correctly
+  // console.log("Project ID in CreateBoardModal:", boardName); // Log the projectId to verify it's being passed correctly
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!boardName.trim()) {
@@ -23,13 +25,17 @@ function CreateBoardModal({ onClose  }) {
       return;
     }
     try {
-        console.log("Creating board with nameeeeeeeeggggg:", boardName); // Log the board name to verify it's being passed correctly
-      await createBoard({ projectId, name: boardName });
-      toast.success("Board created successfully!");
+     if (isEditMode) { 
+      await updateBoard( projectId, board.id, boardName.trim() );
+      toast.success("Board updated successfully!");
+     } else { 
+        await createBoard({ projectId, name: boardName.trim(), });
+        toast.success("Board created successfully!");
+      } 
       onClose();
     } catch (error) {
       console.log(error);
-      setError("Failed to create board");
+      setError( isEditMode ? "Failed to update board" : "Failed to create board" );
     }
   };
   return (

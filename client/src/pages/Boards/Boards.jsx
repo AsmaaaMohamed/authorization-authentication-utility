@@ -9,111 +9,215 @@ import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 function BoardsPage() {
-    const [showCreate, setShowCreate] = useState(false);
-    const {boards, getBoards , isLoading, error} = useWorkspaceStore();
-    const {projectId} = useParams();
-    const navigate = useNavigate();
-    const getInitials = (name) => {
-        return name
-        ?.split(" ")
-        .filter(Boolean)
-        .map((word) => word[0].toUpperCase())
-        .slice(0, 2)
-        .join("");
-    };
-    // console.log("Rendering BoardsPage, showCreate:", showCreate); // Log the state of showCreate
-    useEffect(() => {
-        // Fetch boards when the component mounts
-        getBoards(projectId);
-    }, [getBoards, projectId]);
-    return (
-        <div>
-            <PageHeader
-                title="Boards"
-                subtitle="Manage your boards"
-                action={
-                    <Button variant="primary" onClick={() => setShowCreate(true)}>
-                        New Board
-                    </Button>
-                }
-            />
-            <div
-                style={{
-                    border: `1px solid ${C.border}`,
-                    borderRadius: 8,
-                    overflow: "hidden",
-                }}
-            >
-                 {isLoading && (
-                          <div style={{ color: C.textMuted, textAlign: "center", padding: 30 }}>
-                            Loading boards...
-                          </div>
-                        )}
-                
-                        {error && !isLoading && (
-                          <div style={{ color: C.red, textAlign: "center", padding: 20 }}>
-                            {error}
-                          </div>
-                        )}
-                
-                        {!isLoading && !error && boards.length === 0 && (
-                          <div style={{ color: C.textFaint, textAlign: "center", padding: 30, fontSize: 13.5 }}>
-                            No boards yet. Create your first one to get started.
-                          </div>
-                        )}
-                {/* Header */}
-                <div
-                    style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1.5fr 120px",
-                        alignItems: "center",
-                        padding: "12px 16px",
-                        background: C.panel2,
-                        borderBottom: `1px solid ${C.border}`,
-                        fontSize: 12,
-                        color: C.textMuted,
-                        fontFamily: MONO,
-                    }}
-                >
-                    <span>Board</span>
-                    <span>Admin</span>
-                </div>
+  const [boardModal, setBoardModal] = useState(null);
+  const [boardToDelete, setBoardToDelete] = useState(null);
+  const {
+    boards,
+    getBoards,
+    deleteBoard,
+    isLoading,
+    error,
+  } = useWorkspaceStore();
+  const { projectId } = useParams();
+  const navigate = useNavigate();
+  const getInitials = (name) => {
+    return name
+      ?.split(" ")
+      .filter(Boolean)
+      .map((word) => word[0].toUpperCase())
+      .slice(0, 2)
+      .join("");
+  };
+  const handleEdit = (board) => {
+    setBoardModal({
+      mode: "edit",
+      board,
+    });
+  };
+ const handleDelete = async () => {
+    if (!boardToDelete) return;
+    try {
+        await deleteBoard(projectId, boardToDelete.id);
+        setBoardToDelete(null);
+    } catch (error) {
+        console.log(error);
+    }
+};
+  useEffect(() => {
+    getBoards(projectId);
+  }, [getBoards, projectId]);
 
-                {/* Rows */}
-                {console.log("Boards data:", boards)} {/* Log the boards data to verify it's being retrieved correctly */}
-                {!isLoading && !error && boards?.map((board, idx) => (
-                    <div
-                        key={idx}
-                        style={{
-                            display: "grid",
-                            gridTemplateColumns: "1fr 1.5fr 120px",
-                            alignItems: "center",
-                            padding: "12px 16px",
-                            borderBottom: idx !== (boards.length - 1) ? `1px solid ${C.borderSoft}` : "none",
-                            cursor: "pointer",
-                        }}
-                        onClick={() => navigate(`${board.id}`)}
-                    >
-                        <div
-                            style={{
-                                fontSize: 13.5,
-                                color: C.text,
-                            }}
-                        >
-                            {board.name}
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                            <Avatar initials={getInitials(board?.createdBy.name)} size={32} />
-                            <div>
-                                <div style={{ fontSize: 13.5, color: C.text }}>{board.createdBy.name}</div>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-            {showCreate && <CreateBoardModal onClose={() => setShowCreate(false)}/>}
+  return (
+    <div>
+      <PageHeader
+        title="Boards"
+        subtitle="Manage your boards"
+        action={
+          <Button
+            variant="primary"
+            onClick={() => setBoardModal({ mode: "create" })}
+          >
+            New Board
+          </Button>
+        }
+      />
+
+      <div
+        style={{
+          border: `1px solid ${C.border}`,
+          borderRadius: 8,
+          overflow: "hidden",
+        }}
+      >
+        {isLoading && (
+          <div
+            style={{
+              color: C.textMuted,
+              textAlign: "center",
+              padding: 30,
+            }}
+          >
+            Loading boards...
+          </div>
+        )}
+
+        {error && !isLoading && (
+          <div
+            style={{
+              color: C.red,
+              textAlign: "center",
+              padding: 20,
+            }}
+          >
+            {error}
+          </div>
+        )}
+
+        {!isLoading && !error && boards.length === 0 && (
+          <div
+            style={{
+              color: C.textFaint,
+              textAlign: "center",
+              padding: 30,
+              fontSize: 13.5,
+            }}
+          >
+            No boards yet. Create your first one to get started.
+          </div>
+        )}
+
+        {/* Header */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1.5fr 180px",
+            alignItems: "center",
+            padding: "12px 16px",
+            background: C.panel2,
+            borderBottom: `1px solid ${C.border}`,
+            fontSize: 12,
+            color: C.textMuted,
+            fontFamily: MONO,
+          }}
+        >
+          <span>Board</span>
+          <span>Admin</span>
+          <span></span>
         </div>
-    );
+
+        {/* Rows */}
+        {!isLoading &&
+          !error &&
+          boards?.map((board, idx) => (
+            <div
+              key={idx}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1.5fr 180px",
+                alignItems: "center",
+                padding: "12px 16px",
+                borderBottom:
+                  idx !== boards.length - 1
+                    ? `1px solid ${C.borderSoft}`
+                    : "none",
+                cursor: "pointer",
+              }}
+              onClick={() => navigate(`${board.id}`)}
+            >
+              {/* Board */}
+              <div
+                style={{
+                  fontSize: 13.5,
+                  color: C.text,
+                }}
+              >
+                {board.name}
+              </div>
+
+              {/* Admin */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                }}
+              >
+                <Avatar
+                  initials={getInitials(board?.createdBy?.name)}
+                  size={32}
+                />
+
+                <div
+                  style={{
+                    fontSize: 13.5,
+                    color: C.text,
+                  }}
+                >
+                  {board?.createdBy?.name}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                <Button
+                  variant="textAccent"
+                  onClick={() => handleEdit(board)}
+                >
+                  Edit
+                </Button>
+
+                <Button
+                  variant="danger"
+                  onClick={() => setBoardToDelete(board)}
+                >
+                  Delete
+                </Button>
+              </div>
+            </div>
+          ))}
+      </div>
+
+      {/* Create / Edit Modal */}
+      {boardModal && (
+        <CreateBoardModal
+          board={
+            boardModal.mode === "edit"
+              ? boardModal.board
+              : null
+          }
+          onClose={() => setBoardModal(null)}
+        />
+      )}
+    </div>
+  );
 }
 
 export default BoardsPage;
