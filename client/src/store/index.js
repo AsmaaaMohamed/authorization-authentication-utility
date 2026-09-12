@@ -9,3 +9,4 @@
 export * from "./useAuthStore";
 export * from "./authActions";
 export * from "./useWorkspaceStore";
+export * from "./useProjectStore";
