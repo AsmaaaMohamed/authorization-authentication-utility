@@ -318,7 +318,7 @@ function BoardPage() {
 
   const saveTask = (savedTask, payload) => {
     const normalized = normalizeTask({ ...savedTask, ...payload }, members);
-    setTasks((current) => editingTask
+    setTasks((current) => editingTask?.id
       ? current.map((task) => task.id === normalized.id ? normalized : task)
       : [normalized, ...current]);
     setActiveTask(null);
