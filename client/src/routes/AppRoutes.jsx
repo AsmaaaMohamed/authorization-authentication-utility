@@ -10,12 +10,12 @@ import WorkspacesPage from "../pages/WorkSpaces/WorkSpaces";
 import { useAuthStore } from "../store";
 import WorkspaceSettingsPage from "../pages/WorkSpaces/WorkspaceSettingsPage";
 import AppLayout from "../components/AppLayout";
-import BoardPage from "../pages/Board/Board";
 import MembersPage from "../pages/Members/Members";
 import GeneralSettingsPage from "../pages/GeneralSettings/GeneralSettings";
 import AcceptInvitePage from "../pages/Members/AcceptInvite";
 import BoardsPage from "../pages/Boards/Boards";
 import ProjectsPage from "../pages/Projects/Projects";
+import BoardPage from "../pages/Board/Board";
 
 export default function AppRoutes() {
   const { isLoggedIn } = useAuthStore();
@@ -35,7 +35,11 @@ export default function AppRoutes() {
           <Route path="/workspaces" element={<WorkspacesPage />} />
           <Route path="general-settings" element={<GeneralSettingsPage />} />
           <Route path="/workspaces/:workspaceId" element={<AppLayout />}>
-            <Route path="boards" element={<BoardsPage />} />
+            <Route path="projects/:projectId/boards" element={<BoardsPage />} />
+            <Route
+              path="projects/:projectId/boards/:boardId"
+              element={<BoardPage />}
+            />
             <Route path="projects" element={<ProjectsPage />} />
             <Route path="members" element={<MembersPage />} />
             <Route path="settings" element={<WorkspaceSettingsPage />} />

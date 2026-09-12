@@ -5,6 +5,7 @@ import Modal from "../../components/ui/Modal";
 import { useState } from "react";
 import { useWorkspaceStore } from "../../store";
 import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function CreateBoardModal({ onClose  }) {
   const { createBoard, isLoading } = useWorkspaceStore();
@@ -14,6 +15,7 @@ function CreateBoardModal({ onClose  }) {
   const handleChange = (e) => {
     setBoardName(e.target.value);    
   };
+  console.log("Project ID in CreateBoardModal:", boardName); // Log the projectId to verify it's being passed correctly
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!boardName.trim()) {
@@ -23,6 +25,7 @@ function CreateBoardModal({ onClose  }) {
     try {
         console.log("Creating board with nameeeeeeeeggggg:", boardName); // Log the board name to verify it's being passed correctly
       await createBoard({ projectId, name: boardName });
+      toast.success("Board created successfully!");
       onClose();
     } catch (error) {
       console.log(error);

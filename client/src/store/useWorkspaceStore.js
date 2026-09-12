@@ -74,6 +74,7 @@ export const useWorkspaceStore = create((set) => ({
   workspaces: dummyWorkspaces,
   users: dummyUsers,
   workspaceMembers: [],
+  boards: [],
   isLoading: false,
   error: null,
   // ==================== Clear Workspaces ====================
@@ -241,7 +242,7 @@ getMembers: async (workspaceId) => {
     throw error;
   }
 },
-createBoard: async (projectId, name) => {
+createBoard: async ({projectId, name}) => {
   try {
     set({ isLoading: true, error: null });
     if (!name.trim()) {
@@ -257,7 +258,8 @@ createBoard: async (projectId, name) => {
         name: name.trim(),
       }
     );
-    const board = response.data.data;
+    const board = response.data.data.board;
+    console.log(response.data); // Log the response to see what data is returned
     set((state) => ({
       boards: [...state.boards, board],
       isLoading: false,
@@ -270,6 +272,34 @@ createBoard: async (projectId, name) => {
       error:
         error.response?.data?.message ||
         "Failed to create board",
+    });
+    throw error;
+  }
+},
+getBoards: async (projectId) => {
+  try {
+    set({
+      isLoading: true,
+      error: null,
+    });
+    const response = await api.get(
+      `/projects/${projectId}/boards`
+    );
+    console.log(response.data); // Log the response to see what data is returned
+    const boards = response.data.data.boards || [];
+    set({
+      boards: boards,
+      isLoading: false,
+      error: null,
+    });
+    return boards;
+  } catch (error) {
+    set({
+      boards: [],
+      isLoading: false,
+      error:
+        error.response?.data?.message ||
+        "Failed to fetch boards",
     });
     throw error;
   }

@@ -4,10 +4,28 @@ import Button from "../../components/ui/Button";
 import { C, MONO } from "../../constants/theme";
 import Avatar from "../../components/ui/Avatar";
 import CreateBoardModal from "./CreateBoardModal";
+import { useWorkspaceStore } from "../../store";
+import { useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 function BoardsPage() {
     const [showCreate, setShowCreate] = useState(false);
-    console.log("Rendering BoardsPage, showCreate:", showCreate); // Log the state of showCreate
+    const {boards, getBoards , isLoading, error} = useWorkspaceStore();
+    const {projectId} = useParams();
+    const navigate = useNavigate();
+    const getInitials = (name) => {
+        return name
+        .split(" ")
+        .filter(Boolean)
+        .map((word) => word[0].toUpperCase())
+        .slice(0, 2)
+        .join("");
+    };
+    // console.log("Rendering BoardsPage, showCreate:", showCreate); // Log the state of showCreate
+    useEffect(() => {
+        // Fetch boards when the component mounts
+        getBoards(projectId);
+    }, [getBoards, projectId]);
     return (
         <div>
             <PageHeader
@@ -45,7 +63,8 @@ function BoardsPage() {
                 </div>
 
                 {/* Rows */}
-                {Array.from({ length: 3 }).map((_, idx) => (
+                {console.log("Boards data:", boards)} {/* Log the boards data to verify it's being retrieved correctly */}
+                {boards?.map((board, idx) => (
                     <div
                         key={idx}
                         style={{
@@ -53,8 +72,10 @@ function BoardsPage() {
                             gridTemplateColumns: "1fr 1.5fr 120px",
                             alignItems: "center",
                             padding: "12px 16px",
-                            borderBottom: idx !== 2 ? `1px solid ${C.borderSoft}` : "none",
+                            borderBottom: idx !== (boards.length - 1) ? `1px solid ${C.borderSoft}` : "none",
+                            cursor: "pointer",
                         }}
+                        onClick={() => navigate(`${board.id}`)}
                     >
                         <div
                             style={{
@@ -62,12 +83,12 @@ function BoardsPage() {
                                 color: C.text,
                             }}
                         >
-                            Board {idx + 1}
+                            {board.name}
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                            <Avatar initials={"AB"} size={32} />
+                            <Avatar initials={getInitials(board?.createdBy.name)} size={32} />
                             <div>
-                                <div style={{ fontSize: 13.5, color: C.text }}>Ahmed Bouhlel</div>
+                                <div style={{ fontSize: 13.5, color: C.text }}>{board.createdBy.name}</div>
                             </div>
                         </div>
                     </div>

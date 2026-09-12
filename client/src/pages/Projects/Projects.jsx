@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Plus, Hash } from "lucide-react";
-import { C, FONT, MONO } from "../../constants/theme";
+import { C, FONT} from "../../constants/theme";
 import PageHeader from "../../components/PageHeader";
 import Button from "../../components/ui/Button";
 import CreateProjectModal from "./CreateProjectModal";
@@ -11,6 +11,7 @@ function ProjectsPage() {
   const { workspaceId } = useParams();
   const [showCreate, setShowCreate] = useState(false);
   const { projects, getWorkspaceProjects, isLoading, error } = useProjectStore();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (workspaceId) {
@@ -54,6 +55,11 @@ function ProjectsPage() {
           projects.map((p) => (
             <div
               key={p.id}
+              onClick={() =>
+                  navigate(
+                    `/workspaces/${workspaceId}/projects/${p.id}/boards`
+                  )
+              }
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -63,6 +69,7 @@ function ProjectsPage() {
                 borderRadius: 10,
                 padding: "16px 18px",
                 marginBottom: 10,
+                cursor: "pointer",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
