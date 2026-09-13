@@ -9,7 +9,7 @@ import FileDrop from "../ui/FileDrop";
 import { signup, useAuthStore } from "../../store";
 
 export default function SignupForm() {
-  const { isSigningUp } = useAuthStore();
+  const isSigningUp = useAuthStore((state) => state.isSigningUp);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

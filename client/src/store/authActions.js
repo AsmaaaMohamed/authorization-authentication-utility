@@ -1,6 +1,6 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-import api from "../services/api";
+import api, { setLoggedOut } from "../services/api";
 import { useAuthStore } from "./useAuthStore";
 import { useWorkspaceStore } from "./";
 
@@ -178,6 +178,7 @@ export const logout = async () => {
   try {
     setLoadingState("isLoggingOut", true);
     await api.post("/auth/logout");
+    setLoggedOut(true);
     clearAuth();
     useWorkspaceStore.getState().clearWorkspaces();
     toast.success("Logged out successfully");

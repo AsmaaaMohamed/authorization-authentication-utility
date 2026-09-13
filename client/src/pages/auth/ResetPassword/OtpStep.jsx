@@ -5,7 +5,7 @@ import { verifyOtp , useAuthStore} from "../../../store";
 
 const OtpStep = ({ email, onSuccess, onChangeEmail }) => {
   const inputRefs = useRef([]);
-  const { isVerifyingOtp} = useAuthStore();
+  const isVerifyingOtp = useAuthStore((state) => state.isVerifyingOtp);
   const handleOtpInput = (e, index) => {
     if (
       e.target.value.length > 0 &&

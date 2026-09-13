@@ -10,7 +10,7 @@ const NewPasswordStep = ({ resetToken }) => {
   const navigate = useNavigate();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const {isResettingPassword } = useAuthStore();
+  const isResettingPassword = useAuthStore((state) => state.isResettingPassword);
 
   const handleResetPassword = async (e) => {
     e.preventDefault();

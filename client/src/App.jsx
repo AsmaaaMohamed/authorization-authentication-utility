@@ -3,19 +3,17 @@ import AppRoutes from "./routes/AppRoutes";
 import { useAuthStore, initializeAuth } from './store';
 
 export default function App() {
-  const {  isInitializing } = useAuthStore();
+  const isInitializing = useAuthStore((state) => state.isInitializing);
 
   useEffect(() => {
     initializeAuth();
   }, []);
 
-  // Block child rendering until state machine finishes verifying cookies
-  // if (isInitializing) {
-  //   return (
-  //     <div style={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center' }}>
-  //       <div>Loading your profile session...</div>
-  //     </div>
-  //   );
-  // }
+  // Wait for the refresh-cookie check so guards do not briefly show the
+  // login/signup screens to an already-authenticated user.
+  if (isInitializing) {
+    return null;
+  }
+
   return <AppRoutes />;
 }

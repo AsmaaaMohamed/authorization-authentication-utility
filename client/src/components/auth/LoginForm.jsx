@@ -8,7 +8,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { login, useAuthStore } from "../../store";
 
 const LoginForm = () => {
-  const { isLoggingIn } = useAuthStore();
+  const isLoggingIn = useAuthStore((state) => state.isLoggingIn);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);

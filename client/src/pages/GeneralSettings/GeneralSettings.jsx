@@ -8,7 +8,7 @@ import { useAuthStore, getUserData } from "../../store";
 import { useEffect } from "react";
 
 function GeneralSettingsPage() {
-  const {userData} = useAuthStore();
+  const userData = useAuthStore((state) => state.userData);
   useEffect(() => {
     getUserData();
   }, []);

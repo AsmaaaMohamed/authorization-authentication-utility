@@ -4,7 +4,7 @@ import { logout, useAuthStore } from "../../store";
 
 export default function AuthLayout() {
   const navigate = useNavigate();
-  const { isLoggedIn} = useAuthStore();
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
   const handleLogout = () => {
     logout();

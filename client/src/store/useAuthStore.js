@@ -21,7 +21,8 @@ export const useAuthStore = create((set) => ({
     // Separate loading flags per action. Keeping a single shared isLoading
   // meant unrelated background calls (e.g. initializeAuth running on app
   // mount) could flip the same flag a login button was disabled on.
-  isInitializing: false,
+  // Start as true so route guards wait for the refresh-cookie check on load.
+  isInitializing: true,
   isLoggingIn: false,
   isSigningUp: false,
   isLoggingOut: false,

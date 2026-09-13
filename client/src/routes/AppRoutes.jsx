@@ -4,7 +4,7 @@ import Signup from "../pages/auth/Signup";
 import VerifyEmail from "../pages/auth/VerifyEmail";
 import ResetPassword from "../pages/auth/ResetPassword/ResetPassword";
 import Login from "../pages/auth/Login";
-import ProtectedRoute from "./ProtectedRoute";
+import GuestRoute from "./GuestRoute";
 import RootRedirect from "./RootRedirect";
 import WorkspacesPage from "../pages/WorkSpaces/WorkSpaces";
 import { useAuthStore } from "../store";
@@ -16,9 +16,11 @@ import AcceptInvitePage from "../pages/Members/AcceptInvite";
 import BoardsPage from "../pages/Boards/Boards";
 import ProjectsPage from "../pages/Projects/Projects";
 import BoardPage from "../pages/Board/Board";
+import ProtectedRoute from "./ProtectedRoute";
 
 export default function AppRoutes() {
-  const { isLoggedIn } = useAuthStore();
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const isLoggedOut = useAuthStore((state) => state.isLoggedOut);
   return (
     <Routes>
       <Route element={<AuthLayout />}>
@@ -26,12 +28,14 @@ export default function AppRoutes() {
         <Route path="/" element={<RootRedirect />} />
         {/* Public */}
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route element={<GuestRoute isLoggedIn={isLoggedIn} />}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+        </Route>
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/accept-invite" element={<AcceptInvitePage />} />
         {/* Protected */}
-        <Route element={<ProtectedRoute isLoggedIn={isLoggedIn} />}>
+        <Route element={<ProtectedRoute isLoggedIn={isLoggedIn} isLoggedOut={isLoggedOut} />}>
           <Route path="/workspaces" element={<WorkspacesPage />} />
           <Route path="general-settings" element={<GeneralSettingsPage />} />
           <Route path="/workspaces/:workspaceId" element={<AppLayout />}>

@@ -5,7 +5,7 @@ import Button from "../../../components/ui/Button";
 import { sendResetOtp, useAuthStore } from "../../../store";
 
 const EmailStep = ({ email, setEmail, onSuccess }) => {
-  const { isSendingOtp } = useAuthStore();
+  const isSendingOtp = useAuthStore((state) => state.isSendingOtp);
   const handleSendOtp = async (e) => {
     e.preventDefault();
     try {
