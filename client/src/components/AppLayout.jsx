@@ -1,4 +1,4 @@
-import { Bell, FolderKanban, Hash, LogOut, SettingsIcon, Users } from "lucide-react";
+import { Bell, FolderKanban, LogOut, SettingsIcon, Users } from "lucide-react";
 import Avatar from "./ui/Avatar";
 import { C, FONT, MONO } from "../constants/theme";
 import { Outlet, useNavigate, useLocation, useParams } from "react-router-dom";
@@ -18,7 +18,6 @@ function AppLayout() {
     { id: "notifications", icon: Bell, label: "Notifications", path: "/notifications" },
     { id: "settings", icon: SettingsIcon, label: "Settings", path: "/settings" },
   ];
-
   return (
     <div style={{ display: "flex", height: "100vh", width: "100%", background: C.bg, fontFamily: FONT }}>
       <div style={{ width: 208, background: C.bg, borderRight: `1px solid ${C.border}`, padding: "18px 12px", display: "flex", flexDirection: "column", flexShrink: 0 }}>       
@@ -37,16 +36,6 @@ function AppLayout() {
             </div>
           );
         })}
-
-        <div style={{ fontSize: 10.5, color: C.textFaint, letterSpacing: 0.4, textTransform: "uppercase", padding: "0 6px", marginTop: 22, marginBottom: 8 }}>Projects</div>
-
-        {["Sprint 1", "Backend Utils", "Mobile App"].map((project, index) => (
-          <div key={project} style={{ display: "flex", alignItems: "center", gap: 9, padding: "7px 8px", borderRadius: 6, cursor: "pointer", color: index === 0 ? C.text : C.textMuted, background: index === 0 ? C.panel2 : "transparent" }}>
-            <Hash size={13} color={C.textFaint} />
-            <span style={{ fontSize: 13 }}>{project}</span>
-          </div>
-        ))}
-
         <div onClick={() => navigate("/login")} style={{ marginTop: "auto", display: "flex", alignItems: "center", gap: 9, padding: "10px 6px", borderTop: `1px solid ${C.borderSoft}`, cursor: "pointer" }}>
           <Avatar initials="AF" size={26} />
           <div style={{ flex: 1 }}>
@@ -56,7 +45,6 @@ function AppLayout() {
           <LogOut size={13} color={C.textFaint} onClick={()=>{logout(); navigate("/login")}} />
         </div>
       </div>
-
       <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, overflow: "hidden" }}>
         <Outlet />
       </div>
