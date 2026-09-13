@@ -41,7 +41,16 @@ export const createBoard = async (projectId, userId, name) => {
       projectId,
       createdBy: userId,
     });
-
+    await board.populate([
+      {
+        path: "createdBy",
+        select: "name email",
+      },
+      {
+        path: "projectId",
+        select: "name description",
+      },
+    ]);
     return sanitizeBoard(board);
   } catch (err) {
     if (err.code === 11000) {

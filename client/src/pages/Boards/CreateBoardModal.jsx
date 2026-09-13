@@ -8,11 +8,12 @@ import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
 function CreateBoardModal({ onClose , board = null  }) {
-  const { createBoard, updateBoard, isLoading } = useWorkspaceStore();
+  const { createBoard, updateBoard, isCreating, isUpdating } = useWorkspaceStore();
   const {projectId} = useParams();
   const [boardName, setBoardName] = useState(board?.name || "");
   const [error, setError] = useState("");
   const isEditMode = !!board;
+  const isSubmitting = isEditMode ? isUpdating : isCreating;
   const handleChange = (e) => {
     setBoardName(e.target.value);
     setError(""); // Clear error when user starts typing    
@@ -67,9 +68,9 @@ function CreateBoardModal({ onClose , board = null  }) {
             <Button
               full
               type="submit"
-              disabled={isLoading}
+              disabled={isSubmitting}
             >
-              {isLoading ? "Creating..." : "Create Board"}
+              {isSubmitting? isEditMode? "Updating...": "Creating...": isEditMode? "Update Board": "Create Board"}
             </Button>
           </div>
       </form>

@@ -7,6 +7,7 @@ import CreateBoardModal from "./CreateBoardModal";
 import { useWorkspaceStore } from "../../store";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import ConfirmationModal from "../../components/ui/ConfirmationModal";
 
 function BoardsPage() {
   const [boardModal, setBoardModal] = useState(null);
@@ -46,7 +47,7 @@ function BoardsPage() {
   useEffect(() => {
     getBoards(projectId);
   }, [getBoards, projectId]);
-
+console.log("BOARDS:", boards);
   return (
     <div>
       <PageHeader
@@ -214,6 +215,16 @@ function BoardsPage() {
               : null
           }
           onClose={() => setBoardModal(null)}
+        />
+      )}
+      {boardToDelete && (
+        <ConfirmationModal
+          title="Delete board"
+          message={`Are you sure you want to delete board "${boardToDelete.name}"?`}
+          confirmText="Delete"
+          cancelText="Cancel"
+          onCancel={() => setBoardToDelete(null)}
+          onConfirm={handleDelete}
         />
       )}
     </div>

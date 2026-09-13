@@ -76,6 +76,9 @@ export const useWorkspaceStore = create((set) => ({
   workspaceMembers: [],
   boards: [],
   isLoading: false,
+  isCreating: false,
+  isDeleting: false,
+  isUpdating: false,
   error: null,
   // ==================== Clear Workspaces ====================
   clearWorkspaces: () => set({ workspaces: [] }),
@@ -244,10 +247,10 @@ getMembers: async (workspaceId) => {
 },
 createBoard: async ({projectId, name}) => {
   try {
-    set({ isLoading: true, error: null });
+    set({ isCreating: true, error: null });
     if (!name.trim()) {
       set({
-        isLoading: false,
+        isCreating: false,
         error: "Board name is required",
       });
       return;
@@ -262,13 +265,13 @@ createBoard: async ({projectId, name}) => {
     console.log(response.data); // Log the response to see what data is returned
     set((state) => ({
       boards: [...state.boards, board],
-      isLoading: false,
+      isCreating: false,
       error: null,
     }));
     return board;
   } catch (error) {
     set({
-      isLoading: false,
+      isCreating: false,
       error:
         error.response?.data?.message ||
         "Failed to create board",
@@ -306,7 +309,7 @@ getBoards: async (projectId) => {
 },
 updateBoard: async (projectId, boardId, name) => {
   try {
-    set({ isLoading: true, error: null });
+    set({ isUpdating: true, error: null });
     const response = await api.patch(
       `/projects/${projectId}/boards/${boardId}`,
       { name: name.trim() }
@@ -316,12 +319,12 @@ updateBoard: async (projectId, boardId, name) => {
       boards: state.boards.map((board) =>
         board.id === boardId ? updatedBoard : board
       ),
-      isLoading: false,
+      isUpdating: false,
     }));
     return updatedBoard;
   } catch (error) {
     set({
-      isLoading: false,
+      isUpdating: false,
       error:
         error.response?.data?.message ||
         "Failed to update board",
@@ -331,7 +334,7 @@ updateBoard: async (projectId, boardId, name) => {
 },
 deleteBoard: async (projectId, boardId) => {
   try {
-    set({ isLoading: true, error: null });
+    set({ isDeleting: true, error: null });
     await api.delete(
       `/projects/${projectId}/boards/${boardId}`
     );
@@ -339,11 +342,11 @@ deleteBoard: async (projectId, boardId) => {
       boards: state.boards.filter(
         (board) => board.id !== boardId
       ),
-      isLoading: false,
+      isDeleting: false,
     }));
   } catch (error) {
     set({
-      isLoading: false,
+      isDeleting: false,
       error:
         error.response?.data?.message ||
         "Failed to delete board",
