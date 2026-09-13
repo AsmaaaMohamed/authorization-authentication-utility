@@ -31,7 +31,7 @@ export default function AppRoutes() {
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/accept-invite" element={<AcceptInvitePage />} />
         {/* Protected */}
-        <Route element={<ProtectedRoute isLoggedIn={true} />}>
+        <Route element={<ProtectedRoute isLoggedIn={isLoggedIn} />}>
           <Route path="/workspaces" element={<WorkspacesPage />} />
           <Route path="general-settings" element={<GeneralSettingsPage />} />
           <Route path="/workspaces/:workspaceId" element={<AppLayout />}>

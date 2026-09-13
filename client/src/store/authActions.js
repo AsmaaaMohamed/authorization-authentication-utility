@@ -175,7 +175,6 @@ export const getUserData = async () => {
 
 export const logout = async () => {
   const { setLoadingState, clearAuth } = useAuthStore.getState();
-
   try {
     setLoadingState("isLoggingOut", true);
     await api.post("/auth/logout");
