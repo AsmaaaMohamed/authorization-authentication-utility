@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Plus, Hash } from "lucide-react";
-import { C, FONT} from "../../constants/theme";
+import { Plus, Hash, Pencil } from "lucide-react";
+import { C, FONT } from "../../constants/theme";
 import PageHeader from "../../components/PageHeader";
 import Button from "../../components/ui/Button";
 import CreateProjectModal from "./CreateProjectModal";
+import EditProjectModal from "./EditProjectModal";
 import { useProjectStore } from "../../store/useProjectStore";
 
 function ProjectsPage() {
   const { workspaceId } = useParams();
   const [showCreate, setShowCreate] = useState(false);
+  const [projectToEdit, setProjectToEdit] = useState(null);
   const { projects, getWorkspaceProjects, isLoading, error } = useProjectStore();
   const navigate = useNavigate();
 
@@ -56,9 +58,9 @@ function ProjectsPage() {
             <div
               key={p.id}
               onClick={() =>
-                  navigate(
-                    `/workspaces/${workspaceId}/projects/${p.id}/boards`
-                  )
+                navigate(
+                  `/workspaces/${workspaceId}/projects/${p.id}/boards`
+                )
               }
               style={{
                 display: "flex",
@@ -97,6 +99,26 @@ function ProjectsPage() {
                   )}
                 </div>
               </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setProjectToEdit(p);
+                }}
+                title="Edit project"
+                style={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: 7,
+                  background: "transparent",
+                  border: `1px solid ${C.border}`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                }}
+              >
+                <Pencil size={13} color={C.textMuted} />
+              </button>
             </div>
           ))}
       </div>
@@ -105,6 +127,13 @@ function ProjectsPage() {
         <CreateProjectModal
           workspaceId={workspaceId}
           onClose={() => setShowCreate(false)}
+        />
+      )}
+
+      {projectToEdit && (
+        <EditProjectModal
+          project={projectToEdit}
+          onClose={() => setProjectToEdit(null)}
         />
       )}
     </div>

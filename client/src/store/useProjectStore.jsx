@@ -4,6 +4,7 @@ import api from "../services/api";
 export const useProjectStore = create((set) => ({
   projects: [],
   isLoading: false,
+  isUpdating: false,
   error: null,
 
   // ==================== Clear Projects ====================
@@ -48,6 +49,31 @@ export const useProjectStore = create((set) => ({
       set({
         isLoading: false,
         error: error.response?.data?.message || "Failed to create project",
+      });
+      throw error;
+    }
+  },
+
+  // ==================== Update Project ====================
+  // PATCH /projects/:id/project
+
+  updateProject: async (id, projectData) => {
+    try {
+      set({ isUpdating: true, error: null });
+      const response = await api.patch(`/projects/${id}/project`, projectData);
+      const updatedProject = response.data?.project;
+      set((state) => ({
+        projects: state.projects.map((p) =>
+          p.id === id ? { ...p, ...updatedProject } : p
+        ),
+        isUpdating: false,
+        error: null,
+      }));
+      return updatedProject;
+    } catch (error) {
+      set({
+        isUpdating: false,
+        error: error.response?.data?.message || "Failed to update project",
       });
       throw error;
     }
