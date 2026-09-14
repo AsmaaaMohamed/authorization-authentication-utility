@@ -5,6 +5,7 @@ export const useProjectStore = create((set) => ({
   projects: [],
   isLoading: false,
   isUpdating: false,
+  isDeleting: false,
   error: null,
 
   // ==================== Clear Projects ====================
@@ -56,7 +57,7 @@ export const useProjectStore = create((set) => ({
 
   // ==================== Update Project ====================
   // PATCH /projects/:id/project
-
+  // Only the fields supplied by the caller are sent (partial update).
   updateProject: async (id, projectData) => {
     try {
       set({ isUpdating: true, error: null });
@@ -74,6 +75,26 @@ export const useProjectStore = create((set) => ({
       set({
         isUpdating: false,
         error: error.response?.data?.message || "Failed to update project",
+      });
+      throw error;
+    }
+  },
+
+  // ==================== Delete Project ====================
+  // DELETE /projects/:projectId
+  deleteProject: async (projectId) => {
+    try {
+      set({ isDeleting: true, error: null });
+      await api.delete(`/projects/${projectId}`);
+      set((state) => ({
+        projects: state.projects.filter((p) => p.id !== projectId),
+        isDeleting: false,
+        error: null,
+      }));
+    } catch (error) {
+      set({
+        isDeleting: false,
+        error: error.response?.data?.message || "Failed to delete project",
       });
       throw error;
     }
