@@ -1,18 +1,21 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Plus, Hash, Pencil } from "lucide-react";
+import { Plus, Hash, Pencil, Trash2 } from "lucide-react";
 import { C, FONT } from "../../constants/theme";
 import PageHeader from "../../components/PageHeader";
 import Button from "../../components/ui/Button";
+import ConfirmationModal from "../../components/ui/ConfirmationModal";
 import CreateProjectModal from "./CreateProjectModal";
 import EditProjectModal from "./EditProjectModal";
 import { useProjectStore } from "../../store/useProjectStore";
+import { toast } from "react-toastify";
 
 function ProjectsPage() {
   const { workspaceId } = useParams();
   const [showCreate, setShowCreate] = useState(false);
   const [projectToEdit, setProjectToEdit] = useState(null);
-  const { projects, getWorkspaceProjects, isLoading, error } = useProjectStore();
+  const [projectToDelete, setProjectToDelete] = useState(null);
+  const { projects, getWorkspaceProjects, deleteProject, isLoading, isDeleting, error } = useProjectStore();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,6 +23,17 @@ function ProjectsPage() {
       getWorkspaceProjects(workspaceId);
     }
   }, [workspaceId, getWorkspaceProjects]);
+
+  const handleDelete = async () => {
+    if (!projectToDelete) return;
+    try {
+      await deleteProject(projectToDelete.id);
+      toast.success("Project deleted successfully");
+      setProjectToDelete(null);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to delete project");
+    }
+  };
 
   return (
     <div style={{ minHeight: "100vh", background: C.bg, fontFamily: FONT }}>
@@ -99,26 +113,48 @@ function ProjectsPage() {
                   )}
                 </div>
               </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setProjectToEdit(p);
-                }}
-                title="Edit project"
-                style={{
-                  width: 30,
-                  height: 30,
-                  borderRadius: 7,
-                  background: "transparent",
-                  border: `1px solid ${C.border}`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                }}
-              >
-                <Pencil size={13} color={C.textMuted} />
-              </button>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setProjectToEdit(p);
+                  }}
+                  title="Edit project"
+                  style={{
+                    width: 30,
+                    height: 30,
+                    borderRadius: 7,
+                    background: "transparent",
+                    border: `1px solid ${C.border}`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                  }}
+                >
+                  <Pencil size={13} color={C.textMuted} />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setProjectToDelete(p);
+                  }}
+                  title="Delete project"
+                  style={{
+                    width: 30,
+                    height: 30,
+                    borderRadius: 7,
+                    background: "transparent",
+                    border: `1px solid ${C.red}44`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                  }}
+                >
+                  <Trash2 size={13} color={C.red} />
+                </button>
+              </div>
             </div>
           ))}
       </div>
@@ -134,6 +170,17 @@ function ProjectsPage() {
         <EditProjectModal
           project={projectToEdit}
           onClose={() => setProjectToEdit(null)}
+        />
+      )}
+
+      {projectToDelete && (
+        <ConfirmationModal
+          title="Delete project"
+          message={`Are you sure you want to delete project "${projectToDelete.name}"? This can't be undone.`}
+          confirmText={isDeleting ? "Deleting..." : "Delete"}
+          cancelText="Cancel"
+          onCancel={() => setProjectToDelete(null)}
+          onConfirm={handleDelete}
         />
       )}
     </div>
