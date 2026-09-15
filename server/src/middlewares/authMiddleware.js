@@ -17,6 +17,7 @@ import {
   getUserRevokeAllBefore,
 } from '../config/redisService.js';
 import AppError from '../utilities/AppError.js';
+import Workspace from '../modules/workspace/workspace.model.js';
 
 // helper function
 const handleZodError = (err) => {
@@ -47,6 +48,7 @@ export const userAuth = async (req, res, next) => {
         new AppError('Session has been invalidated. Please log in again.', 401),
       );
     }
+  
     const decoded = jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET);
     if (!decoded || !decoded.id) {
       return next(new AppError('Not Authorized. Invalid token payload.', 401));
@@ -73,20 +75,48 @@ export const userAuth = async (req, res, next) => {
   }
 };
 
-export const authorize = (...roles) => {
-  return (req, res, next) => {
+export const isWorkspaceMine = async (userId, workspaceId) => {
+  if (!userId || !workspaceId) return false;
+
+  const workspace = await Workspace.findById(workspaceId).select('ownerId');
+
+  if (!workspace) return false;
+
+  return workspace.ownerId?.toString() === userId.toString();
+};
+
+export const authorize = (requiredRole) => {
+  return async (req, res, next) => {
     if (!req.user) {
-      throw new AppError(
-        'Authentication required before authorization check.',
-        401,
+      return next(
+        new AppError('Authentication required before authorization check.', 401),
       );
     }
 
-    if (!roles.includes(req.user.role)) {
-      throw new AppError(
-        `Forbidden. Role '${req.user.role}' is not authorized to access this resource. Required role(s): [${roles.join(', ')}].`,
-        403,
-      );
+    if (requiredRole) {
+      const allowedRoles = Array.isArray(requiredRole)
+        ? requiredRole
+        : [requiredRole];
+
+      if (!allowedRoles.includes(req.user.role)) {
+        return next(
+          new AppError('You are not authorized to perform this action.', 403),
+        );
+      }
+
+      return next();
+    }
+
+    const workspaceId = req.params?.workspaceId;
+
+    if (!workspaceId) {
+      return next(new AppError('Workspace ID is required.', 400));
+    }
+
+    const isMine = await isWorkspaceMine(req.user.id, workspaceId);
+
+    if (!isMine) {
+      return next(new AppError('You are not the owner of this workspace.', 403));
     }
 
     next();

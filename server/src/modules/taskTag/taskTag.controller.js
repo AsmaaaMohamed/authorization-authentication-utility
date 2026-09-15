@@ -2,13 +2,16 @@ import * as taskTagService from './taskTag.service.js';
 
 export const addTagToTask = async (req, res, next) => {
   try {
-    const { id, tagId } = req.params;
+    const { taskId, tagId } = req.params;
 
-    const taskTag = await taskTagService.addTagToTask(id, tagId);
+    const taskTag = await taskTagService.addTagToTask(taskId, tagId);
 
     return res.status(200).json({
-      taskId: taskTag.taskId,
-      tagId: taskTag.tagId,
+      success: true,
+      data: {
+        taskId: taskTag.taskId,
+        tagId: taskTag.tagId,
+      },
     });
   } catch (error) {
     next(error);
@@ -17,11 +20,14 @@ export const addTagToTask = async (req, res, next) => {
 
 export const removeTagFromTask = async (req, res, next) => {
   try {
-    const { id, tagId } = req.params;
+    const { taskId, tagId } = req.params;
 
-    await taskTagService.removeTagFromTask(id, tagId);
+    await taskTagService.removeTagFromTask(taskId, tagId);
 
-    return res.status(204).send();
+    return res.status(200).json({
+      success: true,
+      message: 'Tag removed from task.',
+    });
   } catch (error) {
     next(error);
   }
@@ -29,10 +35,13 @@ export const removeTagFromTask = async (req, res, next) => {
 
 export const getTasksByTag = async (req, res, next) => {
   try {
-    const { id, tagId } = req.params;
-    const tasks = await taskTagService.getTasksByTag(id, tagId);
+    const { workspaceId, tagId } = req.params;
+    const tasks = await taskTagService.getTasksByTag(workspaceId, tagId);
 
-    return res.status(200).json({ tasks });
+    return res.status(200).json({
+      success: true,
+      data: tasks,
+    });
   } catch (error) {
     next(error);
   }

@@ -7,6 +7,9 @@ import WorkspaceMember from '../workspaceMember/workspaceMember.model.js';
 import WorkspaceInvitation from './workspaceInvitation.model.js';
 
 import AppError from '../../utilities/AppError.js';
+import { addInQueue } from '../../config/queuesServices.js';
+
+const WORKSPACE_INVITATION_QUEUE = 'workspaceInvitationQueue';
 
 /**
  * Create a workspace invitation.
@@ -94,12 +97,19 @@ export const createWorkspaceInvitation = async ({
     expiresAt,
   });
 
-  // Trigger email service here.
-  // await sendWorkspaceInvitationEmail({
-  //   email: normalizedEmail,
-  //   workspaceName: workspace.name,
-  //   token,
-  // });
+await addInQueue(
+    WORKSPACE_INVITATION_QUEUE,
+    {
+      to: normalizedEmail,
+      workspaceName: workspace.name,
+      inviterName: 'A team member',
+      token,
+    },
+    {
+      removeOnComplete: true,
+      removeOnFail: true,
+    },
+  );
 
   return invitation;
 };

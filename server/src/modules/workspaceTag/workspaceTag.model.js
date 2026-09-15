@@ -23,6 +23,8 @@ const workspaceTagSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+workspaceTagSchema.index({ workspaceId: 1, name: 1 }, { unique: true });
+
 const WorkspaceTag =
   mongoose.models.WorkspaceTag ||
   mongoose.model('WorkspaceTag', workspaceTagSchema);

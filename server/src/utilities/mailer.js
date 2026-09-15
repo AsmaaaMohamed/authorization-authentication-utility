@@ -2,6 +2,7 @@ import nodemailer from 'nodemailer';
 import { otpVerificationTemplate } from '../utilities/emailTemplates/otp-verification.js';
 import { passwordResetConfirmationTemplate } from '../utilities/emailTemplates/password-reset-confirm.js';
 import { passwordResetOtpTemplate } from '../utilities/emailTemplates/password-reset-otp.js';
+import { workspaceInvitationTemplate } from '../utilities/emailTemplates/workspace-invitation.js';
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -51,7 +52,29 @@ export const sendOtpVerificationEmail = async (to, otp, expiresInMinutes) => {
   });
 };
 
+export const sendWorkspaceInvitationEmail = async ({
+  to,
+  workspaceName,
+  inviterName,
+  token,
+}) => {
+  const invitationUrl = 'http://localhost:5000/api/v1/workspace/invitations/accept';
+
+  await sendMail({
+    to,
+    subject: `Invitation to join ${workspaceName}`,
+    text: `${inviterName} has invited you to join ${workspaceName}. Accept the invitation here: ${invitationUrl}`,
+    html: workspaceInvitationTemplate({
+      workspaceName,
+      inviterName,
+      token,
+      acceptUrl: invitationUrl,
+    }),
+  });
+};
+
 export default {
   sendPasswordResetOtpEmail,
   sendPasswordResetConfirmationEmail,
+  sendWorkspaceInvitationEmail,
 };

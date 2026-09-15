@@ -18,6 +18,16 @@ const taskSchema = new mongoose.Schema(
       required: [true, 'Status is required'],
       default: 'todo',
     },
+    priority: {
+      type: String,
+      enum: ['lowest', 'low', 'medium', 'high', 'highest'],
+      default: 'medium',
+    },
+    type: {
+      type: String,
+      enum: ['story', 'task', 'bug', 'epic'],
+      default: 'task',
+    },
     projectId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Project',
@@ -43,7 +53,7 @@ const taskSchema = new mongoose.Schema(
       index: true,
     },
     tags: {
-      type: [String],
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'WorkspaceTag' }],
       default: [],
     },
     attachments: {

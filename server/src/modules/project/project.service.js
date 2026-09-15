@@ -1,5 +1,6 @@
 import Project from './project.model.js';
 import WorkspaceMember from '../workspaceMember/workspaceMember.model.js';
+import Board from '../board/board.model.js';
 import AppError from '../../utilities/AppError.js';
 
 const assertWorkspaceAccess = async (
@@ -13,7 +14,7 @@ const assertWorkspaceAccess = async (
     throw new AppError('You are not a member of this workspace.', 403);
   }
 
-  if (writeAccess && !['owner', 'admin'].includes(member.role)) {
+  if (writeAccess && !['OWNER', 'ADMIN'].includes(member.role)) {
     throw new AppError(
       'Only workspace owners and admins can change projects.',
       403,
@@ -40,7 +41,30 @@ export const createProject = async (projectData, workspaceId, userId) => {
     workspaceId: workspaceId,
   });
 
-  return sanitizeProject(project);
+  const board = await Board.create({
+    name: `${project.name} Board`,
+    projectId: project._id,
+    createdBy: userId,
+    columns: [
+      { title: 'Todo', status: 'todo', order: 0 },
+      { title: 'In Progress', status: 'in_progress', order: 1 },
+      { title: 'Done', status: 'done', order: 2 },
+    ],
+  });
+
+  return {
+    ...sanitizeProject(project),
+    board: {
+      id: board._id,
+      name: board.name,
+      columns: board.columns.map((column) => ({
+        id: column._id,
+        title: column.title,
+        status: column.status,
+        order: column.order,
+      })),
+    },
+  };
 };
 
 export const deleteProject = async (projectId, userId) => {

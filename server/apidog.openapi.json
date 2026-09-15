@@ -25,18 +25,6 @@
     { "name": "Upload", "description": "Cloudinary image operations" }
   ],
   "components": {
-    "securitySchemes": {
-      "BearerAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT"
-      },
-      "CookieAuth": {
-        "type": "apiKey",
-        "in": "cookie",
-        "name": "refreshToken"
-      }
-    },
     "schemas": {
       "RegisterRequest": {
         "type": "object",
@@ -107,6 +95,15 @@
         "required": ["name"],
         "properties": { "name": { "type": "string", "example": "In progress" } }
       },
+      "BoardColumnRequest": {
+        "type": "object",
+        "required": ["title"],
+        "properties": {
+          "title": { "type": "string", "example": "QA" },
+          "status": { "type": "string", "enum": ["todo", "in_progress", "done"], "example": "todo" },
+          "order": { "type": "integer", "minimum": 0, "example": 3 }
+        }
+      },
       "TaskRequest": {
         "type": "object",
         "required": ["title", "status", "projectId", "boardId", "assigneeId"],
@@ -117,7 +114,7 @@
           "projectId": { "type": "string", "example": "665a12b3c4d5e6f7a8b9c0d1" },
           "boardId": { "type": "string", "example": "665a12b3c4d5e6f7a8b9c0d2" },
           "assigneeId": { "type": "string", "example": "665a12b3c4d5e6f7a8b9c0d3" },
-          "tags": { "type": "array", "items": { "type": "string" } },
+          "tags": { "type": "array", "items": { "type": "string", "format": "ObjectId" }, "example": ["665a12b3c4d5e6f7a8b9c0d4", "665a12b3c4d5e6f7a8b9c0d5"] },
           "attachments": { "type": "array", "items": { "type": "string" } }
         }
       },
@@ -128,7 +125,7 @@
           "description": { "type": "string" },
           "status": { "type": "string", "enum": ["todo", "in_progress", "done"] },
           "assigneeId": { "type": "string" },
-          "tags": { "type": "array", "items": { "type": "string" } },
+          "tags": { "type": "array", "items": { "type": "string", "format": "ObjectId" }, "example": ["665a12b3c4d5e6f7a8b9c0d4"] },
           "attachments": { "type": "array", "items": { "type": "string" } }
         }
       },
@@ -154,6 +151,13 @@
       }
     },
     "parameters": {
+      "AuthorizationHeader": {
+        "name": "Authorization",
+        "in": "header",
+        "required": true,
+        "description": "Bearer JWT token",
+        "schema": { "type": "string", "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." }
+      },
       "Id": { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } },
       "WorkspaceId": { "name": "workspaceId", "in": "path", "required": true, "schema": { "type": "string" } },
       "ProjectId": { "name": "projectId", "in": "path", "required": true, "schema": { "type": "string" } },
@@ -177,7 +181,7 @@
       "Project": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProjectRequest" }, "examples": { "websiteProject": { "summary": "Create website project", "value": { "name": "Marketing Website", "description": "Public website redesign for Q4", "workspaceId": "665a12b3c4d5e6f7a8b9c0d1" } } } } } },
       "ProjectUpdate": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProjectUpdateRequest" }, "examples": { "renameProject": { "summary": "Update project details", "value": { "name": "Marketing Website v2", "description": "Updated public website redesign scope" } } } } } },
       "Board": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BoardRequest" }, "examples": { "inProgressBoard": { "summary": "Create in-progress board", "value": { "name": "In Progress" } } } } } },
-      "Task": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TaskRequest" }, "examples": { "loginTask": { "summary": "Create login implementation task", "value": { "title": "Implement login flow", "description": "Add validation, token issuance, and error handling", "status": "todo", "projectId": "665a12b3c4d5e6f7a8b9c0d1", "boardId": "665a12b3c4d5e6f7a8b9c0d2", "assigneeId": "665a12b3c4d5e6f7a8b9c0d3", "tags": ["authentication", "backend"], "attachments": [] } } } } } },
+      "Task": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TaskRequest" }, "examples": { "loginTask": { "summary": "Create login implementation task", "value": { "title": "Implement login flow", "description": "Add validation, token issuance, and error handling", "status": "todo", "projectId": "665a12b3c4d5e6f7a8b9c0d1", "boardId": "665a12b3c4d5e6f7a8b9c0d2", "assigneeId": "665a12b3c4d5e6f7a8b9c0d3", "tags": ["665a12b3c4d5e6f7a8b9c0d4", "665a12b3c4d5e6f7a8b9c0d5"], "attachments": [] } } } } } },
       "TaskUpdate": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TaskUpdateRequest" }, "examples": { "startTask": { "summary": "Move task into progress", "value": { "status": "in_progress", "description": "Implementation has started and validation is being added." } } } } } },
       "CreateInvitation": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["email", "role"], "properties": { "email": { "type": "string", "format": "email" }, "role": { "type": "string" } } }, "examples": { "inviteMember": { "summary": "Invite a workspace member", "value": { "email": "jane.smith@example.com", "role": "member" } } } } } },
       "AcceptInvitation": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["inviteToken"], "properties": { "inviteToken": { "type": "string" } } }, "examples": { "acceptInvite": { "summary": "Accept an emailed invitation", "value": { "inviteToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invitation-token" } } } } } },
@@ -242,15 +246,32 @@
       "delete": { "tags": ["Workspace"], "summary": "Delete workspace", "security": [{ "BearerAuth": [] }], "responses": { "204": { "$ref": "#/components/responses/Success" } } }
     },
     "/workspace/invitations/accept": {
-      "post": { "tags": ["Workspace Invitation"], "summary": "Accept workspace invitation", "security": [{ "BearerAuth": [] }], "requestBody": { "$ref": "#/components/requestBodies/AcceptInvitation" }, "responses": { "200": { "$ref": "#/components/responses/Success" } } }
+      "get": {
+        "tags": ["Workspace Invitation"],
+        "summary": "Accept workspace invitation via cookie token",
+        "parameters": [{ "$ref": "#/components/parameters/AuthorizationHeader" }],
+        "responses": { "200": { "$ref": "#/components/responses/Success" } }
+      },
+      "post": {
+        "tags": ["Workspace Invitation"],
+        "summary": "Accept workspace invitation",
+        "parameters": [{ "$ref": "#/components/parameters/AuthorizationHeader" }],
+        "requestBody": { "$ref": "#/components/requestBodies/AcceptInvitation" },
+        "responses": { "200": { "$ref": "#/components/responses/Success" } }
+      }
     },
     "/workspace/{workspaceId}/invitations": {
-      "parameters": [{ "$ref": "#/components/parameters/WorkspaceId" }],
-      "post": { "tags": ["Workspace Invitation"], "summary": "Create workspace invitation", "security": [{ "BearerAuth": [] }], "requestBody": { "$ref": "#/components/requestBodies/CreateInvitation" }, "responses": { "201": { "$ref": "#/components/responses/Success" } } }
+      "parameters": [{ "$ref": "#/components/parameters/WorkspaceId" }, { "$ref": "#/components/parameters/AuthorizationHeader" }],
+      "post": { "tags": ["Workspace Invitation"], "summary": "Create workspace invitation", "requestBody": { "$ref": "#/components/requestBodies/CreateInvitation" }, "responses": { "201": { "$ref": "#/components/responses/Success" } } }
     },
     "/workspaces/{workspaceId}/tags": {
-      "parameters": [{ "$ref": "#/components/parameters/WorkspaceId" }],
-      "post": { "tags": ["Workspace Tag"], "summary": "Create workspace tag", "security": [{ "BearerAuth": [] }], "requestBody": { "$ref": "#/components/requestBodies/Tag" }, "responses": { "201": { "$ref": "#/components/responses/Success" } } }
+      "parameters": [{ "$ref": "#/components/parameters/WorkspaceId" }, { "$ref": "#/components/parameters/AuthorizationHeader" }],
+      "get": { "tags": ["Workspace Tag"], "summary": "List workspace tags", "responses": { "200": { "$ref": "#/components/responses/Success" } } },
+      "post": { "tags": ["Workspace Tag"], "summary": "Create workspace tag", "requestBody": { "$ref": "#/components/requestBodies/Tag" }, "responses": { "201": { "$ref": "#/components/responses/Success" } } }
+    },
+    "/workspaces/{workspaceId}/tags/{tagId}": {
+      "parameters": [{ "$ref": "#/components/parameters/WorkspaceId" }, { "$ref": "#/components/parameters/TagId" }, { "$ref": "#/components/parameters/AuthorizationHeader" }],
+      "delete": { "tags": ["Workspace Tag"], "summary": "Delete workspace tag", "responses": { "200": { "$ref": "#/components/responses/Success" } } }
     },
     "/projects/{workspaceId}/projects": {
       "parameters": [{ "$ref": "#/components/parameters/WorkspaceId" }],
@@ -269,14 +290,37 @@
       "patch": { "tags": ["Project"], "summary": "Update project", "requestBody": { "$ref": "#/components/requestBodies/ProjectUpdate" }, "responses": { "200": { "$ref": "#/components/responses/Success" } } }
     },
     "/projects/{projectId}/boards": {
-      "parameters": [{ "$ref": "#/components/parameters/ProjectId" }],
-      "post": { "tags": ["Board"], "summary": "Create board", "security": [{ "BearerAuth": [] }], "requestBody": { "$ref": "#/components/requestBodies/Board" }, "responses": { "201": { "$ref": "#/components/responses/Success" } } },
-      "get": { "tags": ["Board"], "summary": "List project boards", "security": [{ "BearerAuth": [] }], "responses": { "200": { "$ref": "#/components/responses/Success" } } }
+      "parameters": [{ "$ref": "#/components/parameters/ProjectId" }, { "$ref": "#/components/parameters/AuthorizationHeader" }],
+      "post": { "tags": ["Board"], "summary": "Create board", "requestBody": { "$ref": "#/components/requestBodies/Board" }, "responses": { "201": { "$ref": "#/components/responses/Success" } } },
+      "get": { "tags": ["Board"], "summary": "List project boards", "responses": { "200": { "$ref": "#/components/responses/Success" } } }
     },
     "/projects/{projectId}/boards/{boardId}": {
-      "parameters": [{ "$ref": "#/components/parameters/ProjectId" }, { "$ref": "#/components/parameters/BoardId" }],
-      "patch": { "tags": ["Board"], "summary": "Update board", "security": [{ "BearerAuth": [] }], "requestBody": { "$ref": "#/components/requestBodies/Board" }, "responses": { "200": { "$ref": "#/components/responses/Success" } } },
-      "delete": { "tags": ["Board"], "summary": "Delete board", "security": [{ "BearerAuth": [] }], "responses": { "204": { "$ref": "#/components/responses/Success" } } }
+      "parameters": [{ "$ref": "#/components/parameters/ProjectId" }, { "$ref": "#/components/parameters/BoardId" }, { "$ref": "#/components/parameters/AuthorizationHeader" }],
+      "patch": { "tags": ["Board"], "summary": "Update board", "requestBody": { "$ref": "#/components/requestBodies/Board" }, "responses": { "200": { "$ref": "#/components/responses/Success" } } },
+      "delete": { "tags": ["Board"], "summary": "Delete board", "responses": { "204": { "$ref": "#/components/responses/Success" } } }
+    },
+    "/projects/{projectId}/boards/{boardId}/columns": {
+      "parameters": [{ "$ref": "#/components/parameters/ProjectId" }, { "$ref": "#/components/parameters/BoardId" }, { "$ref": "#/components/parameters/AuthorizationHeader" }],
+      "post": {
+        "tags": ["Board"],
+        "summary": "Add board column",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BoardColumnRequest" } } } },
+        "responses": { "201": { "$ref": "#/components/responses/Success" } }
+      }
+    },
+    "/projects/{projectId}/boards/{boardId}/columns/{columnId}": {
+      "parameters": [{ "$ref": "#/components/parameters/ProjectId" }, { "$ref": "#/components/parameters/BoardId" }, { "name": "columnId", "in": "path", "required": true, "schema": { "type": "string" } }, { "$ref": "#/components/parameters/AuthorizationHeader" }],
+      "patch": {
+        "tags": ["Board"],
+        "summary": "Edit board column",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BoardColumnRequest" } } } },
+        "responses": { "200": { "$ref": "#/components/responses/Success" } }
+      },
+      "delete": {
+        "tags": ["Board"],
+        "summary": "Delete board column if empty",
+        "responses": { "200": { "$ref": "#/components/responses/Success" } }
+      }
     },
     "/tasks/": {
       "post": { "tags": ["Task"], "summary": "Create task", "security": [{ "BearerAuth": [] }], "requestBody": { "$ref": "#/components/requestBodies/Task" }, "responses": { "201": { "$ref": "#/components/responses/Success" } } },
@@ -292,13 +336,13 @@
       "patch": { "tags": ["Task"], "summary": "Update task", "security": [{ "BearerAuth": [] }], "requestBody": { "$ref": "#/components/requestBodies/TaskUpdate" }, "responses": { "200": { "$ref": "#/components/responses/Success" } } },
       "delete": { "tags": ["Task"], "summary": "Delete task", "security": [{ "BearerAuth": [] }], "responses": { "204": { "$ref": "#/components/responses/Success" } } }
     },
-    "/tasks/{id}/tags/{tagId}": {
-      "parameters": [{ "$ref": "#/components/parameters/Id" }, { "$ref": "#/components/parameters/TagId" }],
+    "/tasks/{taskId}/tags/{tagId}": {
+      "parameters": [{ "$ref": "#/components/parameters/TaskId" }, { "$ref": "#/components/parameters/TagId" }, { "$ref": "#/components/parameters/AuthorizationHeader" }],
       "post": { "tags": ["Task Tag"], "summary": "Add tag to task", "responses": { "200": { "$ref": "#/components/responses/Success" } } },
-      "delete": { "tags": ["Task Tag"], "summary": "Remove tag from task", "responses": { "204": { "$ref": "#/components/responses/Success" } } }
+      "delete": { "tags": ["Task Tag"], "summary": "Remove tag from task", "responses": { "200": { "$ref": "#/components/responses/Success" } } }
     },
-    "/workspaces/{id}/tags/{tagId}/tasks": {
-      "parameters": [{ "$ref": "#/components/parameters/Id" }, { "$ref": "#/components/parameters/TagId" }],
+    "/workspaces/{workspaceId}/tags/{tagId}/tasks": {
+      "parameters": [{ "$ref": "#/components/parameters/WorkspaceId" }, { "$ref": "#/components/parameters/TagId" }, { "$ref": "#/components/parameters/AuthorizationHeader" }],
       "get": { "tags": ["Task Tag"], "summary": "List tasks by tag", "responses": { "200": { "$ref": "#/components/responses/Success" } } }
     },
     "/tasks/{taskId}/comments": {

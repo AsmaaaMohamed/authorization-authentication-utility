@@ -1,4 +1,13 @@
+import mongoose from 'mongoose';
 import { z } from 'zod';
+
+const objectIdString = z
+  .string()
+  .trim()
+  .refine(
+    (value) => mongoose.Types.ObjectId.isValid(value),
+    'Must be a valid ObjectId',
+  );
 
 export const createTaskSchema = z.object({
   title: z
@@ -22,7 +31,7 @@ export const createTaskSchema = z.object({
     .string({ required_error: 'assigneeId is required' })
     .trim()
     .min(1, 'assigneeId is required'),
-  tags: z.array(z.string().trim()).optional().default([]),
+  tags: z.array(objectIdString).optional().default([]),
   attachments: z.array(z.string().trim()).optional().default([]),
 });
 
@@ -40,7 +49,7 @@ export const updateTaskSchema = z.object({
     invalid_type_error: 'status must be todo, in_progress, or done',
   }).optional(),
   assigneeId: z.string().trim().min(1, 'assigneeId cannot be empty').optional(),
-  tags: z.array(z.string().trim()).optional(),
+  tags: z.array(objectIdString).optional(),
   attachments: z.array(z.string().trim()).optional(),
 });
 

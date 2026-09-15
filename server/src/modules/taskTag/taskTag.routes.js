@@ -8,8 +8,8 @@ import {
 
 const router = express.Router();
 
-router.post('/tasks/:id/tags/:tagId', userAuth, addTagToTask);
-router.delete('/tasks/:id/tags/:tagId', userAuth, removeTagFromTask);
-router.get('/workspaces/:id/tags/:tagId/tasks', userAuth, getTasksByTag);
+router.post('/tasks/:taskId/tags/:tagId', userAuth, addTagToTask);
+router.delete('/tasks/:taskId/tags/:tagId', userAuth, removeTagFromTask);
+router.get('/workspaces/:workspaceId/tags/:tagId/tasks', userAuth, getTasksByTag);
 
 export default router;

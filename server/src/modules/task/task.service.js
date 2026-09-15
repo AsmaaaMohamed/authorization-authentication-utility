@@ -4,6 +4,7 @@ import Project from '../project/project.model.js';
 import Board from '../board/board.model.js';
 import User from '../user/user.model.js';
 import WorkspaceMember from '../workspaceMember/workspaceMember.model.js';
+import WorkspaceTag from '../workspaceTag/workspaceTag.model.js';
 import AppError from '../../utilities/AppError.js';
 
 /**
@@ -71,7 +72,24 @@ export const createTask = async ({
     throw new AppError('Assignee not found', 404);
   }
 
-  // 5. Create Task
+  // 5. Validate tag IDs belong to the same workspace as the project
+  const normalizedTags = Array.from(new Set((tags || []).filter(Boolean)));
+  if (normalizedTags.length > 0) {
+    const tagObjectIds = normalizedTags.map((tagId) => new mongoose.Types.ObjectId(tagId));
+    const validWorkspaceTags = await WorkspaceTag.find({
+      _id: { $in: tagObjectIds },
+      workspaceId: project.workspaceId,
+    }).select('_id');
+
+    const validTagIds = validWorkspaceTags.map((tag) => tag._id.toString());
+    const invalidTagIds = normalizedTags.filter((tagId) => !validTagIds.includes(tagId.toString()));
+
+    if (invalidTagIds.length > 0) {
+      throw new AppError('One or more tag IDs do not exist in this workspace.', 400);
+    }
+  }
+
+  // 6. Create Task
   const task = await Task.create({
     title,
     description: description || '',
@@ -80,7 +98,7 @@ export const createTask = async ({
     boardId,
     ownerId,
     assigneeId,
-    tags: tags || [],
+    tags: normalizedTags.map((tagId) => new mongoose.Types.ObjectId(tagId)),
     attachments: attachments || [],
   });
 
@@ -252,6 +270,33 @@ export const updateTask = async (taskId, userId, updateData = {}) => {
     _id: taskId,
     isDeleted: false,
   }).populate('projectId');
+
+  if (updateData.tags) {
+    if (!task?.projectId) {
+      throw new AppError('Task project not found', 404);
+    }
+
+    const project = await Project.findById(task.projectId);
+    if (!project) {
+      throw new AppError('Task project not found', 404);
+    }
+
+    const normalizedTags = Array.from(new Set(updateData.tags.filter(Boolean)));
+    const tagObjectIds = normalizedTags.map((tagId) => new mongoose.Types.ObjectId(tagId));
+    const validWorkspaceTags = await WorkspaceTag.find({
+      _id: { $in: tagObjectIds },
+      workspaceId: project.workspaceId,
+    }).select('_id');
+
+    const validTagIds = validWorkspaceTags.map((tag) => tag._id.toString());
+    const invalidTagIds = normalizedTags.filter((tagId) => !validTagIds.includes(tagId.toString()));
+
+    if (invalidTagIds.length > 0) {
+      throw new AppError('One or more tag IDs do not exist in this workspace.', 400);
+    }
+
+    updateData.tags = normalizedTags.map((tagId) => new mongoose.Types.ObjectId(tagId));
+  }
 
   if (!task) {
     throw new AppError('Task not found', 404);

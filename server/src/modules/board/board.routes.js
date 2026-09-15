@@ -6,7 +6,9 @@ import { userAuth, validate } from '../../middlewares/authMiddleware.js';
 
 import {
   createBoardBodySchema,
+  createBoardColumnBodySchema,
   updateBoardBodySchema,
+  updateBoardColumnBodySchema,
 } from '../../validators/board.validator.js';
 
 const router = express.Router();
@@ -27,9 +29,23 @@ router.patch(
   boardController.updateBoard,
 );
 
+router.post(
+  '/:projectId/boards/:boardId/columns',
+  validate(createBoardColumnBodySchema),
+  boardController.addBoardColumn,
+);
+
+router.patch(
+  '/:projectId/boards/:boardId/columns/:columnId',
+  validate(updateBoardColumnBodySchema),
+  boardController.updateBoardColumn,
+);
+
+router.delete(
+  '/:projectId/boards/:boardId/columns/:columnId',
+  boardController.deleteBoardColumn,
+);
+
 router.delete('/:projectId/boards/:boardId', boardController.deleteBoard);
-
-
-// router.get('/:boardId/tasks', userAuth, boardController.getBoardTasksController);
 
 export default router;

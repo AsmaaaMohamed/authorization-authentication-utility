@@ -10,12 +10,20 @@ import {
  */
 export const createWorkspaceInvitationController = asyncHandler(
   async (req, res) => {
-    await createWorkspaceInvitation({
+    const invitation = await createWorkspaceInvitation({
       workspaceId: req.params.workspaceId,
       invitedBy: req.user.id,
       email: req.body.email,
       role: req.body.role,
     });
+
+    res.cookie('inviteToken', invitation.token, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: false,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     res.status(200).json({
       success: true,
       message: 'Invitation sent successfully.',
@@ -28,8 +36,11 @@ export const createWorkspaceInvitationController = asyncHandler(
  */
 export const acceptWorkspaceInvitationController = asyncHandler(
   async (req, res) => {
+    const inviteToken =
+      req.cookies?.inviteToken ?? req.body?.inviteToken ?? req.query?.inviteToken;
+
     const result = await acceptWorkspaceInvitation({
-      inviteToken: req.body.inviteToken,
+      inviteToken,
       userId: req.user.id,
     });
     res.status(200).json({

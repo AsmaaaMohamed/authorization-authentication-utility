@@ -79,6 +79,21 @@ describe('Task 1: Create Task Validation & Service', () => {
       const errors = result.error.flatten().fieldErrors;
       assert.ok(errors.assigneeId);
     });
+
+    it('fails when a tag id is not a valid ObjectId', () => {
+      const payload = {
+        title: 'Task with invalid tag',
+        status: 'todo',
+        projectId: '507f1f77bcf86cd799439011',
+        boardId: '507f1f77bcf86cd799439012',
+        assigneeId: '507f1f77bcf86cd799439013',
+        tags: ['not-a-valid-object-id'],
+      };
+
+      const result = createTaskSchema.safeParse(payload);
+      assert.equal(result.success, false);
+      assert.ok(result.error.flatten().fieldErrors.tags);
+    });
   });
 
   describe('createTask service input validation', () => {

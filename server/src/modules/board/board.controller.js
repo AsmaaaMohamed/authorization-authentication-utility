@@ -52,6 +52,60 @@ export const updateBoard = async (req, res, next) => {
   }
 };
 
+export const addBoardColumn = async (req, res, next) => {
+  try {
+    const { projectId, boardId } = req.params;
+    const column = await boardService.addBoardColumn(
+      projectId,
+      boardId,
+      req.user.id,
+      req.body,
+    );
+
+    res.status(201).json({
+      status: 'success',
+      data: { column },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const updateBoardColumn = async (req, res, next) => {
+  try {
+    const { projectId, boardId, columnId } = req.params;
+    const column = await boardService.updateBoardColumn(
+      projectId,
+      boardId,
+      columnId,
+      req.user.id,
+      req.body,
+    );
+
+    res.status(200).json({
+      status: 'success',
+      data: { column },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deleteBoardColumn = async (req, res, next) => {
+  try {
+    const { projectId, boardId, columnId } = req.params;
+
+    await boardService.deleteBoardColumn(projectId, boardId, columnId, req.user.id);
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Column deleted successfully.',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const deleteBoard = async (req, res, next) => {
   try {
     const { projectId, boardId } = req.params;
