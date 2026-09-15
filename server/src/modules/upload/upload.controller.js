@@ -10,24 +10,23 @@
  * 5. getImageMetadata queries database and Cloudinary for asset specifications and derived responsive variants.
  */
 
-import * as cloudinaryService from "./upload.service.js";
+import * as cloudinaryService from './upload.service.js';
 import {
   createImage,
   deleteByPublicId,
   findByPublicId,
   upsertImage,
-} from "./image.model.js";
+} from './image.model.js';
+import User from '../auth/auth.model.js';
 
-export const uploadImage = async (req, res) => {
+export const uploadImage = async (req, res, next) => {
   try {
     if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: "No image file provided. Please attach an image field.",
-      });
+      return next(error);
     }
 
-    const { preset = "original", folder = "auth-utility", userId } = req.body;
+    const { preset = 'original', folder = 'auth-utility' } = req.body;
+    const userId = req.user.id;
 
     const result = await cloudinaryService.uploadWithPreset(
       req.file.buffer,
@@ -56,34 +55,31 @@ export const uploadImage = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: "Image uploaded and processed successfully.",
+      message: 'Image uploaded and processed successfully.',
       data: imageDoc,
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message || "Server error while uploading image.",
+      message: error.message || 'Server error while uploading image.',
     });
   }
 };
 
-export const uploadAvatar = async (req, res) => {
+export const uploadAvatar = async (req, res, next) => {
   try {
     if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: "No avatar image file provided.",
-      });
+      return next(error);
     }
 
-    const userId = req.body.userId || req.user?._id;
+    const userId = req.user.id;
     const customPublicId = userId ? `avatar_${userId}` : undefined;
 
     const result = await cloudinaryService.uploadWithPreset(
       req.file.buffer,
-      "avatar",
+      'avatar',
       {
-        folder: "auth-utility/avatars",
+        folder: 'auth-utility/avatars',
         public_id: customPublicId,
         overwrite: true,
       },
@@ -97,38 +93,42 @@ export const uploadAvatar = async (req, res) => {
       userId: userId || null,
       public_id: result.public_id,
       secure_url: result.secure_url,
-      folder: "auth-utility/avatars",
+      folder: 'auth-utility/avatars',
       format: result.format,
       width: result.width,
       height: result.height,
       bytes: result.bytes,
-      preset: "avatar",
+      preset: 'avatar',
       responsiveVariants,
+    });
+
+    await User.findByIdAndUpdate(userId, {
+      avatar: {
+        public_id: result.public_id,
+        secure_url: result.secure_url,
+      },
     });
 
     return res.status(200).json({
       success: true,
-      message: "Avatar uploaded and optimized successfully.",
+      message: 'Avatar uploaded and optimized successfully.',
       data: imageDoc,
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message || "Server error while uploading avatar.",
+      message: error.message || 'Server error while uploading avatar.',
     });
   }
 };
 
-export const getTransformedUrl = async (req, res) => {
+export const getTransformedUrl = async (req, res, next) => {
   try {
     const publicId =
       req.params.publicId || req.query.publicId || req.body.publicId;
 
     if (!publicId) {
-      return res.status(400).json({
-        success: false,
-        message: "Public ID is required.",
-      });
+      return next(error);
     }
 
     const { width, height, crop, effect, radius, quality, fetch_format } =
@@ -159,20 +159,26 @@ export const getTransformedUrl = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message || "Error generating transformed URL.",
+      message: error.message || 'Error generating transformed URL.',
     });
   }
 };
 
-export const deleteImage = async (req, res) => {
+export const deleteImage = async (req, res, next) => {
   try {
     const publicId =
       req.params.publicId || req.query.publicId || req.body.publicId;
 
     if (!publicId) {
-      return res.status(400).json({
+      return next(error);
+    }
+
+    const image = await findByPublicId(publicId);
+
+    if (image?.userId && image.userId.toString() !== req.user.id.toString()) {
+      return res.status(403).json({
         success: false,
-        message: "Public ID is required to delete an image.",
+        message: 'You are not allowed to delete this image.',
       });
     }
 
@@ -181,28 +187,25 @@ export const deleteImage = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Asset successfully deleted from Cloudinary and database.",
+      message: 'Asset successfully deleted from Cloudinary and database.',
       cloudinaryStatus: cloudinaryResult.result,
       databaseRecordDeleted: Boolean(dbResult),
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message || "Server error while deleting image.",
+      message: error.message || 'Server error while deleting image.',
     });
   }
 };
 
-export const getImageMetadata = async (req, res) => {
+export const getImageMetadata = async (req, res, next) => {
   try {
     const publicId =
       req.params.publicId || req.query.publicId || req.body.publicId;
 
     if (!publicId) {
-      return res.status(400).json({
-        success: false,
-        message: "Public ID is required.",
-      });
+      return next(error);
     }
 
     const dbImage = await findByPublicId(publicId);
@@ -215,7 +218,7 @@ export const getImageMetadata = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message || "Error retrieving image metadata.",
+      message: error.message || 'Error retrieving image metadata.',
     });
   }
 };

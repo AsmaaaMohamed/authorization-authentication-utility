@@ -28,18 +28,13 @@ const handleZodError = (err) => {
 
 export const userAuth = async (req, res, next) => {
   try {
-    console.log("USER AUTH CALLED");
     let token = null;
 
     if (req.cookies?.token) {
       token = req.cookies.token;
-      
     } else if (req.headers.authorization?.startsWith('Bearer ')) {
       token = req.headers.authorization.split(' ')[1];
     }
-    console.log('TOKEN FROM COOKIE:', req.cookies?.token);
-    console.log('TOKEN FROM AUTH HEADER:', req.headers.authorization);
-    console.log('FINAL TOKEN:', token);
     if (!token) {
       return next(
         new AppError('Not Authorized. Token is missing, please log in.', 401),
@@ -52,12 +47,7 @@ export const userAuth = async (req, res, next) => {
         new AppError('Session has been invalidated. Please log in again.', 401),
       );
     }
-    console.log("BEFORE VERIFY");
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_ACCESS_TOKEN_SECRET || 'jwt_secret_key_default',
-    );
-    console.log("AFTER VERIFY");
+    const decoded = jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET);
     if (!decoded || !decoded.id) {
       return next(new AppError('Not Authorized. Invalid token payload.', 401));
     }
@@ -102,6 +92,8 @@ export const authorize = (...roles) => {
     next();
   };
 };
+
+export const verifyToken = userAuth;
 
 // validate middleware for zod validation
 

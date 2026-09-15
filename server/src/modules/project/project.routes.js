@@ -13,11 +13,17 @@ const router = express.Router();
 
 router.post(
   '/:workspaceId/projects',
+  userAuth,
   validate(createProjectSchema),
   createProject,
 );
 router.delete('/:projectId', userAuth, deleteProject);
-router.get('/workspaces/:id/projects', getWorkspaceProjects);
-router.patch('/:id/project', validate(updateProjectSchema), updateProject);
+router.get('/workspaces/:id/projects', userAuth, getWorkspaceProjects);
+router.patch(
+  '/:id/project',
+  userAuth,
+  validate(updateProjectSchema),
+  updateProject,
+);
 
 export default router;

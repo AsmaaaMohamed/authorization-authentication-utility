@@ -6,13 +6,9 @@ import {
   validate,
 } from '../../middlewares/authMiddleware.js';
 
-import {
-  createWorkspaceTag,
-} from './workspaceTag.controller.js';
+import { createWorkspaceTag } from './workspaceTag.controller.js';
 
-import {
-  createWorkspaceTagSchema,
-} from './workspaceTag.validation.js';
+import { createWorkspaceTagSchema } from '../../validators/workspaceTag.validation.js';
 
 const router = Router();
 
@@ -21,7 +17,7 @@ router.post(
 
   userAuth,
 
-  authorize('Admin', 'Owner'),
+  authorize('admin'),
 
   validate(createWorkspaceTagSchema),
 

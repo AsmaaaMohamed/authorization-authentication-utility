@@ -34,12 +34,14 @@ router.post('/logout-all', userAuth, authController.logoutAllDevices);
 
 router.post(
   '/forgot-password',
+  limiter(RATE_LIMITS.FORGOT_PASSWORD),
   validate(validationSchema.forgotPasswordSchema),
   authController.forgotPassword,
 );
 
 router.post(
   '/verify-otp',
+  limiter(RATE_LIMITS.VERIFY_OTP),
   validate(validationSchema.verifyResetOtpSchema),
   authController.verifyResetOtp,
 );

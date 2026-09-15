@@ -4,7 +4,10 @@ export const getWorkspaceProjects = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const projects = await projectService.getProjectsByWorkspace(id);
+    const projects = await projectService.getProjectsByWorkspace(
+      id,
+      req.user.id,
+    );
 
     return res.status(200).json({
       status: 'success',
@@ -22,6 +25,7 @@ export const createProject = async (req, res, next) => {
     const project = await projectService.createProject(
       req.body,
       req.params.workspaceId,
+      req.user.id,
     );
 
     return res.status(201).json({
@@ -68,7 +72,7 @@ export const updateProject = async (req, res, next) => {
 
     const project = await projectService.updateProject(
       id,
-      req.user.workspaceId,
+      req.user.id,
       updateData,
     );
 

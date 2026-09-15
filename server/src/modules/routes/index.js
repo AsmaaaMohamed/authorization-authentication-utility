@@ -9,6 +9,8 @@ import workspaceInvitationRoutes from '../workspaceInvitation/workspaceInvitatio
 import boardRoutes from '../board/board.routes.js';
 import taskRoutes from '../task/task.routes.js';
 import taskTagRoutes from '../taskTag/taskTag.routes.js';
+import commentRoutes from '../comment/comment.routes.js';
+import workspaceTagRoutes from '../workspaceTag/workspaceTag.routes.js';
 
 const router = express.Router();
 
@@ -24,11 +26,11 @@ router.use('/workspace', workspaceInvitationRoutes);
 
 // router.use('/projects', workspaceInvitationRoutes);
 
-router.use('/projects', boardRoutes);
-
 router.use('/boards', boardRoutes);
 router.use('/tasks', taskRoutes);
+router.use('/tasks', commentRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/', taskTagRoutes);
+router.use('/', workspaceTagRoutes);
 
 export default router;

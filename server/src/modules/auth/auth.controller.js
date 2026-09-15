@@ -81,10 +81,7 @@ export const logout = async (req, res, next) => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
     });
-    return res.status(204).json({
-      success: true,
-      message: 'Logged out successfully.',
-    });
+    return res.status(204).send();
   } catch (error) {
     return next(error);
   }
@@ -98,10 +95,7 @@ export const logoutAllDevices = async (req, res, next) => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
     });
-    return res.status(204).json({
-      success: true,
-      message: 'Logged out from all devices.',
-    });
+    return res.status(204).send();
   } catch (error) {
     return next(error);
   }
