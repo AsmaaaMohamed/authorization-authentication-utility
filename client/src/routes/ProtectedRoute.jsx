@@ -4,7 +4,6 @@ import { toast } from "react-toastify";
 
 function ProtectedRoute({ isLoggedIn, isLoggedOut }) {
   useEffect(() => {
-    // متظهرش الرسالة لو السبب إن المستخدم عمل logout بنفسه
     if (!isLoggedIn && !isLoggedOut) {
       toast.error("Please login first", {
         toastId: "login-required",
@@ -13,7 +12,7 @@ function ProtectedRoute({ isLoggedIn, isLoggedOut }) {
   }, [isLoggedIn, isLoggedOut]);
 
   if (!isLoggedIn) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
   return <Outlet />;
 }

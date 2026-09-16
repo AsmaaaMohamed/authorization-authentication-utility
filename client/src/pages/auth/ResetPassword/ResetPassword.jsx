@@ -12,36 +12,44 @@ const ResetPassword = () => {
   const [step, setStep] = useState("email");
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center px-4 sm:px-6">
-      <main className="relative z-10 w-full max-w-lg  p-8 sm:p-10">
-          <AuthShell>
-            <div style={{ fontSize: 16, color: C.text, fontWeight: 600, marginBottom: 3 }}>Reset password</div>
-            <div style={{ fontSize: 12.5, color: C.textFaint, marginBottom: 22 }}>Required: email</div>
-                  {step === "email" && (
-                    <EmailStep
-                      email={email}
-                      setEmail={setEmail}
-                      onSuccess={() => setStep("otp")}
-                    />
-                  )}
-                  {step === "otp" && (
-                    <OtpStep
-                      onSuccess={({ otp, sentResetToken }) => {
-                        setOtp(otp);
-                        setResetToken(sentResetToken);
-                        setStep("password");
-                      }}
-                      onChangeEmail={() => setStep("email")}
-                      email={email}
-                    />
-                  )}
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: C.bg,
+        padding: "32px 18px",
+      }}
+    >
+      <div style={{ width: "100%", maxWidth: 460 }}>
+        <AuthShell>
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 12, color: C.textFaint, letterSpacing: 0.7, textTransform: "uppercase", marginBottom: 8 }}>
+              Password recovery
+            </div>
+            <div style={{ fontSize: 28, color: C.text, fontWeight: 700 }}>Reset your password</div>
+          </div>
 
-                  {step === "password" && (
-                      <NewPasswordStep resetToken={resetToken} />
-                  )}
-          </AuthShell>
+          {step === "email" && (
+            <EmailStep email={email} setEmail={setEmail} onSuccess={() => setStep("otp")} />
+          )}
 
-      </main>
+          {step === "otp" && (
+            <OtpStep
+              onSuccess={({ otp, sentResetToken }) => {
+                setOtp(otp);
+                setResetToken(sentResetToken);
+                setStep("password");
+              }}
+              onChangeEmail={() => setStep("email")}
+              email={email}
+            />
+          )}
+
+          {step === "password" && <NewPasswordStep resetToken={resetToken} />}
+        </AuthShell>
+      </div>
     </div>
   );
 };

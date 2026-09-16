@@ -1,15 +1,101 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;700&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;700&display=swap');
 @import "tailwindcss";
 
-* {
+:root {
+  --bg: #0b0d11;
+  --panel: #131821;
+  --panel-alt: #1b2230;
+  --border: #2a3345;
+  --border-soft: #1d2531;
+  --text: #edf2ff;
+  --text-muted: #a7b1c4;
+  --text-faint: #7f8ca8;
+  --accent: #4fe0c4;
+  --accent-soft: #163b37;
+  --accent-text: #08130f;
+  --amber: #f5b84d;
+  --red: #e8697a;
+  --success: #4ade80;
+  --shadow: rgba(2, 6, 23, 0.4);
+  --muted: #8890a0;
+}
+
+:root[data-theme='light'] {
+  --bg: #f5f7fb;
+  --panel: #ffffff;
+  --panel-alt: #eef3ff;
+  --border: #dfe5f0;
+  --border-soft: #edf1f7;
+  --text: #18212f;
+  --text-muted: #4d5b73;
+  --text-faint: #7b8797;
+  --accent: #4f46e5;
+  --accent-soft: #e0e7ff;
+  --accent-text: #ffffff;
+  --amber: #f59e0b;
+  --red: #dc2626;
+  --success: #16a34a;
+  --shadow: rgba(15, 23, 42, 0.08);
+  --muted: #6b7280;
+}
+
+html {
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
   font-family: "Inter", -apple-system, sans-serif;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: "Inter", -apple-system, sans-serif;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
 }
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
-  -webkit-text-fill-color: #d1d5db;
-  -webkit-box-shadow: 0 0 0 1000px #1b1f26 inset;
-  box-shadow: 0 0 0 1000px #1b1f26 inset;
+  -webkit-text-fill-color: var(--text);
+  -webkit-box-shadow: 0 0 0 1000px var(--panel-alt) inset;
+  box-shadow: 0 0 0 1000px var(--panel-alt) inset;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
