@@ -47,6 +47,42 @@ export const getWorkspaceTags = async (workspaceId) => {
   return tags.map(sanitizeWorkspaceTag);
 };
 
+export const updateWorkspaceTag = async ({ workspaceId, tagId, name, color }) => {
+  if (!workspaceId) {
+    throw new AppError('Workspace ID is required.', 400);
+  }
+
+  if (!tagId) {
+    throw new AppError('Tag ID is required.', 400);
+  }
+
+  const normalizedName = name?.trim();
+  if (!normalizedName) {
+    throw new AppError('Tag name is required.', 400);
+  }
+
+  if (!color?.trim()) {
+    throw new AppError('Tag color is required.', 400);
+  }
+
+  const tag = await WorkspaceTag.findOne({ _id: tagId, workspaceId });
+  if (!tag) {
+    throw new AppError('Tag not found in this workspace.', 404);
+  }
+
+  try {
+    tag.name = normalizedName;
+    tag.color = color.trim();
+    await tag.save();
+    return sanitizeWorkspaceTag(tag);
+  } catch (error) {
+    if (error.code === 11000) {
+      throw new AppError('A tag with this name already exists in this workspace.', 409);
+    }
+    throw error;
+  }
+};
+
 export const deleteWorkspaceTag = async (workspaceId, tagId) => {
   if (!workspaceId) {
     throw new AppError('Workspace ID is required.', 400);

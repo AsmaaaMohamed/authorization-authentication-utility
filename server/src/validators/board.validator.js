@@ -10,15 +10,11 @@ export const updateBoardBodySchema = z.object({
 
 export const createBoardColumnBodySchema = z.object({
   title: z.string().trim().min(1, 'Column title is required'),
-  status: z
-    .enum(['todo', 'in_progress', 'done'])
-    .optional(),
+  status: z.string().trim().min(1, 'Column status is required').optional(),
 });
 
 export const updateBoardColumnBodySchema = z.object({
   title: z.string().trim().min(1, 'Column title is required').optional(),
-  status: z
-    .enum(['todo', 'in_progress', 'done'])
-    .optional(),
+  status: z.string().trim().min(1, 'Column status is required').optional(),
   order: z.number().int().nonnegative().optional(),
 });

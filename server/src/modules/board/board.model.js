@@ -21,8 +21,8 @@ const boardColumnSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['todo', 'in_progress', 'done'],
       required: [true, 'Column status is required'],
+      trim: true,
     },
     order: {
       type: Number,

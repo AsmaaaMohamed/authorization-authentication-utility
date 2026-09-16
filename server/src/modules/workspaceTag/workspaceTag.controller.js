@@ -1,6 +1,7 @@
 import {
   createWorkspaceTag as createWorkspaceTagService,
   getWorkspaceTags as getWorkspaceTagsService,
+  updateWorkspaceTag as updateWorkspaceTagService,
   deleteWorkspaceTag as deleteWorkspaceTagService,
 } from './workspaceTag.service.js';
 
@@ -33,6 +34,27 @@ export const listWorkspaceTags = async (req, res, next) => {
       success: true,
       results: tags.length,
       data: tags,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateWorkspaceTag = async (req, res, next) => {
+  try {
+    const { workspaceId, tagId } = req.params;
+    const { name, color } = req.body;
+
+    const workspaceTag = await updateWorkspaceTagService({
+      workspaceId,
+      tagId,
+      name,
+      color,
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: workspaceTag,
     });
   } catch (error) {
     next(error);

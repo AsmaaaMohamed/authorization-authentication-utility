@@ -26,6 +26,7 @@ export const createTask = async ({
   title,
   description = '',
   status,
+  priority = 'medium',
   projectId,
   boardId,
   assigneeId,
@@ -41,6 +42,10 @@ export const createTask = async ({
   }
   if (!mongoose.Types.ObjectId.isValid(assigneeId)) {
     throw new AppError('Invalid assignee ID', 400);
+  }
+
+  if (priority && !['lowest', 'low', 'medium', 'high', 'highest'].includes(priority)) {
+    throw new AppError('Priority must be lowest, low, medium, high, or highest', 400);
   }
 
   // 1. Verify Project exists
@@ -94,6 +99,7 @@ export const createTask = async ({
     title,
     description: description || '',
     status,
+    priority: priority || 'medium',
     projectId,
     boardId,
     ownerId,
@@ -107,6 +113,7 @@ export const createTask = async ({
     title: task.title,
     description: task.description,
     status: task.status,
+    priority: task.priority,
     projectId: task.projectId,
     boardId: task.boardId,
     ownerId: task.ownerId,
@@ -172,6 +179,7 @@ export const getBoardTasks = async ({
     title: task.title,
     description: task.description,
     status: task.status,
+    priority: task.priority || 'medium',
     projectId: task.projectId,
     boardId: task.boardId,
     ownerId: task.ownerId,
@@ -262,8 +270,12 @@ export const updateTask = async (taskId, userId, updateData = {}) => {
     }
   }
 
-  if (updateData.status && !['todo', 'in_progress', 'done'].includes(updateData.status)) {
-    throw new AppError('Status must be todo, in_progress, or done', 400);
+  if (updateData.status && !updateData.status.trim()) {
+    throw new AppError('Status cannot be empty', 400);
+  }
+
+  if (updateData.priority && !['lowest', 'low', 'medium', 'high', 'highest'].includes(updateData.priority)) {
+    throw new AppError('Priority must be lowest, low, medium, high, or highest', 400);
   }
 
   const task = await Task.findOne({
@@ -326,7 +338,7 @@ export const updateTask = async (taskId, userId, updateData = {}) => {
 
 
   // Whitelist supported fields
-  const allowedFields = ['title', 'description', 'status', 'assigneeId', 'tags', 'attachments'];
+  const allowedFields = ['title', 'description', 'status', 'priority', 'assigneeId', 'tags', 'attachments'];
   for (const field of allowedFields) {
     if (updateData[field] !== undefined) {
       task[field] = updateData[field];

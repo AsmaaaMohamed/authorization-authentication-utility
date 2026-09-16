@@ -36,7 +36,39 @@ describe('Task 1: Create Task Validation & Service', () => {
       assert.equal(doneResult.success, true);
     });
 
-    it('fails when status is not todo, in_progress, or done', () => {
+    it('accepts valid priority values and defaults to medium', () => {
+      const base = {
+        title: 'Task title',
+        status: 'todo',
+        projectId: '507f1f77bcf86cd799439011',
+        boardId: '507f1f77bcf86cd799439012',
+        assigneeId: '507f1f77bcf86cd799439013',
+      };
+
+      const priorityResult = createTaskSchema.safeParse({ ...base, priority: 'high' });
+      assert.equal(priorityResult.success, true);
+      assert.equal(priorityResult.data.priority, 'high');
+
+      const defaultResult = createTaskSchema.safeParse(base);
+      assert.equal(defaultResult.success, true);
+      assert.equal(defaultResult.data.priority, 'medium');
+    });
+
+    it('accepts custom board column statuses beyond the default three', () => {
+      const payload = {
+        title: 'Task title',
+        status: 'review',
+        projectId: '507f1f77bcf86cd799439011',
+        boardId: '507f1f77bcf86cd799439012',
+        assigneeId: '507f1f77bcf86cd799439013',
+      };
+
+      const result = createTaskSchema.safeParse(payload);
+      assert.equal(result.success, true);
+      assert.equal(result.data.status, 'review');
+    });
+
+    it('fails when status is blank', () => {
       const payload = {
         title: 'Task title',
         status: 'cancelled',
