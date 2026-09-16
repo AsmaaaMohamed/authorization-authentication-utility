@@ -9,10 +9,14 @@ import {
 import {
   createWorkspaceTag,
   listWorkspaceTags,
+  updateWorkspaceTag,
   deleteWorkspaceTag,
 } from './workspaceTag.controller.js';
 
-import { createWorkspaceTagSchema } from '../../validators/workspaceTag.validation.js';
+import {
+  createWorkspaceTagSchema,
+  updateWorkspaceTagSchema,
+} from '../../validators/workspaceTag.validation.js';
 
 const router = Router();
 
@@ -29,6 +33,14 @@ router.get(
   userAuth,
   authorize(),
   listWorkspaceTags,
+);
+
+router.patch(
+  '/workspaces/:workspaceId/tags/:tagId',
+  userAuth,
+  authorize(),
+  validate(updateWorkspaceTagSchema),
+  updateWorkspaceTag,
 );
 
 router.delete(
