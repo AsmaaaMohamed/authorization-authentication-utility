@@ -1,78 +1,19 @@
 import { create } from "zustand";
 import api from "../services/api";
 
-const dummyWorkspaces = [
-  {
-    id: "1",
-    name: "Product Team",
-    role: "Owner",
-    members: [
-      {
-        userId: "101",
-        role: "Admin",
-        status: "Active",
-      },
-      {
-        userId: "102",
-        role: "Member",
-        status: "Active",
-      },
-    ],
-    projects: 3,
-  },
-  {
-    id: "2",
-    name: "Backend Utils",
-    role: "Admin",
-    members: [
-      {
-        id: "201",
-        role: "Member",
-        status: "Active",
-      },
-    ],
-    projects: 1,
-  },
-  {
-    id: "3",
-    name: "Freelance Clients",
-    role: "Member",
-    members: [
-      {
-        id: "301",
-        role: "Member",
-        status: "Active",
-      },
-    ],
-    projects: 5,
-  },
-];
-const dummyUsers = [
-  {
-    id: "101",
-    name: "Ahmed Ali",
-    email: "ahmed@gmail.com",
-  },
-  {
-    id: "102",
-    name: "Sara Ahmed",
-    email: "sara@gmail.com",
-  },
-  {
-    id: "103",
-    name: "Ali Hassan",
-    email: "ali@gmail.com",
-  },
-  {
-    id: "104",
-    name: "Mona Samir",
-    email: "mona@gmail.com",
-  },
-];
+const normalizeWorkspace = (workspace) => ({
+  ...workspace,
+  id: workspace.id || workspace._id,
+  name: workspace.name || "Untitled workspace",
+  memberCount: workspace.memberCount ?? workspace.members?.length ?? 0,
+  projectCount: workspace.projectCount ?? workspace.projects?.length ?? 0,
+  members: workspace.members || [],
+  projects: workspace.projects || [],
+});
 
 export const useWorkspaceStore = create((set) => ({
-  workspaces: dummyWorkspaces,
-  users: dummyUsers,
+  workspaces: [],
+  users: [],
   workspaceMembers: [],
   boards: [],
   isLoading: false,
@@ -90,12 +31,13 @@ export const useWorkspaceStore = create((set) => ({
         error: null,
       });
       const response = await api.get("/workspace");
+      const workspaces = (response.data?.data || []).map(normalizeWorkspace);
       set({
-        workspaces: response.data.data || [],
+        workspaces,
         isLoading: false,
         error: null,
       });
-      return response.data.data;
+      return workspaces;
     } catch (error) {
       set({
         workspaces: [],
@@ -113,7 +55,7 @@ export const useWorkspaceStore = create((set) => ({
         error: null,
       });
       const response = await api.post("/workspace", workspaceData);
-      const newWorkspace = response.data.data;
+      const newWorkspace = normalizeWorkspace(response.data.data);
       set((state) => ({
         workspaces: [...state.workspaces, newWorkspace],
         isLoading: false,
@@ -130,22 +72,22 @@ export const useWorkspaceStore = create((set) => ({
   },
   // ==================== Update Workspace ====================
   updateWorkspace: async (id, workspaceData) => {
-      try {
-    const response = await api.patch(`/workspace/${id}`, workspaceData);
-    const updatedWorkspace = response.data.workspace;
-    set((state) => ({
-      workspaces: state.workspaces.map((workspace) =>
-        workspace.id === id ? { ...workspace, ...updatedWorkspace } : workspace
-      ),
-    }));
-    return updatedWorkspace;
-  } catch (error) {
-    set({
-      error: error.response?.data?.message || "Failed to update workspace",
-    });
-    throw error;
-  }
-},
+    try {
+      const response = await api.patch(`/workspace/${id}`, workspaceData);
+      const updatedWorkspace = normalizeWorkspace(response.data?.data || response.data?.workspace || {});
+      set((state) => ({
+        workspaces: state.workspaces.map((workspace) =>
+          workspace.id === id ? { ...workspace, ...updatedWorkspace } : workspace
+        ),
+      }));
+      return updatedWorkspace;
+    } catch (error) {
+      set({
+        error: error.response?.data?.message || "Failed to update workspace",
+      });
+      throw error;
+    }
+  },
   // ==================== Delete Workspace ====================
   deleteWorkspace: async (id) => {
     try {
@@ -155,9 +97,7 @@ export const useWorkspaceStore = create((set) => ({
       });
       await api.delete(`/workspace/${id}`);
       set((state) => ({
-        workspaces: state.workspaces.filter(
-          (workspace) => workspace._id !== id,
-        ),
+        workspaces: state.workspaces.filter((workspace) => workspace.id !== id && workspace._id !== id),
         isLoading: false,
       }));
     } catch (error) {
@@ -171,13 +111,11 @@ export const useWorkspaceStore = create((set) => ({
 /////////////  Members store ////////////
 inviteMember: async (workspaceId, data) => {
   set({ isLoading: true });
-  console.log("Inviting member to workspaceId:", workspaceId, "with data:", data); // Log the workspaceId and data to verify they are correct
   try {
     const response = await api.post(
       `/workspace/${workspaceId}/invitations`,
       data
     );
-    console.log("Invitation response:", response.data); // Log the response to see what data is returned
     const invitation = response.data.data;
     set((state) => ({
       workspaces: state.workspaces.map((workspace) =>
@@ -262,7 +200,6 @@ createBoard: async ({projectId, name}) => {
       }
     );
     const board = response.data.data.board;
-    console.log(response.data); // Log the response to see what data is returned
     set((state) => ({
       boards: [...state.boards, board],
       isCreating: false,
@@ -286,9 +223,8 @@ getBoards: async (projectId) => {
       error: null,
     });
     const response = await api.get(
-      `/projects/${projectId}/boards`
+      `/boards/${projectId}/boards`
     );
-    console.log(response.data); // Log the response to see what data is returned
     const boards = response.data.data.boards || [];
     set({
       boards: boards,
@@ -311,10 +247,10 @@ updateBoard: async (projectId, boardId, name) => {
   try {
     set({ isUpdating: true, error: null });
     const response = await api.patch(
-      `/projects/${projectId}/boards/${boardId}`,
+      `/boards/${projectId}/boards/${boardId}`,
       { name: name.trim() }
     );
-    const updatedBoard = response.data.data.board;
+    const updatedBoard = response.data?.data?.board || response.data?.data;
     set((state) => ({
       boards: state.boards.map((board) =>
         board.id === boardId ? updatedBoard : board
@@ -336,7 +272,7 @@ deleteBoard: async (projectId, boardId) => {
   try {
     set({ isDeleting: true, error: null });
     await api.delete(
-      `/projects/${projectId}/boards/${boardId}`
+      `/boards/${projectId}/boards/${boardId}`
     );
     set((state) => ({
       boards: state.boards.filter(

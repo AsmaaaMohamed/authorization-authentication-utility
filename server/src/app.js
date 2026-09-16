@@ -13,7 +13,6 @@ import './workers/email.worker.js';
 import './workers/workspaceInvitation.worker.js';
 
 const app = express();
-
 app.use(express.json());
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use(cookieParser());

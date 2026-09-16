@@ -16,6 +16,7 @@ import AcceptInvitePage from "../pages/Members/AcceptInvite";
 import BoardsPage from "../pages/Boards/Boards";
 import ProjectsPage from "../pages/Projects/Projects";
 import BoardPage from "../pages/Board/Board";
+import NotificationsPage from "../pages/Notifications/NotificationsPage";
 import ProtectedRoute from "./ProtectedRoute";
 
 export default function AppRoutes() {
@@ -23,33 +24,32 @@ export default function AppRoutes() {
   const isLoggedOut = useAuthStore((state) => state.isLoggedOut);
   return (
     <Routes>
-      <Route element={<AuthLayout />}>
-        {/* Root */}
-        <Route path="/" element={<RootRedirect />} />
-        {/* Public */}
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route element={<GuestRoute isLoggedIn={isLoggedIn} />}>
+      {/* Root */}
+      <Route path="/" element={<RootRedirect />} />
+
+      {/* Public */}
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/verify-email" element={<VerifyEmail />} />
+      <Route path="/accept-invite" element={<AcceptInvitePage />} />
+
+      <Route element={<GuestRoute isLoggedIn={isLoggedIn} />}>
+        <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
         </Route>
-        <Route path="/verify-email" element={<VerifyEmail />} />
-        <Route path="/accept-invite" element={<AcceptInvitePage />} />
-        {/* Protected */}
-        <Route element={<ProtectedRoute isLoggedIn={isLoggedIn} isLoggedOut={isLoggedOut} />}>
-          <Route path="/workspaces" element={<WorkspacesPage />} />
-          <Route path="general-settings" element={<GeneralSettingsPage />} />
-          <Route path="/workspaces/:workspaceId" element={<AppLayout />}>
-            <Route path="projects/:projectId/boards" element={<BoardsPage />} />
-            <Route
-              path="projects/:projectId/boards/:boardId"
-              element={<BoardPage />}
-            />
-            <Route path="projects" element={<ProjectsPage />} />
-            <Route path="members" element={<MembersPage />} />
-            <Route path="settings" element={<WorkspaceSettingsPage />} />
-            {/* <Route path="notifications" element={<NotificationsPage />} />
-            <Route path="settings" element={<SettingsPage />} /> */}
-          </Route>
+      </Route>
+
+      {/* Protected */}
+      <Route element={<ProtectedRoute isLoggedIn={isLoggedIn} isLoggedOut={isLoggedOut} />}>
+        <Route path="/workspaces" element={<WorkspacesPage />} />
+        <Route path="general-settings" element={<GeneralSettingsPage />} />
+        <Route path="/workspaces/:workspaceId" element={<AppLayout />}>
+          <Route path="projects/:projectId/boards" element={<BoardsPage />} />
+          <Route path="projects/:projectId/boards/:boardId" element={<BoardPage />} />
+          <Route path="projects" element={<ProjectsPage />} />
+          <Route path="members" element={<MembersPage />} />
+          <Route path="notifications" element={<NotificationsPage />} />
+          <Route path="settings" element={<WorkspaceSettingsPage />} />
         </Route>
       </Route>
     </Routes>

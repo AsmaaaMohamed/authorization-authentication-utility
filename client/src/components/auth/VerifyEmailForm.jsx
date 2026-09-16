@@ -1,64 +1,72 @@
-import { Mail } from "lucide-react";
+import { Mail, ShieldCheck } from "lucide-react";
 import Button from "../ui/Button";
 import AuthShell from "./AuthShell";
+import { C } from "../../constants/theme";
 
 export default function VerifyEmailForm() {
   return (
     <AuthShell>
-      <div className="text-center">
+      <div style={{ textAlign: "center" }}>
         <div
-          className="
-            mx-auto
-            flex
-            h-14
-            w-14
-            items-center
-            justify-center
-            rounded-full
-            bg-[#354264]
-          "
+          style={{
+            width: 56,
+            height: 56,
+            borderRadius: 18,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: `${C.accent}1A`,
+            border: `1px solid ${C.accent}33`,
+            margin: "0 auto 18px",
+            color: C.accent,
+          }}
         >
-          <Mail size={24} className="text-[#6678ff]" />
+          <Mail size={22} />
         </div>
 
-        <h1 className="mt-5 text-2xl font-bold text-white">
-          Verify Your Email
-        </h1>
+        <div style={{ fontSize: 12, color: C.textFaint, letterSpacing: 0.7, textTransform: "uppercase", marginBottom: 8 }}>
+          Account verification
+        </div>
 
-        <p className="mx-auto mt-3 max-w-[280px] text-xs leading-5 text-[#8793bd]">
-          We've sent a verification code to your email address. Enter the code
-          below to continue.
+        <h1 style={{ margin: 0, fontSize: 28, color: C.text, fontWeight: 700 }}>Verify your email</h1>
+
+        <p style={{ margin: "12px auto 0", maxWidth: 300, fontSize: 13, lineHeight: 1.7, color: C.textMuted }}>
+          We sent a 6-digit verification code to your email address. Enter it below to continue.
         </p>
       </div>
 
-      <div className="mt-7 flex justify-center gap-2">
-        {[1, 2, 3, 4, 5, 6].map((item) => (
+      <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 24 }}>
+        {Array.from({ length: 6 }).map((_, index) => (
           <input
-            key={item}
+            key={index}
             maxLength={1}
             inputMode="numeric"
-            className="
-              h-11
-              w-10
-              rounded-md
-              bg-[#354264]
-              text-center
-              text-lg
-              font-semibold
-              text-white
-              outline-none
-              focus:ring-1
-              focus:ring-[#6574ff]
-            "
+            aria-label={`Verification digit ${index + 1}`}
+            style={{
+              width: 38,
+              height: 42,
+              borderRadius: 10,
+              border: `1px solid ${C.border}`,
+              background: C.panel2,
+              textAlign: "center",
+              fontSize: 18,
+              fontWeight: 700,
+              color: C.text,
+              outline: "none",
+            }}
           />
         ))}
       </div>
 
-      <Button className="mt-6">Verify Email</Button>
+      <div style={{ marginTop: 22 }}>
+        <Button full>
+          <ShieldCheck size={14} />
+          Verify email
+        </Button>
+      </div>
 
-      <p className="mt-5 text-center text-[11px] text-[#8994b5]">
-        Didn't receive the code?{" "}
-        <button className="text-[#667cff] underline">Resend</button>
+      <p style={{ margin: "18px 0 0", textAlign: "center", fontSize: 12.5, color: C.textFaint }}>
+        Didn’t receive the code? <button type="button" style={{ color: C.accent, background: "transparent", border: "none", cursor: "pointer", textDecoration: "underline" }}>Resend</button>
       </p>
     </AuthShell>
   );

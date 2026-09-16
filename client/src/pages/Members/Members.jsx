@@ -10,8 +10,9 @@ import { useWorkspaceStore } from "../../store";
 
 function MembersPage() {
   const [showInvite, setShowInvite] = useState(false);
-  const {workspaceId} = useParams(); // Get workspaceId from the URL params
+  const { workspaceId } = useParams();
   const { workspaceMembers: members, getMembers } = useWorkspaceStore();
+  const memberCountLabel = `${members.length} ${members.length === 1 ? "person" : "people"} in this workspace`;
 
   const getInitials = (name) => {
     return name
@@ -21,25 +22,22 @@ function MembersPage() {
       .slice(0, 2)
       .join("");
   };
-  // const members = workspace?.members?.map((member) => {
-  //   const user = users.find((user) => user.id === member.userId);
-  //   return {
-  //     ...user,
-  //     role: member.role,
-  //     status: member.status,
-  //     initials: getInitials(user.name),
-  //   };
-  // }) || [];
-  // console.log("Members in workspace:", workspace); // Log the members to verify they are being retrieved correctly
-  console.log("Members in workspace:", members); // Log the members to verify they are being retrieved correctly
+
+  const refreshMembers = () => {
+    if (workspaceId) {
+      getMembers(workspaceId);
+    }
+  };
+
   useEffect(() => {
-    getMembers(workspaceId);
-  }, [getMembers, workspaceId]);
+    refreshMembers();
+  }, [workspaceId, getMembers]);
+
   return (
     <div>
-      <PageHeader title="Members" subtitle="3 people in Product Team" action={<Button icon={Plus} onClick={() => setShowInvite(true)}>Invite</Button>} />
+      <PageHeader title="Members" subtitle={memberCountLabel} action={<Button icon={Plus} onClick={() => setShowInvite(true)}>Invite</Button>} />
       <div style={{ padding: "20px 28px" }}>
-        {members?.map((m,idx) => (
+        {members?.map((m, idx) => (
           <div key={idx} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 4px", borderBottom: `1px solid ${C.borderSoft}` }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <Avatar initials={getInitials(m.name)} size={32} />
@@ -52,7 +50,7 @@ function MembersPage() {
           </div>
         ))}
       </div>
-      {showInvite && <InviteModal onClose={() => setShowInvite(false)} workspaceId={workspaceId} />}
+      {showInvite && <InviteModal onClose={() => setShowInvite(false)} workspaceId={workspaceId} onInviteSent={refreshMembers} />}
     </div>
   );
 }
