@@ -15,10 +15,14 @@ export const createTaskSchema = z.object({
     .trim()
     .min(1, 'title is required'),
   description: z.string().trim().optional().default(''),
-  status: z.enum(['todo', 'in_progress', 'done'], {
+  status: z.string({
     required_error: 'status is required',
-    invalid_type_error: 'status must be todo, in_progress, or done',
-  }),
+    invalid_type_error: 'status must be a string',
+  }).trim().min(1, 'status is required'),
+  priority: z.enum(['lowest', 'low', 'medium', 'high', 'highest'], {
+    required_error: 'priority is required',
+    invalid_type_error: 'priority must be lowest, low, medium, high, or highest',
+  }).optional().default('medium'),
   projectId: z
     .string({ required_error: 'projectId is required' })
     .trim()
@@ -38,15 +42,16 @@ export const createTaskSchema = z.object({
 export const listBoardTasksSchema = z.object({
   page: z.coerce.number().int().positive().optional().default(1),
   limit: z.coerce.number().int().positive().optional().default(20),
-  status: z.enum(['todo', 'in_progress', 'done']).optional(),
+  status: z.string().trim().min(1).optional(),
   assigneeId: z.string().trim().optional(),
 });
 
 export const updateTaskSchema = z.object({
   title: z.string().trim().min(1, 'title cannot be empty').optional(),
   description: z.string().trim().optional(),
-  status: z.enum(['todo', 'in_progress', 'done'], {
-    invalid_type_error: 'status must be todo, in_progress, or done',
+  status: z.string().trim().min(1, 'status cannot be empty').optional(),
+  priority: z.enum(['lowest', 'low', 'medium', 'high', 'highest'], {
+    invalid_type_error: 'priority must be lowest, low, medium, high, or highest',
   }).optional(),
   assigneeId: z.string().trim().min(1, 'assigneeId cannot be empty').optional(),
   tags: z.array(objectIdString).optional(),
